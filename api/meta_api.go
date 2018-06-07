@@ -1,8 +1,9 @@
 package api
 
 import (
-	"github.com/couchbase/go-couchbase"
 	"fmt"
+
+	"github.com/couchbase/go-couchbase"
 	"github.com/couchbase/gomemcached"
 )
 

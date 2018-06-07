@@ -3,8 +3,8 @@ package common
 import (
 	"bytes"
 	"crypto/sha1"
-	"io"
 	"fmt"
+	"io"
 )
 
 func Sha1(value string) (string, error) {

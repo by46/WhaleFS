@@ -1,20 +1,22 @@
 package api
 
 import (
-	"io"
-	"strings"
-	"net/http"
-	"time"
-	"fmt"
-	"io/ioutil"
-	"encoding/json"
 	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
 	"mime/multipart"
+	"net/http"
 	"net/textproto"
-	"github.com/labstack/echo"
-	"whalefs/model"
-	"whalefs/common"
+	"strings"
 	"sync"
+	"time"
+
+	"whalefs/common"
+	"whalefs/model"
+
+	"github.com/labstack/echo"
 )
 
 const (

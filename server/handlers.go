@@ -1,14 +1,16 @@
 package server
 
 import (
-	"github.com/labstack/echo"
+	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
+
+	"whalefs/api"
 	"whalefs/common"
 	"whalefs/model"
-	"io"
-	"whalefs/api"
-	"fmt"
-	"mime/multipart"
+
+	"github.com/labstack/echo"
 )
 
 func (s *Server) faq(ctx echo.Context) error {
