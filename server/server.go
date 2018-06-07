@@ -97,7 +97,6 @@ func NewServer() *Server {
 }
 
 func (s *Server) install() {
-
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST},
@@ -111,6 +110,15 @@ func (s *Server) install() {
 	s.app.HEAD("/*", s.head)
 	s.app.POST("/*", s.upload)
 }
+
+func (s *Server) error(code int, err error) error {
+	s.Logger.Error(err)
+	return &echo.HTTPError{
+		Code:    code,
+		Message: err.Error(),
+	}
+}
+
 func (s *Server) ListenAndServe() {
 	address := s.Config.Host
 

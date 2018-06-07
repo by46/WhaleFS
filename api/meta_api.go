@@ -2,6 +2,12 @@ package api
 
 import (
 	"github.com/couchbase/go-couchbase"
+	"fmt"
+	"github.com/couchbase/gomemcached"
+)
+
+var (
+	ErrNoEntity = fmt.Errorf("entity not exists")
 )
 
 type IMeta interface {
@@ -23,7 +29,15 @@ func NewMetaClient(url, bucketName string) IMeta {
 }
 
 func (m *metaClient) Get(key string, value interface{}) error {
-	return m.Bucket.Get(key, &value)
+	err := m.Bucket.Get(key, &value)
+	if err != nil {
+		if err2, success := err.(*gomemcached.MCResponse); success {
+			if err2.Status == gomemcached.KEY_ENOENT {
+				return ErrNoEntity
+			}
+		}
+	}
+	return err
 }
 func (m *metaClient) Set(key string, value interface{}) error {
 	return m.Bucket.Set(key, 0, value)

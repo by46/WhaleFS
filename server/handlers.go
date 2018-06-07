@@ -7,6 +7,8 @@ import (
 	"strings"
 	"whalefs/model"
 	"io"
+	"whalefs/api"
+	"fmt"
 )
 
 func (s *Server) faq(ctx echo.Context) error {
@@ -22,15 +24,17 @@ func (s *Server) download(ctx echo.Context) error {
 	}
 	entity := &model.FileEntity{}
 	if err := s.Meta.Get(hash, entity); err != nil {
-		// TODO(benjamin): process not exists
-		return err
+		if err == api.ErrNoEntity {
+			return s.error(http.StatusNotFound, fmt.Errorf("file not found"))
+		}
+		return s.error(http.StatusInternalServerError, err)
 	}
-	body, headers, err := s.Storage.Download(entity.Url)
+	body, _, err := s.Storage.Download(entity.Url)
 	if err != nil {
 		return err
 	}
 	response := ctx.Response()
-	response.Header().Set(echo.HeaderContentType, headers.Get(echo.HeaderContentType))
+	response.Header().Set(echo.HeaderContentType, entity.MimeType)
 	response.WriteHeader(http.StatusOK)
 	_, err = io.Copy(response, body)
 	return err

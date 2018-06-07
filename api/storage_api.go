@@ -14,6 +14,19 @@ import (
 	"github.com/labstack/echo"
 	"whalefs/model"
 	"whalefs/common"
+	"sync"
+)
+
+const (
+	MimeSize = 512
+)
+
+var (
+	MimeGuessBuffPool = sync.Pool{
+		New: func() interface{} {
+			return make([]byte, MimeSize)
+		},
+	}
 )
 
 type IStorage interface {
@@ -59,12 +72,25 @@ func (c *storageClient) Download(url string) (io.ReadCloser, http.Header, error)
 
 func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileEntity, error) {
 	var size int64
+	var preReadSize int
 	var err error
+	var mimeBuff []byte
 
 	fid, err := c.assign()
 	if err != nil {
 		return nil, err
 	}
+
+	if mimeType == "" {
+		mimeBuff = MimeGuessBuffPool.Get().([]byte)
+		defer MimeGuessBuffPool.Put(mimeBuff)
+		preReadSize, err = body.Read(mimeBuff)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		mimeType = http.DetectContentType(mimeBuff[:preReadSize])
+	}
+
 	buff := bytes.NewBuffer(nil)
 	writer := multipart.NewWriter(buff)
 	h := make(textproto.MIMEHeader)
@@ -72,6 +98,12 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileEnti
 	h.Set(echo.HeaderContentDisposition, `form-data; name="File"; filename="file.txt"`)
 	h.Set(echo.HeaderContentType, mimeType)
 	partition, _ := writer.CreatePart(h)
+
+	if mimeBuff != nil {
+		if _, err = partition.Write(mimeBuff[:preReadSize]); err != nil {
+			return nil, err
+		}
+	}
 
 	if size, err = io.Copy(partition, body); err != nil {
 		return nil, err
@@ -90,6 +122,7 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileEnti
 		ETag:         strings.Trim(response.Header.Get(common.HeaderETag), `"`),
 		LastModified: time.Now().UTC().Unix(),
 		Size:         size,
+		MimeType:     mimeType,
 	}
 	return entity, nil
 }
