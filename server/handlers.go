@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"whalefs/common"
 	"strings"
+	"whalefs/model"
+	"io"
 )
 
 func (s *Server) faq(ctx echo.Context) error {
@@ -12,7 +14,26 @@ func (s *Server) faq(ctx echo.Context) error {
 }
 
 func (s *Server) download(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, "download")
+	uri := ctx.Request().RequestURI
+	key := strings.ToLower(uri)
+	hash, err := common.Sha1(key)
+	if err != nil {
+		return err
+	}
+	entity := &model.FileEntity{}
+	if err := s.Meta.Get(hash, entity); err != nil {
+		// TODO(benjamin): process not exists
+		return err
+	}
+	body, headers, err := s.Storage.Download(entity.Url)
+	if err != nil {
+		return err
+	}
+	response := ctx.Response()
+	response.Header().Set(echo.HeaderContentType, headers.Get(echo.HeaderContentType))
+	response.WriteHeader(http.StatusOK)
+	_, err = io.Copy(response, body)
+	return err
 }
 
 func (s *Server) upload(ctx echo.Context) error {

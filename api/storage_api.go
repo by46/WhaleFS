@@ -17,7 +17,7 @@ import (
 )
 
 type IStorage interface {
-	Download(url string) (io.Reader, error)
+	Download(url string) (io.ReadCloser, http.Header, error)
 	Upload(mimeType string, body io.Reader) (entity *model.FileEntity, err error)
 }
 
@@ -49,8 +49,12 @@ func NewStorageClient(master string) IStorage {
 	}
 }
 
-func (c *storageClient) Download(url string) (io.Reader, error) {
-	return nil, nil
+func (c *storageClient) Download(url string) (io.ReadCloser, http.Header, error) {
+	response, err := c.Get(url)
+	if err != nil {
+		return nil, nil, err
+	}
+	return response.Body, response.Header, nil
 }
 
 func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileEntity, error) {
