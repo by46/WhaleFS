@@ -13,6 +13,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"net/http"
 )
 
 type Server struct {
@@ -117,6 +118,9 @@ func (s *Server) error(code int, err error) error {
 		Code:    code,
 		Message: err.Error(),
 	}
+}
+func (s *Server) fatal(err error) error {
+	return s.error(http.StatusInternalServerError, err)
 }
 
 func (s *Server) ListenAndServe() {
