@@ -19,6 +19,7 @@ type Server struct {
 	app     *echo.Echo
 	Config  *common.Config
 	Storage api.IStorage
+	Meta    api.IMeta
 	Logger  common.ILogger
 	Version string
 }
@@ -66,6 +67,10 @@ func buildStorage(config *common.Config) api.IStorage {
 	return api.NewStorageClient(config.Master)
 }
 
+func buildMeta(config *common.Config) api.IMeta {
+	return api.NewMetaClient()
+}
+
 func NewServer() *Server {
 
 	config, err := buildConfig()
@@ -75,6 +80,7 @@ func NewServer() *Server {
 
 	logger := buildLogger(config)
 	storage := buildStorage(config)
+	meta := buildMeta(config)
 
 	app := echo.New()
 	app.Use(middleware.Logger())
@@ -82,6 +88,7 @@ func NewServer() *Server {
 		app:     app,
 		Config:  config,
 		Storage: storage,
+		Meta:    meta,
 		Logger:  logger,
 		Version: VERSION,
 	}
@@ -99,7 +106,7 @@ func (s *Server) install() {
 		MaxAge:        60 * 30,
 	}))
 
-	s.app.GET("/engine/faq.htm", s.faq)
+	s.app.GET("/faq.htm", s.faq)
 }
 func (s *Server) ListenAndServe() {
 	address := s.Config.Host
