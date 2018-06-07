@@ -4,7 +4,6 @@ import (
 	"github.com/labstack/echo"
 	"net/http"
 	"whalefs/common"
-	"strings"
 	"whalefs/model"
 	"io"
 	"whalefs/api"
@@ -17,9 +16,7 @@ func (s *Server) faq(ctx echo.Context) error {
 }
 
 func (s *Server) download(ctx echo.Context) error {
-	uri := ctx.Request().RequestURI
-	key := strings.ToLower(uri)
-	hash, err := common.Sha1(key)
+	hash, err := s.hashKey(ctx)
 	if err != nil {
 		return s.fatal(err)
 	}
@@ -64,13 +61,11 @@ func (s *Server) upload(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	uri := ctx.Request().RequestURI
-	key := strings.ToLower(uri)
-	hash, err := common.Sha1(key)
+	hash, err := s.hashKey(ctx)
 	if err != nil {
 		return err
 	}
-	entity.RawKey = uri
+	entity.RawKey = s.objectKey(ctx)
 	if err := s.Meta.Set(hash, entity); err != nil {
 		return err
 	}
@@ -78,7 +73,22 @@ func (s *Server) upload(ctx echo.Context) error {
 }
 
 func (s *Server) head(ctx echo.Context) error {
-	return ctx.HTML(http.StatusNoContent, "")
+	key, err := s.hashKey(ctx)
+	if err != nil {
+		return s.fatal(err)
+	}
+	entity := &model.FileEntity{}
+	if err := s.Meta.Get(key, entity); err != nil {
+		return s.fatal(err)
+	}
+
+	response := ctx.Response()
+	response.Header().Set(echo.HeaderContentType, entity.MimeType)
+	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))
+	response.Header().Set(echo.HeaderLastModified, common.TimestampToRFC822(entity.LastModified))
+	response.Header().Set(common.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
+	response.WriteHeader(http.StatusOK)
+	return nil
 }
 
 func (s *Server) form(ctx echo.Context) (*multipart.FileHeader, error) {

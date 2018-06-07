@@ -123,6 +123,17 @@ func (s *Server) fatal(err error) error {
 	return s.error(http.StatusInternalServerError, err)
 }
 
+func (s *Server) objectKey(ctx echo.Context) string {
+	uri := ctx.Request().RequestURI
+	return strings.ToLower(uri)
+}
+
+func (s *Server) hashKey(ctx echo.Context) (string, error) {
+	uri := ctx.Request().RequestURI
+	key := strings.ToLower(uri)
+	return common.Sha1(key)
+}
+
 func (s *Server) ListenAndServe() {
 	address := s.Config.Host
 
