@@ -12,7 +12,7 @@ weed volume -port=9081 -mserver="localhost:9001" -dir="data"
 system.buckets
 ```json
 {
-  "bucket": [
+  "buckets": [
     "system.bucket.benjamin"
   ]
 }

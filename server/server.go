@@ -155,7 +155,7 @@ func (s *Server) loadBuckets() map[string]*model.Bucket {
 			tmp = append(tmp, entity.Alias...)
 		}
 		for _, name := range tmp {
-			if _, exists := entities[entity.Name]; exists {
+			if _, exists := entities[name]; exists {
 				s.Logger.Warnf("bucket or alia name %s already exists", name)
 			} else {
 				entities[name] = entity
