@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"whalefs/model"
 )
 
 type Server struct {
@@ -23,6 +24,7 @@ type Server struct {
 	Meta    api.IMeta
 	Logger  common.ILogger
 	Version string
+	buckets map[string]*model.Bucket
 }
 
 func buildConfig() (*common.Config, error) {
@@ -93,6 +95,7 @@ func NewServer() *Server {
 		Logger:  logger,
 		Version: VERSION,
 	}
+	srv.buckets = srv.loadBuckets()
 	srv.install()
 	return srv
 }
@@ -119,6 +122,7 @@ func (s *Server) error(code int, err error) error {
 		Message: err.Error(),
 	}
 }
+
 func (s *Server) fatal(err error) error {
 	return s.error(http.StatusInternalServerError, err)
 }
@@ -132,6 +136,33 @@ func (s *Server) hashKey(ctx echo.Context) (string, error) {
 	uri := ctx.Request().RequestURI
 	key := strings.ToLower(uri)
 	return common.Sha1(key)
+}
+
+func (s *Server) loadBuckets() map[string]*model.Bucket {
+	buckets := &model.Buckets{}
+	if err := s.Meta.Get(KeyBuckets, buckets); err != nil {
+		s.Logger.Fatalf("read buckets error %v", err)
+	}
+	entities := make(map[string]*model.Bucket)
+	for _, key := range buckets.Buckets {
+		entity := &model.Bucket{}
+		if err := s.Meta.Get(key, entity); err != nil {
+			s.Logger.Fatalf("read bucket %s failed: %v", key, err)
+		}
+		tmp := make([]string, 0)
+		tmp = append(tmp, entity.Name)
+		if entity.Alias != nil {
+			tmp = append(tmp, entity.Alias...)
+		}
+		for _, name := range tmp {
+			if _, exists := entities[entity.Name]; exists {
+				s.Logger.Warnf("bucket or alia name %s already exists", name)
+			} else {
+				entities[name] = entity
+			}
+		}
+	}
+	return entities
 }
 
 func (s *Server) ListenAndServe() {
