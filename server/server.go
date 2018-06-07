@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"WhaleFS/api"
-	"WhaleFS/common"
+	"whalefs/api"
+	"whalefs/common"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -68,7 +68,7 @@ func buildStorage(config *common.Config) api.IStorage {
 }
 
 func buildMeta(config *common.Config) api.IMeta {
-	return api.NewMetaClient()
+	return api.NewMetaClient(config.Meta, config.Bucket)
 }
 
 func NewServer() *Server {

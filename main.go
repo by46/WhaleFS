@@ -1,7 +1,7 @@
 package main
 
 import (
-	"WhaleFS/server"
+	"whalefs/server"
 )
 
 func main() {
