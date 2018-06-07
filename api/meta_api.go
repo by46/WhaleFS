@@ -1,6 +1,8 @@
 package api
 
-import "github.com/couchbase/go-couchbase"
+import (
+	"github.com/couchbase/go-couchbase"
+)
 
 type IMeta interface {
 	Get(key string, value interface{}) error

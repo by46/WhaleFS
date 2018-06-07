@@ -100,13 +100,16 @@ func (s *Server) install() {
 
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},
-		AllowMethods:  []string{echo.GET, echo.POST},
+		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST},
 		ExposeHeaders: []string{"X-Request-Id"},
 		AllowHeaders:  []string{"X-Request-Id"},
 		MaxAge:        60 * 30,
 	}))
 
 	s.app.GET("/faq.htm", s.faq)
+	s.app.GET("/*", s.download)
+	s.app.HEAD("/*", s.head)
+	s.app.POST("/*", s.upload)
 }
 func (s *Server) ListenAndServe() {
 	address := s.Config.Host
