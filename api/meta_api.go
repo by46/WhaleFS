@@ -26,7 +26,7 @@ func (m *metaClient) Get(key string, value interface{}) error {
 	return m.Bucket.Get(key, &value)
 }
 func (m *metaClient) Set(key string, value interface{}) error {
-	return nil
+	return m.Bucket.Set(key, 0, value)
 }
 func (m *metaClient) SetTTL(key string, value interface{}, ttl int) error {
 	return nil
