@@ -5,6 +5,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"whalefs/api"
 	"whalefs/common"
@@ -29,6 +30,16 @@ func (s *Server) download(ctx echo.Context) error {
 		}
 		return s.error(http.StatusInternalServerError, err)
 	}
+
+	if !s.Config.Debug && s.freshCheck(ctx, entity) {
+		// TODO(benjamin): process max age form configuration
+		maxAge := 200
+		ctx.Response().Header().Add(common.HeaderExpires, entity.HeaderExpires(maxAge))
+		ctx.Response().Header().Add(common.HeaderCacheControl, entity.HeaderISOExpires(maxAge))
+		ctx.Response().WriteHeader(http.StatusNotModified)
+		return nil
+	}
+
 	body, _, err := s.Storage.Download(entity.Url)
 	if err != nil {
 		return err
@@ -105,4 +116,28 @@ func (s *Server) form(ctx echo.Context) (*multipart.FileHeader, error) {
 		return v[0], nil
 	}
 	return nil, nil
+}
+
+func (srv *Server) freshCheck(ctx echo.Context, entity *model.FileEntity) bool {
+	headers := ctx.Request().Header
+	if since := headers.Get(echo.HeaderIfModifiedSince); since != "" {
+		sinceDate, err := common.RFC822ToTime(since)
+		if err != nil {
+			srv.Logger.Errorf("parse if-modified-since error %v", err)
+			return false
+		}
+		if entity.LastModifiedTime().After(sinceDate) == false {
+			return true
+		}
+	}
+	if etag := ctx.Request().Header.Get(common.HeaderIfNoneMatch); etag != "" {
+		for _, value := range strings.Split(etag, ",") {
+			value = strings.TrimSpace(value)
+			value = strings.Trim(value, `"`)
+			if value == entity.ETag {
+				return true
+			}
+		}
+	}
+	return false
 }
