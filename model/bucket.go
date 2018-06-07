@@ -3,6 +3,11 @@ package model
 import (
 	"fmt"
 	"strings"
+	"strconv"
+)
+
+const (
+	ExtendKeyMaxAge = "max-age"
 )
 
 type ExtendItem struct {
@@ -26,4 +31,29 @@ type Bucket struct {
 
 func (b *Bucket) Key() string {
 	return fmt.Sprintf("system.bucket.%s", strings.ToLower(b.Name))
+}
+
+func (b *Bucket) MaxAge() int {
+	return b.getExtendInt(ExtendKeyMaxAge)
+}
+
+func (b *Bucket) getExtend(key string) string {
+	if b.Extends == nil {
+		return ""
+	}
+	for _, item := range b.Extends {
+		if item.Key == key {
+			return item.Value
+		}
+	}
+	return ""
+}
+func (b *Bucket) getExtendInt(key string) int {
+	text := b.getExtend(key)
+	if text == "" {
+		return 0
+	}
+	value, _ := strconv.ParseInt(text, 10, 32)
+	return int(value)
+
 }

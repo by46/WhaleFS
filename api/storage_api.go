@@ -123,7 +123,7 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileEnti
 		Url:          fid.VolumeUrl(),
 		ETag:         strings.Trim(response.Header.Get(common.HeaderETag), `"`),
 		LastModified: time.Now().UTC().Unix(),
-		Size:         size,
+		Size:         size + int64(preReadSize),
 		MimeType:     mimeType,
 	}
 	return entity, nil

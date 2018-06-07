@@ -19,6 +19,11 @@ func (s *Server) faq(ctx echo.Context) error {
 }
 
 func (s *Server) download(ctx echo.Context) error {
+	bucket, err := s.parseBucket(ctx)
+	if err != nil {
+		return s.fatal(err)
+	}
+
 	hash, err := s.hashKey(ctx)
 	if err != nil {
 		return s.fatal(err)
@@ -33,7 +38,7 @@ func (s *Server) download(ctx echo.Context) error {
 
 	if !s.Config.Debug && s.freshCheck(ctx, entity) {
 		// TODO(benjamin): process max age form configuration
-		maxAge := 200
+		maxAge := bucket.MaxAge()
 		ctx.Response().Header().Add(common.HeaderExpires, entity.HeaderExpires(maxAge))
 		ctx.Response().Header().Add(common.HeaderCacheControl, entity.HeaderISOExpires(maxAge))
 		ctx.Response().WriteHeader(http.StatusNotModified)
