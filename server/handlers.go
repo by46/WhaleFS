@@ -47,7 +47,7 @@ func (s *Server) upload(ctx echo.Context) error {
 	headers := ctx.Request().Header
 	body := ctx.Request().Body
 	form, err := s.form(ctx)
-	if err != nil {
+	if err != nil && err != http.ErrNotMultipart {
 		return s.fatal(err)
 	}
 	if form != nil {
