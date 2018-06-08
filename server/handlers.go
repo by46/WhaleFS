@@ -12,6 +12,7 @@ import (
 	"whalefs/model"
 
 	"github.com/labstack/echo"
+	"github.com/mholt/binding"
 )
 
 func (s *Server) faq(ctx echo.Context) error {
@@ -24,7 +25,7 @@ func (s *Server) download(ctx echo.Context) error {
 		return s.fatal(err)
 	}
 
-	hash, err := s.hashKey(ctx)
+	hash, err := s.hashKey(ctx.Request().RequestURI)
 	if err != nil {
 		return s.fatal(err)
 	}
@@ -60,30 +61,27 @@ func (s *Server) download(ctx echo.Context) error {
 }
 
 func (s *Server) upload(ctx echo.Context) error {
-	headers := ctx.Request().Header
-	body := ctx.Request().Body
-	form, err := s.form(ctx)
-	if err != nil && err != http.ErrNotMultipart {
-		return s.fatal(err)
+	parameter := new(model.FileObject)
+	if err := binding.Bind(ctx.Request(), parameter); err != nil {
+		return s.error(http.StatusBadRequest, err)
 	}
-	if form != nil {
-		headers = http.Header(form.Header)
-		body, err = form.Open()
-		if err != nil {
-			return err
-		}
+	form := parameter.Content
+	headers := http.Header(form.Header)
+	body, err := form.Open()
+	if err != nil {
+		return err
+	}
 
-	}
 	defer body.Close()
 	entity, err := s.Storage.Upload(headers.Get(echo.HeaderContentType), body)
 	if err != nil {
 		return err
 	}
-	hash, err := s.hashKey(ctx)
+	hash, err := s.hashKey(parameter.Key)
 	if err != nil {
 		return err
 	}
-	entity.RawKey = s.objectKey(ctx)
+	entity.RawKey = parameter.Key
 	if err := s.Meta.Set(hash, entity); err != nil {
 		return err
 	}
@@ -91,7 +89,7 @@ func (s *Server) upload(ctx echo.Context) error {
 }
 
 func (s *Server) head(ctx echo.Context) error {
-	key, err := s.hashKey(ctx)
+	key, err := s.hashKey(ctx.Request().RequestURI)
 	if err != nil {
 		return s.fatal(err)
 	}

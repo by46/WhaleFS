@@ -132,9 +132,9 @@ func (s *Server) objectKey(ctx echo.Context) string {
 	return strings.ToLower(uri)
 }
 
-func (s *Server) hashKey(ctx echo.Context) (string, error) {
-	uri := ctx.Request().RequestURI
+func (s *Server) hashKey(uri string) (string, error) {
 	key := strings.ToLower(uri)
+	key = strings.TrimLeft(uri, "/")
 	return common.Sha1(key)
 }
 
