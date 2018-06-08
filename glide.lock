@@ -1,5 +1,5 @@
-hash: b178f2531ea56b7f597e0d528cbcf02cebb87165ad41391265f043dffb72882f
-updated: 2018-06-07T12:45:29.4603446+08:00
+hash: 69d507e463e3da3c0e0ac07cbf4b75203ddd061c32884e90147e58b25f7e85ee
+updated: 2018-06-08T08:43:40.5880041+08:00
 imports:
 - name: github.com/couchbase/go-couchbase
   version: 16db1f1fe037412f12738fa4d8448c549c4edd77
@@ -45,6 +45,8 @@ imports:
   version: efa589957cd060542a26d2dd7832fd6a6c6c3ade
 - name: github.com/mattn/go-isatty
   version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+- name: github.com/mholt/binding
+  version: f53601f1387c422be7317a2b01d96b2455d2d2d6
 - name: github.com/mitchellh/mapstructure
   version: 00c29f56e2386353d58c599509e8dc3801b0d716
 - name: github.com/pelletier/go-toml

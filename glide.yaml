@@ -1,4 +1,4 @@
-gopackage: whalefs
+package: ""
 import:
 - package: github.com/labstack/echo
   version: ~3.2.4
@@ -9,3 +9,5 @@ import:
 - package: github.com/couchbase/go-couchbase
 - package: github.com/couchbase/gomemcached
 - package: github.com/couchbase/goutils
+- package: github.com/mholt/binding
+  version: ^0.3.0

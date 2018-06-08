@@ -2,9 +2,13 @@ package model
 
 import (
 	"fmt"
+	"mime/multipart"
+	"net/http"
 	"time"
 
 	"whalefs/common"
+
+	"github.com/mholt/binding"
 )
 
 type FileEntity struct {
@@ -36,4 +40,23 @@ func (f *FileEntity) HeaderETag() string {
 
 func (f *FileEntity) HeaderLastModified() string {
 	return common.TimeToRFC822(f.LastModifiedTime())
+}
+
+type FileObject struct {
+	Key         string
+	ExtractFile bool
+	Content     *multipart.FileHeader
+}
+
+func (f *FileObject) FieldMap(r *http.Request) binding.FieldMap {
+	return binding.FieldMap{
+		&f.Key: binding.Field{
+			Form:     "key",
+			Required: true,
+		},
+		&f.Content: binding.Field{
+			Form:     "file",
+			Required: true,
+		},
+	}
 }
