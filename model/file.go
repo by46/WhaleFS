@@ -9,6 +9,7 @@ import (
 	"whalefs/common"
 
 	"github.com/mholt/binding"
+	"strings"
 )
 
 type FileEntity struct {
@@ -40,6 +41,22 @@ func (f *FileEntity) HeaderETag() string {
 
 func (f *FileEntity) HeaderLastModified() string {
 	return common.TimeToRFC822(f.LastModifiedTime())
+}
+
+func (f *FileEntity) IsPlain() bool {
+	if f.MimeType == "" {
+		return false
+	}
+
+	if strings.HasPrefix(f.MimeType, "text/") {
+		return true
+	}
+	switch f.MimeType {
+	default:
+		return false
+	case "application/javascript", "application/x-javascript":
+		return true
+	}
 }
 
 type FileObject struct {

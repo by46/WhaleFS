@@ -43,11 +43,11 @@ func (s *Server) download(ctx echo.Context) error {
 		return s.error(http.StatusInternalServerError, err)
 	}
 
+	maxAge := bucket.MaxAge()
+	ctx.Response().Header().Add(common.HeaderExpires, entity.HeaderExpires(maxAge))
+	ctx.Response().Header().Add(common.HeaderCacheControl, entity.HeaderISOExpires(maxAge))
+
 	if !s.Config.Debug && s.freshCheck(ctx, entity) {
-		// TODO(benjamin): process max age form configuration
-		maxAge := bucket.MaxAge()
-		ctx.Response().Header().Add(common.HeaderExpires, entity.HeaderExpires(maxAge))
-		ctx.Response().Header().Add(common.HeaderCacheControl, entity.HeaderISOExpires(maxAge))
 		ctx.Response().WriteHeader(http.StatusNotModified)
 		return nil
 	}
@@ -56,11 +56,18 @@ func (s *Server) download(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
+
 	response := ctx.Response()
 	response.Header().Set(echo.HeaderContentType, entity.MimeType)
 	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))
 	response.Header().Set(echo.HeaderLastModified, common.TimestampToRFC822(entity.LastModified))
 	response.Header().Set(common.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
+
+	// support gzip
+	if entity.IsPlain() && s.shouldGzip(ctx) {
+		return s.compress(ctx, body)
+	}
+
 	response.WriteHeader(http.StatusOK)
 	_, err = io.Copy(response, body)
 	return err
@@ -127,12 +134,12 @@ func (s *Server) form(ctx echo.Context) (*multipart.FileHeader, error) {
 	return nil, nil
 }
 
-func (srv *Server) freshCheck(ctx echo.Context, entity *model.FileEntity) bool {
+func (s *Server) freshCheck(ctx echo.Context, entity *model.FileEntity) bool {
 	headers := ctx.Request().Header
 	if since := headers.Get(echo.HeaderIfModifiedSince); since != "" {
 		sinceDate, err := common.RFC822ToTime(since)
 		if err != nil {
-			srv.Logger.Errorf("parse if-modified-since error %v", err)
+			s.Logger.Errorf("parse if-modified-since error %v", err)
 			return false
 		}
 		if entity.LastModifiedTime().After(sinceDate) == false {
