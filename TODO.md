@@ -2,8 +2,10 @@
 
  - archive upload
  - accept-encoding support - done
- - accept-encoding min-size
+ - accept-encoding min-size - done
  - user management
  - bucket management
- - revalidation
+ - revalidation - done
  - [issue] download with query not found - done
+ - [issue] mime type detect
+ - favico revalidation

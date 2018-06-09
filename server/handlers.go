@@ -15,6 +15,10 @@ import (
 	"github.com/mholt/binding"
 )
 
+func (s *Server) favicon(ctx echo.Context) error {
+	return ctx.File("static/logo.png")
+}
+
 func (s *Server) faq(ctx echo.Context) error {
 	return ctx.HTML(http.StatusOK, "<!-- Newegg -->")
 }
@@ -64,11 +68,9 @@ func (s *Server) download(ctx echo.Context) error {
 	response.Header().Set(common.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
 
 	// support gzip
-	if entity.IsPlain() && s.shouldGzip(ctx) {
+	if entity.Size >= (5<<10) && entity.IsPlain() && s.shouldGzip(ctx) {
 		return s.compress(ctx, body)
 	}
-
-	response.WriteHeader(http.StatusOK)
 	_, err = io.Copy(response, body)
 	return err
 }

@@ -114,6 +114,7 @@ func (s *Server) install() {
 	s.app.HEAD("/*", s.head)
 	s.app.POST("/*", s.upload)
 	s.app.GET("/tools", s.tools)
+	s.app.GET("/favicon.ico", s.favicon)
 }
 
 func (s *Server) error(code int, err error) error {
