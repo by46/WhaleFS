@@ -18,6 +18,12 @@ import (
 func (s *Server) faq(ctx echo.Context) error {
 	return ctx.HTML(http.StatusOK, "<!-- Newegg -->")
 }
+func (s *Server) tools(ctx echo.Context) error {
+	if ctx.Request().Method == "GET" {
+		return ctx.File("templates/tools.html")
+	}
+	return s.error(http.StatusForbidden, fmt.Errorf("method not implements"))
+}
 
 func (s *Server) download(ctx echo.Context) error {
 	bucket, err := s.parseBucket(ctx)

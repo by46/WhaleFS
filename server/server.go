@@ -113,6 +113,7 @@ func (s *Server) install() {
 	s.app.GET("/*", s.download)
 	s.app.HEAD("/*", s.head)
 	s.app.POST("/*", s.upload)
+	s.app.GET("/tools", s.tools)
 }
 
 func (s *Server) error(code int, err error) error {
