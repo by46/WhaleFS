@@ -31,7 +31,7 @@ func (s *Server) download(ctx echo.Context) error {
 		return s.fatal(err)
 	}
 
-	hash, err := s.hashKey(ctx.Request().RequestURI)
+	hash, err := s.hashKey(ctx.Request().URL.Path)
 	if err != nil {
 		return s.fatal(err)
 	}
@@ -102,7 +102,7 @@ func (s *Server) upload(ctx echo.Context) error {
 }
 
 func (s *Server) head(ctx echo.Context) error {
-	key, err := s.hashKey(ctx.Request().RequestURI)
+	key, err := s.hashKey(ctx.Request().URL.Path)
 	if err != nil {
 		return s.fatal(err)
 	}

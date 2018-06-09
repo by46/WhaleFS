@@ -129,7 +129,7 @@ func (s *Server) fatal(err error) error {
 }
 
 func (s *Server) objectKey(ctx echo.Context) string {
-	uri := ctx.Request().RequestURI
+	uri := ctx.Request().URL.Path
 	return strings.ToLower(uri)
 }
 
