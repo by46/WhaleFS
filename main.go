@@ -1,10 +1,9 @@
 package main
 
 import (
-	"whalefs/server"
+	"whalefs/cmd"
 )
 
 func main() {
-	srv := server.NewServer()
-	srv.ListenAndServe()
+	cmd.Execute()
 }
