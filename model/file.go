@@ -13,12 +13,13 @@ import (
 )
 
 type FileEntity struct {
-	RawKey       string `json:"raw_key"`
-	Url          string `json:"url"`
-	LastModified int64  `json:"last_modified"`
-	ETag         string `json:"etag"`
-	Size         int64  `json:"size"`
-	MimeType     string `json:"mime_type"`
+	RawKey       string `json:"raw_key,omitempty"`
+	Url          string `json:"url,omitempty"`
+	FID          string `json:"fid,omitempty"`
+	LastModified int64  `json:"last_modified,omitempty"`
+	ETag         string `json:"etag,omitempty"`
+	Size         int64  `json:"size,omitempty"`
+	MimeType     string `json:"mime_type,omitempty"`
 }
 
 func (f *FileEntity) LastModifiedTime() time.Time {

@@ -56,7 +56,7 @@ func (s *Server) download(ctx echo.Context) error {
 		return nil
 	}
 
-	body, _, err := s.Storage.Download(entity.Url)
+	body, _, err := s.Storage.Download(entity.FID)
 	if err != nil {
 		return err
 	}
