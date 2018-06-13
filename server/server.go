@@ -17,13 +17,14 @@ import (
 )
 
 type Server struct {
-	app     *echo.Echo
-	Config  *common.Config
-	Storage api.IStorage
-	Meta    api.IMeta
-	Logger  common.ILogger
-	Version string
-	buckets map[string]*model.Bucket
+	app        *echo.Echo
+	Config     *common.Config
+	Storage    api.IStorage
+	Meta       api.IMeta
+	BucketMeta api.IMeta
+	Logger     common.ILogger
+	Version    string
+	buckets    map[string]*model.Bucket
 }
 
 func buildConfig() (*common.Config, error) {
@@ -70,7 +71,10 @@ func buildStorage(config *common.Config) api.IStorage {
 }
 
 func buildMeta(config *common.Config) api.IMeta {
-	return api.NewMetaClient(config.Meta, config.Bucket)
+	return api.NewMetaClient(config.Meta)
+}
+func buildBucketMeta(config *common.Config) api.IMeta {
+	return api.NewMetaClient(config.BucketMeta)
 }
 
 func NewServer() *Server {
@@ -83,18 +87,20 @@ func NewServer() *Server {
 	logger := buildLogger(config)
 	storage := buildStorage(config)
 	meta := buildMeta(config)
+	bucketMeta := buildBucketMeta(config)
 
 	app := echo.New()
 	app.Use(middleware.Logger())
 	srv := &Server{
-		app:     app,
-		Config:  config,
-		Storage: storage,
-		Meta:    meta,
-		Logger:  logger,
-		Version: VERSION,
+		app:        app,
+		Config:     config,
+		Storage:    storage,
+		Meta:       meta,
+		BucketMeta: bucketMeta,
+		Logger:     logger,
+		Version:    VERSION,
 	}
-	srv.buckets = srv.loadBuckets()
+	srv.buckets = make(map[string]*model.Bucket)
 	srv.install()
 	return srv
 }
@@ -137,30 +143,6 @@ func (s *Server) hashKey(uri string) (string, error) {
 	key := strings.ToLower(uri)
 	key = strings.TrimLeft(uri, "/")
 	return common.Sha1(key)
-}
-
-func (s *Server) loadBuckets() map[string]*model.Bucket {
-	buckets := &model.Buckets{}
-	if err := s.Meta.Get(KeyBuckets, buckets); err != nil {
-		s.Logger.Fatalf("read buckets error %v", err)
-	}
-	entities := make(map[string]*model.Bucket)
-	for _, key := range buckets.Buckets {
-		entity := &model.Bucket{}
-		if err := s.Meta.Get(key, entity); err != nil {
-			s.Logger.Fatalf("read bucket %s failed: %v", key, err)
-		}
-		tmp := make([]string, 0)
-		tmp = append(tmp, entity.Name)
-		for _, name := range tmp {
-			if _, exists := entities[name]; exists {
-				s.Logger.Warnf("bucket or alia name %s already exists", name)
-			} else {
-				entities[name] = entity
-			}
-		}
-	}
-	return entities
 }
 
 func (s *Server) ListenAndServe() {

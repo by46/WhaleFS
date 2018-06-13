@@ -30,8 +30,14 @@ func (s *Server) getBucket(name string) (*model.Bucket, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "compute sha1 digest for %s failed", name)
 	}
-	bucket := new(model.Bucket)
-	if err := s.Meta.Get(key, bucket); err != nil {
+	key = key[:10]
+
+	bucket, exists := s.buckets[name]
+	if exists {
+		return bucket, nil
+	}
+	bucket = new(model.Bucket)
+	if err := s.BucketMeta.Get(key, bucket); err != nil {
 		return nil, errors.Wrapf(err, "get bucket %s failed", name)
 	}
 	// TODO(benjamin): use more effective data structure

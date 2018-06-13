@@ -2,9 +2,12 @@ package api
 
 import (
 	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/couchbase/go-couchbase"
 	"github.com/couchbase/gomemcached"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -21,8 +24,16 @@ type metaClient struct {
 	*couchbase.Bucket
 }
 
-func NewMetaClient(url, bucketName string) IMeta {
-	bucket, err := couchbase.GetBucket(url, "default", bucketName)
+func NewMetaClient(connectionString string) IMeta {
+	result, err := url.Parse(connectionString)
+	if err != nil {
+		panic(errors.Wrapf(err, "initialize meta client failed: %s", connectionString))
+	}
+	result.Scheme = "http"
+	bucketName := strings.Trim(result.Path, "/")
+	result.Path = ""
+
+	bucket, err := couchbase.GetBucket(result.String(), "default", bucketName)
 	if err != nil {
 		panic(err)
 	}

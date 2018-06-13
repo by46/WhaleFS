@@ -1,4 +1,4 @@
-package: github.com/by46/whalefs
+package: whalefs
 import:
 - package: github.com/labstack/echo
   version: ~3.2.4
@@ -12,4 +12,6 @@ import:
 - package: github.com/mholt/binding
   version: ^0.3.0
 - package: github.com/spf13/cobra
-  version: ^0.0.3
+  version: 0.0.2
+- package: github.com/pkg/errors
+  version: ^0.8.0

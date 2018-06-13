@@ -1,6 +1,6 @@
-Host: ":8080"
-Master: "127.0.0.1:9001"
-LogHome: "logs"
-LogLevel: "debug"
-Meta: "http://localhost:8091/"
-Bucket: "default"
+Host: :8080
+Master: 127.0.0.1:9001
+LogHome: logs
+LogLevel: debug
+Meta: couchbase://localhost:8091/default
+BucketMeta: couchbase://localhost:8091/buckets

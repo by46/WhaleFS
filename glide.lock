@@ -1,10 +1,15 @@
-hash: ab4df68b5e05ce815fb80b226a4e64237d27baed35a7989cfd410ba90234386f
-updated: 2018-06-12T11:43:00.6503803+08:00
+hash: 3dbd7ac7c5d4d0e63c5d3cd04ba819c2f99f1d152451a7300f90c5ba0b7aaf52
+updated: 2018-06-13T22:48:28.4797732+08:00
 imports:
 - name: github.com/chrislusf/raft
   version: 5f7ddd8f479583daf05879d3d3b174aa202c8fb7
   subpackages:
   - protobuf
+- name: github.com/coreos/etcd
+  version: 88acced1cd7ad670001d1280b97de4fe7b647687
+  subpackages:
+  - raft
+  - raft/raftpb
 - name: github.com/couchbase/go-couchbase
   version: 16db1f1fe037412f12738fa4d8448c549c4edd77
 - name: github.com/couchbase/gomemcached
@@ -22,6 +27,12 @@ imports:
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
 - name: github.com/gogo/protobuf
   version: 100ba4e885062801d56799d78530b73b178a78f3
+  subpackages:
+  - gogoproto
+  - proto
+  - protoc-gen-gogo/descriptor
+- name: github.com/golang/protobuf
+  version: b4deda0973fb4c70b50d226b1af49f3da59f5265
   subpackages:
   - proto
 - name: github.com/hashicorp/hcl
@@ -62,7 +73,7 @@ imports:
 - name: github.com/pelletier/go-toml
   version: 66540cf1fcd2c3aee6f6787dfa32a6ae9a870f12
 - name: github.com/pkg/errors
-  version: 816c9085562cd7ee03e7f8188a1cfd942858cded
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/sirupsen/logrus
   version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
 - name: github.com/spf13/afero
