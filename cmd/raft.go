@@ -14,6 +14,7 @@ import (
 	"github.com/coreos/etcd/pkg/types"
 	"github.com/coreos/etcd/raft"
 	"github.com/coreos/etcd/raft/raftpb"
+	"github.com/coreos/etcd/snap"
 	"github.com/labstack/gommon/log"
 	"github.com/spf13/cobra"
 )
@@ -65,16 +66,54 @@ func (l stoppableListener) Accept() (c net.Conn, err error) {
 }
 
 type raftNode struct {
-	id    int
-	join  bool
-	peers []string
+	proposeC    <-chan string            // proposed messages (k,v)
+	confChangeC <-chan raftpb.ConfChange // proposed cluster config changes
+	commitC     chan<- *string           // entries committed to log (k,v)
+	errorC      chan<- error             // errors from raft session
+
+	id          int
+	join        bool
+	peers       []string
+	getSnapshot func() ([]byte, error)
 
 	node        raft.Node
 	raftStorage *raft.MemoryStorage
 
+	snapshotter      *snap.Snapshotter
+	snapshotterReady chan *snap.Snapshotter // signals when snapshotter is ready
+
+	snapCount uint64
+
 	transport *rafthttp.Transport
 
-	httpstopc chan struct{}
+	stopc     chan struct{} // signals proposal channel closed
+	httpstopc chan struct{} // signals http server to shutdown
+	httpdonec chan struct{} // signals http server shutdown complete
+}
+
+func newRaftNode(id int,
+	peers []string,
+	join bool,
+	getSnapshot func() ([]byte, error),
+	proposeC <-chan string,
+	confChangeC <-chan raftpb.ConfChange) (<-chan *string, <-chan error, <-chan *snap.Snapshotter) {
+	commitC := make(chan *string)
+	errorC := make(chan error)
+	r := &raftNode{
+		proposeC:         proposeC,
+		confChangeC:      confChangeC,
+		commitC:          commitC,
+		errorC:           errorC,
+		id:               id,
+		peers:            peers,
+		join:             join,
+		getSnapshot:      getSnapshot,
+		snapCount:        1000,
+		httpstopc:        make(chan struct{}),
+		snapshotterReady: make(chan *snap.Snapshotter, 1),
+	}
+	go r.startRaft()
+	return commitC, errorC, r.snapshotterReady
 }
 
 func (r *raftNode) startRaft() {
@@ -145,4 +184,13 @@ func init() {
 }
 
 func runRaft(cmd *cobra.Command, args []string) {
+	proposeC := make(chan string)
+	defer close(proposeC)
+	confChangeC := make(chan raftpb.ConfChange)
+	defer close(confChangeC)
+	var kvs *kvstore
+	getSnapshot := func() ([]byte, error) { return kvs.getSnapshot() }
+	commitC, errorC, snapshotterReady := newRaftNode(1, []string{}, false, getSnapshot, proposeC, confChangeC)
+
+	kvs = newKVStore(<-snapshotterReady, proposeC, commitC, errorC)
 }
