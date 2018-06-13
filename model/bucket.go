@@ -21,7 +21,6 @@ type Buckets struct {
 
 type Bucket struct {
 	Name         string         `json:"name"`
-	Alias        []string       `json:"alias"`
 	Expires      int            `json:"expires"` // unit: day
 	Extends      [] *ExtendItem `json:"extends"`
 	Memo         string         `json:"memo"`
