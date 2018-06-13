@@ -9,3 +9,4 @@
  - [issue] download with query not found - done
  - [issue] mime type detect
  - favico revalidation
+ - image support
