@@ -1,12 +1,11 @@
-Host: ":8080"
-DFISUpload: "http://neg-app-dfis-c4"
-DFISDownload: "http://neg-app-img"
-DFISGroup: "engine/file"
-LogHome: "logs"
-LogLevel: "error"
-EngineApi: "http://neg-app-dfis-tool/engine_api"
-BodyLimit: "20M"
-OverlayDefaultStyle: "Times New Roman_40"
-CacheMaxAge: "300"
-NegApi: "http://apis.newegg.org"
-TransformMessageName: "DFIS_Transform_Statistic"
+Host: :8080
+Storage:
+  Master:
+    - 127.0.0.1:9001
+    - 127.0.0.1:9002
+    - 127.0.0.1:9003
+Meta: couchbase://scpodb01:8091/default
+BucketMeta: couchbase://scpodb01:8091/buckets
+Log:
+  Home: logs
+  Level: debug

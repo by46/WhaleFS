@@ -67,8 +67,7 @@ type storageClient struct {
 	*http.Client
 }
 
-func NewStorageClient(master string) IStorage {
-	masters := strings.Split(master, ",")
+func NewStorageClient(masters []string) IStorage {
 	client := &http.Client{
 		Timeout: time.Duration(30 * time.Second),
 	}

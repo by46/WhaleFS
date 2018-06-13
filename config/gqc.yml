@@ -1,12 +1,11 @@
-Host: ":8080"
-DFISUpload: "http://10.16.78.84"
-DFISDownload: "http://10.16.78.84"
-DFISGroup: "benjamin/test"
-LogHome: "logs"
-LogLevel: "error"
-EngineApi: "http://st01nbx01/engine_api"
-BodyLimit: "20M"
-OverlayDefaultStyle: "Times New Roman_40"
-CacheMaxAge: "300"
-NegApi: "http://10.16.75.24:3000"
-TransformMessageName: "DFIS_Transform_Statistic"
+Host: :8080
+Meta: couchbase://scpodb01:8091/default
+BucketMeta: couchbase://scpodb01:8091/buckets
+Storage:
+  Master:
+    - 127.0.0.1:9001
+    - 127.0.0.1:9002
+    - 127.0.0.1:9003
+Log:
+  Home: logs
+  Level: debug

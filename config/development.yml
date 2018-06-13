@@ -1,6 +1,11 @@
 Host: :8080
-Master: 127.0.0.1:9001,127.0.0.1:9002,127.0.0.1:9003
-LogHome: logs
-LogLevel: debug
 Meta: couchbase://scpodb01:8091/default
 BucketMeta: couchbase://scpodb01:8091/buckets
+Storage:
+  Master:
+    - 127.0.0.1:9001
+    - 127.0.0.1:9002
+    - 127.0.0.1:9003
+Log:
+  Home: logs
+  Level: debug

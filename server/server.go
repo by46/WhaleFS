@@ -45,18 +45,18 @@ func buildConfig() (*common.Config, error) {
 	return srvConfig, nil
 }
 
-func buildLogger(config *common.Config) common.ILogger {
+func buildLogger(config *common.LogConfig) common.ILogger {
 	logger := logrus.New()
-	level, err := logrus.ParseLevel(config.LogLevel)
+	level, err := logrus.ParseLevel(config.Level)
 	if err != nil {
 		level = logrus.ErrorLevel
 	}
 	logger.SetLevel(level)
-	if err := os.MkdirAll(config.LogHome, os.ModePerm); err != nil {
-		fmt.Printf("Create Log Directory %s error: %v", config.LogHome, err)
+	if err := os.MkdirAll(config.Home, os.ModePerm); err != nil {
+		fmt.Printf("Create Log Directory %s error: %v", config.Home, err)
 		os.Exit(-1)
 	}
-	logFilePath := filepath.Join(config.LogHome, "error.log")
+	logFilePath := filepath.Join(config.Home, "error.log")
 	output, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		fmt.Printf("Open Log file (%s) err: %v", logFilePath, err)
@@ -66,13 +66,14 @@ func buildLogger(config *common.Config) common.ILogger {
 	return logger
 }
 
-func buildStorage(config *common.Config) api.IStorage {
-	return api.NewStorageClient(config.Master)
+func buildStorage(config *common.StorageConfig) api.IStorage {
+	return api.NewStorageClient(config.Cluster)
 }
 
 func buildMeta(config *common.Config) api.IMeta {
 	return api.NewMetaClient(config.Meta)
 }
+
 func buildBucketMeta(config *common.Config) api.IMeta {
 	return api.NewMetaClient(config.BucketMeta)
 }
@@ -84,8 +85,8 @@ func NewServer() *Server {
 		panic(fmt.Errorf("Load config fatal: %s\n", err))
 	}
 
-	logger := buildLogger(config)
-	storage := buildStorage(config)
+	logger := buildLogger(config.Log)
+	storage := buildStorage(config.Storage)
 	meta := buildMeta(config)
 	bucketMeta := buildBucketMeta(config)
 

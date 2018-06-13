@@ -1,11 +1,20 @@
 package common
 
+type LogConfig struct {
+	Level string `default:"error'`
+	Home  string `default:"log"`
+}
+
+type StorageConfig struct {
+	Cluster []string
+}
+
 type Config struct {
 	Host       string `default:":8080"`
-	Master     string
+	Storage    *StorageConfig
+	Master     []string
 	Debug      bool   `default:"false"`
-	LogLevel   string `default:"error"` // fatal, error, warning, info, debug
-	LogHome    string `default:"log"`
+	Log        *LogConfig
 	Meta       string `default:"couchbase://scpodb01:8091/default"`
 	BucketMeta string `default:"couchbase://scpodb01:8091/buckets`
 }
