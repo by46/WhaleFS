@@ -1,4 +1,4 @@
-package: ""
+package: "whalefs"
 import:
 - package: github.com/labstack/echo
   version: ~3.2.4
@@ -11,3 +11,5 @@ import:
 - package: github.com/couchbase/goutils
 - package: github.com/mholt/binding
   version: ^0.3.0
+- package: github.com/spf13/cobra
+  version: ^0.0.3
