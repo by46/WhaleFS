@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"whalefs/server"
-
+	"github.com/by46/whalefs/server"
 	"github.com/spf13/cobra"
 )
 

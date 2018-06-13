@@ -2,8 +2,8 @@ package model
 
 import (
 	"fmt"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 const (

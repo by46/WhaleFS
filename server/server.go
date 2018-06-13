@@ -7,14 +7,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"whalefs/api"
-	"whalefs/common"
-
+	"github.com/by46/whalefs/api"
+	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"whalefs/model"
 )
 
 type Server struct {

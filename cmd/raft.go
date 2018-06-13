@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"whalefs/raftexample"
-
 	"github.com/spf13/cobra"
 )
 
@@ -18,5 +16,4 @@ func init() {
 }
 
 func runRaft(cmd *cobra.Command, args []string) {
-	raftexample.RaftDemo()
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"whalefs/cmd"
+	"github.com/by46/whalefs/cmd"
 )
 
 func main() {

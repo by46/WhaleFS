@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
+	"strings"
 	"time"
 
-	"whalefs/common"
+	"github.com/by46/whalefs/common"
 
 	"github.com/mholt/binding"
-	"strings"
 )
 
 type FileEntity struct {

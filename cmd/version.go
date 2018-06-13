@@ -32,5 +32,5 @@ func runVersion(cmd *cobra.Command, args []string) {
 		MaxInflightMsgs: 256,
 	}
 
-	n := raft.StartNode(c, []raft.Peer{{ID: 0x02}, {ID: 0x03}})
+	raft.StartNode(c, []raft.Peer{{ID: 0x02}, {ID: 0x03}})
 }

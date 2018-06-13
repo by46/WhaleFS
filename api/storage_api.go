@@ -9,15 +9,14 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"whalefs/common"
-	"whalefs/model"
-
+	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
-	"strconv"
 )
 
 const (

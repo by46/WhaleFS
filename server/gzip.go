@@ -1,11 +1,12 @@
 package server
 
 import (
-	"github.com/labstack/echo"
-	"strings"
+	"bytes"
 	"compress/gzip"
 	"io"
-	"bytes"
+	"strings"
+
+	"github.com/labstack/echo"
 )
 
 func (s *Server) shouldGzip(ctx echo.Context) bool {

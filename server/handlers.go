@@ -7,10 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"whalefs/api"
-	"whalefs/common"
-	"whalefs/model"
-
+	"github.com/by46/whalefs/api"
+	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
 	"github.com/mholt/binding"
 )
