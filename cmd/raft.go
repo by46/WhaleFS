@@ -3,18 +3,23 @@ package cmd
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/coreos/etcd/etcdserver/api/rafthttp"
+	"github.com/coreos/etcd/etcdserver/api/snap"
 	"github.com/coreos/etcd/etcdserver/api/v2stats"
+	"github.com/coreos/etcd/pkg/fileutil"
 	"github.com/coreos/etcd/pkg/types"
 	"github.com/coreos/etcd/raft"
 	"github.com/coreos/etcd/raft/raftpb"
-	"github.com/coreos/etcd/snap"
+	"github.com/coreos/etcd/wal"
 	"github.com/labstack/gommon/log"
 	"github.com/spf13/cobra"
 )
@@ -24,6 +29,10 @@ var (
 		Use: "raft",
 		Run: runRaft,
 	}
+	cluster string
+	id      int
+	kvport  int
+	join    bool
 )
 
 type stoppableListener struct {
@@ -75,9 +84,13 @@ type raftNode struct {
 	join        bool
 	peers       []string
 	getSnapshot func() ([]byte, error)
+	waldir      string
+	snapdir     string
+	lastIndex   uint64
 
 	node        raft.Node
 	raftStorage *raft.MemoryStorage
+	wal         *wal.WAL
 
 	snapshotter      *snap.Snapshotter
 	snapshotterReady chan *snap.Snapshotter // signals when snapshotter is ready
@@ -97,8 +110,10 @@ func newRaftNode(id int,
 	getSnapshot func() ([]byte, error),
 	proposeC <-chan string,
 	confChangeC <-chan raftpb.ConfChange) (<-chan *string, <-chan error, <-chan *snap.Snapshotter) {
+
 	commitC := make(chan *string)
 	errorC := make(chan error)
+
 	r := &raftNode{
 		proposeC:         proposeC,
 		confChangeC:      confChangeC,
@@ -107,16 +122,31 @@ func newRaftNode(id int,
 		id:               id,
 		peers:            peers,
 		join:             join,
+		waldir:           fmt.Sprintf("raft-%d", id),
+		snapdir:          fmt.Sprintf("raft-%d-snap", id),
 		getSnapshot:      getSnapshot,
 		snapCount:        1000,
+		stopc:            make(chan struct{}),
 		httpstopc:        make(chan struct{}),
+		httpdonec:        make(chan struct{}),
 		snapshotterReady: make(chan *snap.Snapshotter, 1),
 	}
 	go r.startRaft()
 	return commitC, errorC, r.snapshotterReady
 }
 
+func (r *raftNode) replayWAL() *wal.WAL {
+	log.Printf("replaying WAL for member %d", r.id)
+	return nil
+}
 func (r *raftNode) startRaft() {
+	if !fileutil.Exist(r.snapdir) {
+		if err := os.Mkdir(r.snapdir, 0750); err != nil {
+			log.Fatalf("raft: cannot create dir for snapshot (%v)", err)
+		}
+	}
+	r.raftStorage = raft.NewMemoryStorage()
+
 	rpeers := make([]raft.Peer, len(r.peers))
 	for i := range rpeers {
 		rpeers[i] = raft.Peer{ID: uint64(i + 1)}
@@ -179,10 +209,100 @@ func (r *raftNode) Process(ctx context.Context, m raftpb.Message) error {
 	return r.node.Step(ctx, m)
 }
 
-func init() {
-	rootCmd.AddCommand(raftCmd)
+type httpKVAPI struct {
+	store       *kvstore
+	confChangeC chan<- raftpb.ConfChange
 }
 
+func (h *httpKVAPI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	key := r.RequestURI
+	switch r.Method {
+	case "PUT":
+		v, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Printf("Failed to read on PUT(%v)\n", err)
+			http.Error(w, "Failed on PUT", http.StatusBadRequest)
+			return
+		}
+		h.store.Propose(key, string(v))
+		w.WriteHeader(http.StatusNoContent)
+	case "GET":
+		v, exists := h.store.Lookup(key)
+		if !exists {
+			http.Error(w, "Failed to GET", http.StatusNoContent)
+			return
+		}
+		w.Write([]byte(v))
+
+	case "POST":
+		url, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Printf("Failed to read on POST (%v)\n", err)
+			http.Error(w, "Failed on POST", http.StatusBadRequest)
+			return
+		}
+
+		nodeId, err := strconv.ParseUint(key[1:], 0, 64)
+		if err != nil {
+			log.Printf("Failed to convert ID for conf change (%v)\n", err)
+			http.Error(w, "Failed on POST", http.StatusBadRequest)
+			return
+		}
+
+		cc := raftpb.ConfChange{
+			Type:    raftpb.ConfChangeAddNode,
+			NodeID:  nodeId,
+			Context: url,
+		}
+		h.confChangeC <- cc
+		w.WriteHeader(http.StatusNoContent)
+
+	case "DELETE":
+		nodeId, err := strconv.ParseUint(key[1:], 0, 64)
+		if err != nil {
+			log.Printf("Failed to convert ID for conf change (%v)\n", err)
+			http.Error(w, "Failed on DELETE", http.StatusBadRequest)
+			return
+		}
+		cc := raftpb.ConfChange{
+			Type:   raftpb.ConfChangeRemoveNode,
+			NodeID: nodeId,
+		}
+		h.confChangeC <- cc
+		w.WriteHeader(http.StatusNoContent)
+	default:
+		w.Header().Set("Allow", "PUT")
+		w.Header().Add("Allow", "GET")
+		w.Header().Add("Allow", "POST")
+		w.Header().Add("Allow", "DELETE")
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+func init() {
+	rootCmd.AddCommand(raftCmd)
+	raftCmd.Flags().StringVar(&cluster, "cluster", "http://127.0.0.1:9021", "comma separated cluster peers")
+	raftCmd.Flags().IntVar(&id, "id", 1, "node ID")
+	raftCmd.Flags().IntVar(&kvport, "port", 9121, "key-value server port")
+	raftCmd.Flags().BoolVar(&join, "join", false, "join an existing cluster")
+}
+
+func serveHTTPKVAPI(kv *kvstore, port int, confChangeC chan<- raftpb.ConfChange, errorC <-chan error) {
+	srv := http.Server{
+		Addr: ":" + strconv.Itoa(port),
+		Handler: &httpKVAPI{
+			store:       kv,
+			confChangeC: confChangeC,
+		},
+	}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+	if err, ok := <-errorC; ok {
+		log.Fatal(err)
+	}
+}
 func runRaft(cmd *cobra.Command, args []string) {
 	proposeC := make(chan string)
 	defer close(proposeC)
@@ -193,4 +313,6 @@ func runRaft(cmd *cobra.Command, args []string) {
 	commitC, errorC, snapshotterReady := newRaftNode(1, []string{}, false, getSnapshot, proposeC, confChangeC)
 
 	kvs = newKVStore(<-snapshotterReady, proposeC, commitC, errorC)
+
+	serveHTTPKVAPI(kvs, kvport, confChangeC, errorC)
 }
