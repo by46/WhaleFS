@@ -1,4 +1,4 @@
-package: whalefs
+package: github.com/by46/whalefs
 import:
 - package: github.com/labstack/echo
   version: ~3.2.4
