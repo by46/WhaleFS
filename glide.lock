@@ -1,6 +1,10 @@
-hash: 3dbd7ac7c5d4d0e63c5d3cd04ba819c2f99f1d152451a7300f90c5ba0b7aaf52
-updated: 2018-06-13T22:48:28.4797732+08:00
+hash: 112d9d16e293ebd92399dd02b7884b66c6bc9c379db30487a56f10e9ff70cfa1
+updated: 2018-06-20T23:55:54.7680628+08:00
 imports:
+- name: github.com/beorn7/perks
+  version: 3a771d992973f24aa725d07868b467d1ddfceafb
+  subpackages:
+  - quantile
 - name: github.com/chrislusf/raft
   version: 5f7ddd8f479583daf05879d3d3b174aa202c8fb7
   subpackages:
@@ -8,8 +12,37 @@ imports:
 - name: github.com/coreos/etcd
   version: 88acced1cd7ad670001d1280b97de4fe7b647687
   subpackages:
+  - etcdserver/api/rafthttp
+  - etcdserver/api/snap
+  - etcdserver/api/snap/snappb
+  - etcdserver/api/v2stats
+  - pkg/crc
+  - pkg/fileutil
+  - pkg/httputil
+  - pkg/ioutil
+  - pkg/logutil
+  - pkg/pbutil
+  - pkg/systemd
+  - pkg/tlsutil
+  - pkg/transport
+  - pkg/types
   - raft
   - raft/raftpb
+  - version
+  - wal
+  - wal/walpb
+- name: github.com/coreos/go-semver
+  version: e214231b295a8ea9479f11b70b35d5acf3556d9b
+  subpackages:
+  - semver
+- name: github.com/coreos/go-systemd
+  version: a4887aeaa186e68961d2d6af7d5fbac6bd6fa79b
+  subpackages:
+  - journal
+- name: github.com/coreos/pkg
+  version: 97fdf19511ea361ae1c100dd393cc47f8dcfa1e1
+  subpackages:
+  - capnslog
 - name: github.com/couchbase/go-couchbase
   version: 16db1f1fe037412f12738fa4d8448c549c4edd77
 - name: github.com/couchbase/gomemcached
@@ -23,6 +56,8 @@ imports:
   - scramsha
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
+- name: github.com/dustin/go-humanize
+  version: 02af3965c54e8cacf948b97fef38925c4120652c
 - name: github.com/fsnotify/fsnotify
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
 - name: github.com/gogo/protobuf
@@ -66,6 +101,10 @@ imports:
   version: efa589957cd060542a26d2dd7832fd6a6c6c3ade
 - name: github.com/mattn/go-isatty
   version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+- name: github.com/matttproud/golang_protobuf_extensions
+  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
+  subpackages:
+  - pbutil
 - name: github.com/mholt/binding
   version: f53601f1387c422be7317a2b01d96b2455d2d2d6
 - name: github.com/mitchellh/mapstructure
@@ -74,6 +113,26 @@ imports:
   version: 66540cf1fcd2c3aee6f6787dfa32a6ae9a870f12
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: github.com/prometheus/client_golang
+  version: faf4ec335fe01ae5a6a0eaa34a5a9333bfbd1a30
+  subpackages:
+  - prometheus
+- name: github.com/prometheus/client_model
+  version: 99fa1f4be8e564e8a6b613da7fa6f46c9edafc6c
+  subpackages:
+  - go
+- name: github.com/prometheus/common
+  version: 7600349dcfe1abd18d72d3a1770870d9800a7801
+  subpackages:
+  - expfmt
+  - internal/bitbucket.org/ww/goautoneg
+  - model
+- name: github.com/prometheus/procfs
+  version: 7d6f385de8bea29190f15ba9931442a0eaef9af7
+  subpackages:
+  - internal/util
+  - nfs
+  - xfs
 - name: github.com/sirupsen/logrus
   version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
 - name: github.com/spf13/afero
@@ -94,6 +153,20 @@ imports:
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
   version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
+- name: github.com/xiang90/probing
+  version: 07dd2e8dfe18522e9c447ba95f2fe95262f63bb2
+- name: go.uber.org/atomic
+  version: 1ea20fb1cbb1cc08cbd0d913a96dead89aa18289
+- name: go.uber.org/multierr
+  version: 3c4937480c32f4c13a875a1829af76c98ca3d40a
+- name: go.uber.org/zap
+  version: eeedf312bc6c57391d84767a4cd413f02a917974
+  subpackages:
+  - buffer
+  - internal/bufferpool
+  - internal/color
+  - internal/exit
+  - zapcore
 - name: golang.org/x/crypto
   version: 9419663f5a44be8b34ca85f08abc5fe1be11f8a3
   subpackages:
@@ -101,6 +174,10 @@ imports:
   - acme/autocert
   - pbkdf2
   - ssh/terminal
+- name: golang.org/x/net
+  version: db08ff08e8622530d9ed3a0e8ac279f6d4c02196
+  subpackages:
+  - context
 - name: golang.org/x/sys
   version: ebfc5b4631820b793c9010c87fd8fef0f39eb082
   subpackages:
@@ -111,6 +188,14 @@ imports:
   subpackages:
   - transform
   - unicode/norm
+- name: golang.org/x/time
+  version: fbb02b2291d28baffd63558aa44b4b56f178d650
+  subpackages:
+  - rate
+- name: google.golang.org/grpc
+  version: 2ab07fd5cb02cfc44fd49af17dd2356ed1647ed4
+  subpackages:
+  - grpclog
 - name: gopkg.in/yaml.v2
   version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
 testImports: []
