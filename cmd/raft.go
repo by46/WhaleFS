@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -22,7 +23,6 @@ import (
 	"github.com/coreos/etcd/raft/raftpb"
 	"github.com/coreos/etcd/wal"
 	"github.com/coreos/etcd/wal/walpb"
-	"github.com/labstack/gommon/log"
 	"github.com/spf13/cobra"
 )
 
@@ -31,10 +31,11 @@ var (
 		Use: "raft",
 		Run: runRaft,
 	}
-	cluster string
-	id      int
-	kvport  int
-	join    bool
+	cluster                 string
+	id                      int
+	kvport                  int
+	join                    bool
+	snapshotCatchUpEntriesN uint64 = 10000
 )
 
 func init() {
@@ -260,6 +261,7 @@ func (r *raftNode) startRaft() {
 		}
 	}
 	go r.serveRaft()
+	go r.serveChannels()
 }
 func (r *raftNode) saveSnap(snap raftpb.Snapshot) error {
 	walSnap := walpb.Snapshot{
@@ -276,24 +278,125 @@ func (r *raftNode) saveSnap(snap raftpb.Snapshot) error {
 	return r.wal.ReleaseLockTo(snap.Metadata.Index)
 }
 func (r *raftNode) publishSnapshot(snapshotToSave raftpb.Snapshot) {
-	// TODO(benjamin): completed
+	if raft.IsEmptySnap(snapshotToSave) {
+		return
+	}
+	log.Printf("publishing snapshot at index %d", r.snapshotIndex)
+	defer log.Printf("finished publishing snapshot at index %d", r.snapshotIndex)
+
+	if snapshotToSave.Metadata.Index <= r.appliedIndex {
+		log.Fatalf("snapshot index [%d] should > progress.appliedIndex [%d] + 1", snapshotToSave.Metadata.Index)
+	}
+	r.commitC <- nil // trigger kvstore to load snapshot
+
+	r.confState = snapshotToSave.Metadata.ConfState
+	r.snapshotIndex = snapshotToSave.Metadata.Index
+	r.appliedIndex = snapshotToSave.Metadata.Index
 }
 
 func (r *raftNode) publishEntries(entries []raftpb.Entry) bool {
-	// TODO(benjamin):
+	for i := range entries {
+		switch entries[i].Type {
+		case raftpb.EntryNormal:
+			if len(entries[i].Data) == 0 {
+				break
+			}
+			s := string(entries[i].Data)
+			select {
+			case r.commitC <- &s:
+			case <-r.stopc:
+				return false
+			}
+		case raftpb.EntryConfChange:
+			var cc raftpb.ConfChange
+			cc.Unmarshal(entries[i].Data)
+			r.confState = *r.node.ApplyConfChange(cc)
+			switch cc.Type {
+			case raftpb.ConfChangeAddNode:
+				if len(cc.Context) > 0 {
+					r.transport.AddPeer(types.ID(cc.NodeID), []string{string(cc.Context)})
+				}
+			case raftpb.ConfChangeRemoveNode:
+				if cc.NodeID == uint64(r.id) {
+					log.Println("I've been removed from the cluster! Shutting down.")
+					return false
+				}
+				r.transport.RemovePeer(types.ID(cc.NodeID))
+			}
+		}
+
+		r.appliedIndex = entries[i].Index
+
+		if entries[i].Index == r.lastIndex {
+			select {
+			case r.commitC <- nil:
+			case <-r.stopc:
+				return false
+			}
+		}
+	}
 	return true
 }
-func (r *raftNode) entriesToApply(ents []raftpb.Entry) (nents []raftpb.Entry) {
-	// TODO(benjamin):
+func (r *raftNode) entriesToApply(entries []raftpb.Entry) (nents []raftpb.Entry) {
+	if len(entries) == 0 {
+		return
+	}
+	firstIndex := entries[0].Index
+	if firstIndex > r.appliedIndex+1 {
+		log.Fatalf("first index of commited entry[%d] should <= progress.appliedIndex[%d]+1", firstIndex, r.appliedIndex)
+	}
+	if r.appliedIndex-firstIndex+1 < uint64(len(entries)) {
+		nents = entries[r.appliedIndex-firstIndex+1:]
+	}
+	return nents
 }
 func (r *raftNode) stop() {
-	// TODO(benjamin):
+	r.stopHTTP()
+	close(r.commitC)
+	close(r.errorC)
+	r.node.Stop()
 }
-func (rc *raftNode) maybeTriggerSnapshot() {
-	// TODO(benjamin):
+func (r *raftNode) maybeTriggerSnapshot() {
+	if r.appliedIndex-r.snapshotIndex <= r.snapCount {
+		return
+	}
+	log.Printf("start snapshot [applied index: %d | last snapshot index: %d]", r.appliedIndex, r.snapshotIndex)
+
+	data, err := r.getSnapshot()
+	if err != nil {
+		log.Panic(err)
+	}
+	snap, err := r.raftStorage.CreateSnapshot(r.appliedIndex, &r.confState, data)
+	if err != nil {
+		panic(err)
+	}
+
+	if err := r.saveSnap(snap); err != nil {
+		panic(err)
+	}
+
+	compactIndex := uint64(1)
+	if r.appliedIndex > snapshotCatchUpEntriesN {
+		compactIndex = r.appliedIndex - snapshotCatchUpEntriesN
+	}
+	if err := r.raftStorage.Compact(compactIndex); err != nil {
+		panic(err)
+	}
+	log.Printf("compacted log at index %d", compactIndex)
+	r.snapshotIndex = r.appliedIndex
 }
 func (r *raftNode) writeError(err error) {
-	// TODO(benjamin):
+	r.stopHTTP()
+	close(r.commitC)
+	r.errorC <- err
+	close(r.errorC)
+	r.node.Stop()
+}
+func (r *raftNode) stopHTTP() {
+
+	r.transport.Stop()
+	close(r.httpstopc)
+	<-r.httpdonec
 }
 func (r *raftNode) serveChannels() {
 	snap, err := r.raftStorage.Snapshot()
