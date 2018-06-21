@@ -1,4 +1,9 @@
 package: github.com/by46/whalefs
+homepage: https://github.com/by46/whalefs
+license: MIT
+owners:
+  - name: benjamin.c.yan
+    email: ycs_ctbu_2010@126.com
 import:
 - package: github.com/labstack/echo
   version: ~3.2.4

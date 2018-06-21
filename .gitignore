@@ -3,3 +3,4 @@ main.exe
 logs
 .idea
 fs
+raft-*-snap
