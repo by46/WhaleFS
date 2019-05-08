@@ -1,11 +1,9 @@
-Host: :8080
-Meta: couchbase://scpodb01:8091/default
-BucketMeta: couchbase://scpodb01:8091/buckets
+Host: :8089
+Meta: couchbase://whalefs:123456@10.211.55.4:8091/whalefs
+BucketMeta: couchbase://whalefs:123456@10.211.55.4:8091/whalefs
 Storage:
   Cluster:
-    - 127.0.0.1:9001
-    - 127.0.0.1:9002
-    - 127.0.0.1:9003
+    - 127.0.0.1:9333
 Log:
   Home: logs
   Level: debug

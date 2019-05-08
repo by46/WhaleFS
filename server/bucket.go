@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -26,11 +25,12 @@ func (s *Server) parseBucket(ctx echo.Context) (*model.Bucket, error) {
 
 func (s *Server) getBucket(name string) (*model.Bucket, error) {
 	name = strings.ToLower(name)
-	key, err := common.Sha1(name)
-	if err != nil {
-		return nil, errors.Wrapf(err, "compute sha1 digest for %s failed", name)
-	}
-	key = key[:10]
+	key := fmt.Sprintf("system.bucket.%s", name)
+	//key, err := common.Sha1(name)
+	//if err != nil {
+	//	return nil, errors.Wrapf(err, "compute sha1 digest for %s failed", name)
+	//}
+	//key = key[:10]
 
 	bucket, exists := s.buckets[name]
 	if exists {
