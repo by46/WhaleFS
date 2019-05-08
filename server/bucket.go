@@ -11,7 +11,14 @@ import (
 
 // TODO(benjamin): support parameters from header and multipart-form
 func (s *Server) parseBucket(ctx echo.Context) (*model.Bucket, error) {
-	segments := strings.SplitN(ctx.Request().URL.Path, "/", 3)
+	var path string
+	switch strings.ToLower(ctx.Request().Method) {
+	case "get":
+		path = ctx.Request().URL.Path
+	default:
+		path = ctx.Request().Form.Get("key")
+	}
+	segments := strings.SplitN(path, "/", 3)
 	if len(segments) < 3 {
 		return nil, fmt.Errorf("invalid url")
 	}

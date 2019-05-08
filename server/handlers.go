@@ -75,11 +75,16 @@ func (s *Server) download(ctx echo.Context) error {
 }
 
 func (s *Server) upload(ctx echo.Context) error {
-	parameter := new(model.FileObject)
-	if err := binding.Bind(ctx.Request(), parameter); err != nil {
+	//_, err := s.parseBucket(ctx)
+	//if err != nil {
+	//	return s.fatal(err)
+	//}
+
+	params := new(model.FileObject)
+	if err := binding.Bind(ctx.Request(), params); err != nil {
 		return s.error(http.StatusBadRequest, err)
 	}
-	form := parameter.Content
+	form := params.Content
 	headers := http.Header(form.Header)
 	body, err := form.Open()
 	if err != nil {
@@ -91,11 +96,11 @@ func (s *Server) upload(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	hash, err := s.hashKey(parameter.Key)
+	hash, err := s.hashKey(params.Key)
 	if err != nil {
 		return err
 	}
-	entity.RawKey = parameter.Key
+	entity.RawKey = params.Key
 	if err := s.Meta.Set(hash, entity); err != nil {
 		return err
 	}

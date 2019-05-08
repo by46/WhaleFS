@@ -3,10 +3,21 @@
 ## seaweedfs
 
 ```bash
+
 weed master -port=9001
+
 weed master -port=9002 -peers="localhost:9001"
 
 weed volume -port=9081 -mserver="localhost:9001" -dir="data"
+
+/opt/weed/weed master -mdir="/opt/dfs/master"
+
+/opt/weed/weed volume -ip=192.168.1.9 -port=18081 -mserver="localhost:9333" -dir="/opt/dfs/data1" 
+
+/opt/weed/weed volume -ip=192.168.1.9 -port=18082 -mserver="localhost:9333" -dir="/opt/dfs/data2"
+
+/opt/weed/weed volume -ip=192.168.1.9 -port=18083 -mserver="localhost:9333" -dir="/opt/dfs/data3"
+
 ```
 
 ### buckets

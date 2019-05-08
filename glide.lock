@@ -1,5 +1,5 @@
-hash: dfba2b297fcfe956d75d2dd8c28d9bce18a6f36e79ecbeec8645dc1321ec9554
-updated: 2019-05-08T09:36:53.971586+08:00
+hash: 70d9a219441b9374188d62fdb02d49630da38c481ffdcd77eb87e621e4585334
+updated: 2019-05-08T17:12:42.1131+08:00
 imports:
 - name: github.com/couchbase/go-couchbase
   version: 6aeabeae85e5645306382779e3ee55a330ec558c
@@ -73,6 +73,8 @@ imports:
   version: 24fa6976df40757dce6aea913e7b81ade90530e1
 - name: github.com/spf13/viper
   version: 9e56dacc08fbbf8c9ee2dbc717553c758ce42bc9
+- name: github.com/stretchr/testify
+  version: ffdc059bfe9ce6a4e144ba849dbedead332c6053
 - name: github.com/valyala/bytebufferpool
   version: cdfbe9377474227bb42120c1e22fd4433e7f69bf
 - name: github.com/valyala/fasttemplate

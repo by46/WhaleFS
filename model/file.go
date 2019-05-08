@@ -62,6 +62,7 @@ func (f *FileEntity) IsPlain() bool {
 
 type FileObject struct {
 	Key         string
+	BucketName  string
 	ExtractFile bool
 	Content     *multipart.FileHeader
 }
@@ -71,6 +72,13 @@ func (f *FileObject) FieldMap(r *http.Request) binding.FieldMap {
 		&f.Key: binding.Field{
 			Form:     "key",
 			Required: true,
+		},
+		&f.BucketName: binding.Field{
+			Form:     "key",
+			Required: true,
+			Binder: func(name string, values []string, errors binding.Errors) binding.Errors {
+				return errors
+			},
 		},
 		&f.Content: binding.Field{
 			Form:     "file",
