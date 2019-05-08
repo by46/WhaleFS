@@ -4,3 +4,4 @@ logs
 .idea
 fs
 raft-*
+.DS_Store

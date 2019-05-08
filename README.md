@@ -32,3 +32,27 @@ system.bucket.benjamin
   "last_edit_user":"by46"
 }
 ```
+
+```
+package: github.com/by46/whalefs
+homepage: https://github.com/by46/whalefs
+license: MIT
+owners:
+  - name: benjamin.c.yan
+    email: ycs_ctbu_2010@126.com
+import:
+- package: github.com/spf13/viper
+  version: ^1.0.2
+- package: github.com/sirupsen/logrus
+  version: ^1.0.5
+- package: github.com/couchbase/go-couchbase
+- package: github.com/couchbase/gomemcached
+- package: github.com/couchbase/goutils
+- package: github.com/mholt/binding
+  version: ^0.3.0
+- package: github.com/spf13/cobra
+  version: 0.0.2
+- package: github.com/pkg/errors
+  version: ^0.8.0
+
+```
