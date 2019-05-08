@@ -1,6 +1,18 @@
 package: github.com/by46/whalefs
-homepage: https://github.com/by46/whalefs
-license: MIT
-owners:
-  - name: benjamin.c.yan
-    email: ycs_ctbu_2010@126.com
+import:
+- package: github.com/couchbase/go-couchbase
+- package: github.com/couchbase/gomemcached
+- package: github.com/labstack/echo
+  version: ^3.3.10
+  subpackages:
+  - middleware
+- package: github.com/mholt/binding
+  version: ^0.3.0
+- package: github.com/pkg/errors
+  version: ^0.8.1
+- package: github.com/sirupsen/logrus
+  version: ^1.4.1
+- package: github.com/spf13/cobra
+  version: ^0.0.3
+- package: github.com/spf13/viper
+  version: ^1.3.2
