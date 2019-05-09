@@ -2,20 +2,21 @@ package server
 
 import (
 	"fmt"
-	middleware2 "github.com/by46/whalefs/server/middleware"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/by46/whalefs/api"
-	"github.com/by46/whalefs/common"
-	"github.com/by46/whalefs/model"
-	"github.com/by46/whalefs/utils"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
+	"github.com/by46/whalefs/api"
+	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/model"
+	middleware2 "github.com/by46/whalefs/server/middleware"
+	"github.com/by46/whalefs/utils"
 )
 
 type Server struct {

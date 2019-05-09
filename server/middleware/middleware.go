@@ -2,8 +2,9 @@
 package middleware
 
 import (
-	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
+
+	"github.com/by46/whalefs/model"
 )
 
 type ExtendContext struct {

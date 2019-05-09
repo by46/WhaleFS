@@ -2,9 +2,10 @@ package api
 
 import (
 	"fmt"
-	"github.com/by46/whalefs/common"
 	"net/url"
 	"strings"
+
+	"github.com/by46/whalefs/common"
 
 	"github.com/couchbase/go-couchbase"
 	"github.com/couchbase/gomemcached"

@@ -2,15 +2,16 @@ package server
 
 import (
 	"fmt"
-	"github.com/by46/whalefs/server/middleware"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"strings"
 
-	"github.com/by46/whalefs/model"
-	"github.com/by46/whalefs/utils"
 	"github.com/labstack/echo"
+
+	"github.com/by46/whalefs/model"
+	"github.com/by46/whalefs/server/middleware"
+	"github.com/by46/whalefs/utils"
 )
 
 func (s *Server) favicon(ctx echo.Context) error {

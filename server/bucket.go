@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
+
+	"github.com/by46/whalefs/model"
 )
 
 // TODO(benjamin): support parameters from header and multipart-form

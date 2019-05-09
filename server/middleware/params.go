@@ -1,11 +1,13 @@
 package middleware
 
 import (
-	"github.com/by46/whalefs/model"
+	"strings"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/mholt/binding"
-	"strings"
+
+	"github.com/by46/whalefs/model"
 )
 
 type Server interface {

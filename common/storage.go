@@ -1,9 +1,10 @@
 package common
 
 import (
-	"github.com/by46/whalefs/model"
 	"io"
 	"net/http"
+
+	"github.com/by46/whalefs/model"
 )
 
 type Storage interface {

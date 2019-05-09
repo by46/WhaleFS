@@ -4,9 +4,10 @@ import (
 	"mime/multipart"
 	"net/http"
 
-	"github.com/by46/whalefs/utils"
 	"github.com/labstack/echo"
 	"github.com/mholt/binding"
+
+	"github.com/by46/whalefs/utils"
 )
 
 type FileParams struct {

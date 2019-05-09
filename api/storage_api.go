@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/by46/whalefs/common"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -15,9 +14,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/labstack/echo"
+
+	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
-	"github.com/labstack/echo"
 )
 
 const (
