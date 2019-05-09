@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/by46/whalefs/server/middleware"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -11,7 +12,6 @@ import (
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
-	"github.com/mholt/binding"
 )
 
 func (s *Server) favicon(ctx echo.Context) error {
@@ -29,7 +29,11 @@ func (s *Server) tools(ctx echo.Context) error {
 }
 
 func (s *Server) download(ctx echo.Context) error {
-	bucket, err := s.parseBucket(ctx)
+	context, success := ctx.(*middleware.ExtendContext)
+	if !success {
+		return echo.ErrBadRequest
+	}
+	bucket, err := s.getBucket(context.FileParams.BucketName)
 	if err != nil {
 		return s.fatal(err)
 	}
@@ -75,15 +79,11 @@ func (s *Server) download(ctx echo.Context) error {
 }
 
 func (s *Server) upload(ctx echo.Context) error {
-	//_, err := s.parseBucket(ctx)
-	//if err != nil {
-	//	return s.fatal(err)
-	//}
-
-	params := new(model.FileObject)
-	if err := binding.Bind(ctx.Request(), params); err != nil {
-		return s.error(http.StatusBadRequest, err)
+	context, success := ctx.(*middleware.ExtendContext)
+	if !success {
+		return echo.ErrBadRequest
 	}
+	params := context.FileParams
 	form := params.Content
 	headers := http.Header(form.Header)
 	body, err := form.Open()

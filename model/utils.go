@@ -8,6 +8,7 @@ import (
 )
 
 func normalizePath(value string) string {
+	value = strings.ToLower(value)
 	segments := strings.Split(value, "/")
 	segments = utils.Filter(segments, func(value string) bool { return value != "" })
 	return "/" + strings.Join(segments, "/")

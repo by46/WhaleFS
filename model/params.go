@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/labstack/echo"
 	"github.com/mholt/binding"
 	"mime/multipart"
 	"net/http"
@@ -33,4 +34,10 @@ func (self *FileParams) FieldMap(r *http.Request) binding.FieldMap {
 			Required: true,
 		},
 	}
+}
+
+func (self *FileParams) Bind(ctx echo.Context) (err error) {
+	self.Key = normalizePath(ctx.Request().URL.Path)
+	self.BucketName, err = parseBucketName(self.Key)
+	return
 }
