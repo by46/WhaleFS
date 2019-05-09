@@ -41,7 +41,7 @@ func (m *metaClient) Get(key string, value interface{}) error {
 	if err != nil {
 		if err2, success := err.(*gomemcached.MCResponse); success {
 			if err2.Status == gomemcached.KEY_ENOENT {
-				return common.New(common.CodeFileNotExists, "")
+				return common.New(common.CodeFileNotExists)
 			}
 		}
 	}

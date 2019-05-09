@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/mholt/binding"
 
+	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 )
 
@@ -25,6 +26,12 @@ type ParseFileParamsConfig struct {
 	Server Server
 }
 
+func parse(ctx echo.Context) (*model.FileParams, error) {
+	params := new(model.FileParams)
+
+	return params, nil
+}
+
 func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 
 	if config.Skipper == nil {
@@ -40,29 +47,32 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 			if !success {
 				return next(ctx)
 			}
-			
+
+			method := strings.ToLower(ctx.Request().Method)
+
+			if method == "get" || method == "head" {
+				values := ctx.Request().URL.Query()
+				values.Set("key", ctx.Request().URL.Path)
+				ctx.Request().URL.RawQuery = values.Encode()
+			}
+
 			params := new(model.FileParams)
-			switch strings.ToLower(ctx.Request().Method) {
-			case "post":
-				if err := binding.Bind(ctx.Request(), params); err != nil {
-					return err
-				}
-			case "head", "get":
-				if err = params.Bind(ctx); err != nil {
-					return err
-				}
+			if err := binding.Bind(ctx.Request(), params); err != nil {
+				return err
+			}
+
+			if params.Bucket, err = config.Server.GetBucket(params.BucketName); err != nil {
+				return common.New(common.CodeBucketNotExists)
+			}
+
+			if method == "get" || method == "head" {
 				if params.Entity, err = config.Server.GetFileEntity(params.HashKey()); err != nil {
 					return err
 				}
-			default:
-				if err := params.Bind(ctx); err != nil {
-					return err
-				}
 			}
-			if params.Bucket, err = config.Server.GetBucket(params.BucketName); err != nil {
-				return echo.ErrBadRequest
-			}
+
 			context.FileParams = params
+
 			return next(ctx)
 		}
 	}

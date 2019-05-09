@@ -20,13 +20,14 @@ import (
 )
 
 type Server struct {
-	app        *echo.Echo
+	Debug      bool
 	Config     *model.Config
 	Storage    common.Storage
 	Meta       common.Meta
 	BucketMeta common.Meta
 	Logger     common.Logger
 	Version    string
+	app        *echo.Echo
 	buckets    map[string]*model.Bucket
 }
 

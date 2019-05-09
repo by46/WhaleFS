@@ -6,18 +6,20 @@ import (
 )
 
 const (
-	CodeFileNotExists = "FileNotExists"
+	CodeFileNotExists   = "FileNotExists"
+	CodeBucketNotExists = "BucketNotExists"
 )
 
 type BusinessError struct {
-	Code    string
-	Message string
+	Code       string
+	StatusCode string
+	Internal   error
 }
 
 func (e *BusinessError) Error() string {
-	return fmt.Sprintf("Business Error Code: %s, Message: %s", e.Code, e.Message)
+	return fmt.Sprintf("Business error code: %s, Interval error: %s", e.Code, e.Internal)
 }
 
-func New(code string, message string) error {
-	return &BusinessError{Code: code, Message: message}
+func New(code string) *BusinessError {
+	return &BusinessError{Code: code}
 }

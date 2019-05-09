@@ -22,12 +22,9 @@ type FileParams struct {
 func (self *FileParams) FieldMap(r *http.Request) binding.FieldMap {
 	return binding.FieldMap{
 		&self.Key: binding.Field{
-			Form:     "key",
-			Required: true,
+			Form: "key",
 			Binder: func(name string, values []string, errors binding.Errors) binding.Errors {
-				var err error
-				self.Key = normalizePath(values[0])
-				self.BucketName, err = parseBucketName(self.Key)
+				err := self.ParseKeyAndBucketName(values[0])
 				if err != nil {
 					errors.Add([]string{name}, binding.TypeError, err.Error())
 				}
@@ -35,10 +32,15 @@ func (self *FileParams) FieldMap(r *http.Request) binding.FieldMap {
 			},
 		},
 		&self.Content: binding.Field{
-			Form:     "file",
-			Required: true,
+			Form: "file",
 		},
 	}
+}
+
+func (self *FileParams) ParseKeyAndBucketName(value string) (err error) {
+	self.Key = normalizePath(value)
+	self.BucketName, err = parseBucketName(self.Key)
+	return
 }
 
 func (self *FileParams) Bind(ctx echo.Context) (err error) {
