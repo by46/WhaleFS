@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/utils"
 	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
 )
@@ -34,8 +34,8 @@ func (s *Server) download(ctx echo.Context) error {
 	entity := context.FileParams.Entity
 
 	maxAge := bucket.MaxAge()
-	ctx.Response().Header().Add(common.HeaderExpires, entity.HeaderExpires(maxAge))
-	ctx.Response().Header().Add(common.HeaderCacheControl, entity.HeaderISOExpires(maxAge))
+	ctx.Response().Header().Add(utils.HeaderExpires, entity.HeaderExpires(maxAge))
+	ctx.Response().Header().Add(utils.HeaderCacheControl, entity.HeaderISOExpires(maxAge))
 
 	if !s.Config.Debug && s.freshCheck(ctx, entity) {
 		ctx.Response().WriteHeader(http.StatusNotModified)
@@ -50,8 +50,8 @@ func (s *Server) download(ctx echo.Context) error {
 	response := ctx.Response()
 	response.Header().Set(echo.HeaderContentType, entity.MimeType)
 	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))
-	response.Header().Set(echo.HeaderLastModified, common.TimestampToRFC822(entity.LastModified))
-	response.Header().Set(common.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
+	response.Header().Set(echo.HeaderLastModified, utils.TimestampToRFC822(entity.LastModified))
+	response.Header().Set(utils.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
 
 	// support gzip
 	if entity.Size >= (5<<10) && entity.IsPlain() && s.shouldGzip(ctx) {
@@ -98,8 +98,8 @@ func (s *Server) head(ctx echo.Context) error {
 	response := ctx.Response()
 	response.Header().Set(echo.HeaderContentType, entity.MimeType)
 	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))
-	response.Header().Set(echo.HeaderLastModified, common.TimestampToRFC822(entity.LastModified))
-	response.Header().Set(common.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
+	response.Header().Set(echo.HeaderLastModified, utils.TimestampToRFC822(entity.LastModified))
+	response.Header().Set(utils.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
 	response.WriteHeader(http.StatusOK)
 	return nil
 }
@@ -121,7 +121,7 @@ func (s *Server) form(ctx echo.Context) (*multipart.FileHeader, error) {
 func (s *Server) freshCheck(ctx echo.Context, entity *model.FileEntity) bool {
 	headers := ctx.Request().Header
 	if since := headers.Get(echo.HeaderIfModifiedSince); since != "" {
-		sinceDate, err := common.RFC822ToTime(since)
+		sinceDate, err := utils.RFC822ToTime(since)
 		if err != nil {
 			s.Logger.Errorf("parse if-modified-since error %v", err)
 			return false
@@ -130,7 +130,7 @@ func (s *Server) freshCheck(ctx echo.Context, entity *model.FileEntity) bool {
 			return true
 		}
 	}
-	if etag := ctx.Request().Header.Get(common.HeaderIfNoneMatch); etag != "" {
+	if etag := ctx.Request().Header.Get(utils.HeaderIfNoneMatch); etag != "" {
 		for _, value := range strings.Split(etag, ",") {
 			value = strings.TrimSpace(value)
 			value = strings.Trim(value, `"`)

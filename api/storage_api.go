@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/by46/whalefs/common"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -14,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
+	"github.com/by46/whalefs/utils"
 	"github.com/labstack/echo"
 )
 
@@ -30,11 +31,6 @@ var (
 		},
 	}
 )
-
-type IStorage interface {
-	Download(url string) (io.ReadCloser, http.Header, error)
-	Upload(mimeType string, body io.Reader) (entity *model.FileEntity, err error)
-}
 
 type FileID struct {
 	Count     int    `json:"count,omitempty"`
@@ -67,7 +63,7 @@ type storageClient struct {
 	*http.Client
 }
 
-func NewStorageClient(masters []string) IStorage {
+func NewStorageClient(masters []string) common.Storage {
 	client := &http.Client{
 		Timeout: time.Duration(30 * time.Second),
 	}
@@ -145,7 +141,7 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileEnti
 	}
 	entity := &model.FileEntity{
 		FID:          fid.FID,
-		ETag:         strings.Trim(response.Header.Get(common.HeaderETag), `"`),
+		ETag:         strings.Trim(response.Header.Get(utils.HeaderETag), `"`),
 		LastModified: time.Now().UTC().Unix(),
 		Size:         size + int64(preReadSize),
 		MimeType:     mimeType,
@@ -211,7 +207,7 @@ func parseFileId(id string) (volumeId uint32, fileId uint64, cookie uint32, err 
 	volumeId = uint32(value)
 
 	l := len(tmp[1])
-	part1, part2 := tmp[1][:l-8], tmp[1][l-8:l]
+	part1, part2 := tmp[1][:l-8], tmp[1][l-8 : l]
 	fileId, err = strconv.ParseUint(part1, 16, 64)
 	if err != nil {
 		return 0, 0, 0, err

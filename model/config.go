@@ -1,4 +1,4 @@
-package common
+package model
 
 type LogConfig struct {
 	Level string `default:"error'`

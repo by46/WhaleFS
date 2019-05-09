@@ -1,6 +1,6 @@
 package common
 
-type ILogger interface {
+type Logger interface {
 	Print(v ...interface{})
 	Printf(format string, v ...interface{})
 	Debug(v ...interface{})

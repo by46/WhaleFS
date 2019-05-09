@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/utils"
 
 	"github.com/mholt/binding"
 )
@@ -33,7 +33,7 @@ func (f *FileEntity) HeaderISOExpires(cacheMaxAge int) string {
 func (f *FileEntity) HeaderExpires(cacheMaxAge int) string {
 	duration := uint64(cacheMaxAge) * uint64(time.Second)
 	expired := time.Now().Add(time.Duration(duration)).UTC()
-	return common.TimeToRFC822(expired)
+	return utils.TimeToRFC822(expired)
 }
 
 func (f *FileEntity) HeaderETag() string {
@@ -41,7 +41,7 @@ func (f *FileEntity) HeaderETag() string {
 }
 
 func (f *FileEntity) HeaderLastModified() string {
-	return common.TimeToRFC822(f.LastModifiedTime())
+	return utils.TimeToRFC822(f.LastModifiedTime())
 }
 
 func (f *FileEntity) IsPlain() bool {

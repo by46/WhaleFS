@@ -11,6 +11,7 @@ import (
 	"github.com/by46/whalefs/api"
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
+	"github.com/by46/whalefs/utils"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
@@ -19,17 +20,17 @@ import (
 
 type Server struct {
 	app        *echo.Echo
-	Config     *common.Config
-	Storage    api.IStorage
-	Meta       api.IMeta
-	BucketMeta api.IMeta
-	Logger     common.ILogger
+	Config     *model.Config
+	Storage    common.Storage
+	Meta       common.Meta
+	BucketMeta common.Meta
+	Logger     common.Logger
 	Version    string
 	buckets    map[string]*model.Bucket
 }
 
-func buildConfig() (*common.Config, error) {
-	srvConfig := new(common.Config)
+func buildConfig() (*model.Config, error) {
+	srvConfig := new(model.Config)
 	config := viper.New()
 	env := os.Getenv("ENV")
 	if env == "" {
@@ -46,7 +47,7 @@ func buildConfig() (*common.Config, error) {
 	return srvConfig, nil
 }
 
-func buildLogger(config *common.LogConfig) common.ILogger {
+func buildLogger(config *model.LogConfig) common.Logger {
 	logger := logrus.New()
 	level, err := logrus.ParseLevel(config.Level)
 	if err != nil {
@@ -67,15 +68,15 @@ func buildLogger(config *common.LogConfig) common.ILogger {
 	return logger
 }
 
-func buildStorage(config *common.StorageConfig) api.IStorage {
+func buildStorage(config *model.StorageConfig) common.Storage {
 	return api.NewStorageClient(config.Cluster)
 }
 
-func buildMeta(config *common.Config) api.IMeta {
+func buildMeta(config *model.Config) common.Meta {
 	return api.NewMetaClient(config.Meta)
 }
 
-func buildBucketMeta(config *common.Config) api.IMeta {
+func buildBucketMeta(config *model.Config) common.Meta {
 	return api.NewMetaClient(config.BucketMeta)
 }
 
@@ -153,7 +154,7 @@ func (s *Server) objectKey(ctx echo.Context) string {
 func (s *Server) hashKey(uri string) (string, error) {
 	key := strings.ToLower(uri)
 	key = strings.TrimLeft(uri, "/")
-	return common.Sha1(key)
+	return utils.Sha1(key)
 }
 
 func (s *Server) ListenAndServe() {

@@ -1,11 +1,12 @@
 package model
 
 import (
-	"github.com/by46/whalefs/common"
-	"github.com/labstack/echo"
-	"github.com/mholt/binding"
 	"mime/multipart"
 	"net/http"
+
+	"github.com/by46/whalefs/utils"
+	"github.com/labstack/echo"
+	"github.com/mholt/binding"
 )
 
 type FileParams struct {
@@ -46,6 +47,6 @@ func (self *FileParams) Bind(ctx echo.Context) (err error) {
 }
 
 func (self *FileParams) HashKey() string {
-	hash, _ := common.Sha1(self.Key)
+	hash, _ := utils.Sha1(self.Key)
 	return hash
 }

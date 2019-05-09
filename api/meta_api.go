@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/by46/whalefs/common"
 	"net/url"
 	"strings"
 
@@ -14,17 +15,11 @@ var (
 	ErrNoEntity = fmt.Errorf("entity not exists")
 )
 
-type IMeta interface {
-	Get(key string, value interface{}) error
-	Set(key string, value interface{}) error
-	SetTTL(key string, value interface{}, ttl int) error
-}
-
 type metaClient struct {
 	*couchbase.Bucket
 }
 
-func NewMetaClient(connectionString string) IMeta {
+func NewMetaClient(connectionString string) common.Meta {
 	result, err := url.Parse(connectionString)
 	if err != nil {
 		panic(errors.Wrapf(err, "initialize meta client failed: %s", connectionString))
