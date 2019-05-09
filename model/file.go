@@ -67,20 +67,22 @@ type FileObject struct {
 	Content     *multipart.FileHeader
 }
 
-func (f *FileObject) FieldMap(r *http.Request) binding.FieldMap {
+func (self *FileObject) FieldMap(r *http.Request) binding.FieldMap {
 	return binding.FieldMap{
-		&f.Key: binding.Field{
-			Form:     "key",
-			Required: true,
-		},
-		&f.BucketName: binding.Field{
+		&self.Key: binding.Field{
 			Form:     "key",
 			Required: true,
 			Binder: func(name string, values []string, errors binding.Errors) binding.Errors {
+				var err error
+				self.Key = normalizePath(values[0])
+				self.BucketName, err = parseBucketName(self.Key)
+				if err != nil {
+					errors.Add([]string{name}, binding.TypeError, err.Error())
+				}
 				return errors
 			},
 		},
-		&f.Content: binding.Field{
+		&self.Content: binding.Field{
 			Form:     "file",
 			Required: true,
 		},
