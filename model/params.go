@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/by46/whalefs/common"
 	"github.com/labstack/echo"
 	"github.com/mholt/binding"
 	"mime/multipart"
@@ -11,6 +12,7 @@ type FileParams struct {
 	Key         string
 	BucketName  string
 	Bucket      *Bucket
+	Entity      *FileEntity
 	ExtractFile bool
 	Content     *multipart.FileHeader
 }
@@ -41,4 +43,9 @@ func (self *FileParams) Bind(ctx echo.Context) (err error) {
 	self.Key = normalizePath(ctx.Request().URL.Path)
 	self.BucketName, err = parseBucketName(self.Key)
 	return
+}
+
+func (self *FileParams) HashKey() string {
+	hash, _ := common.Sha1(self.Key)
+	return hash
 }

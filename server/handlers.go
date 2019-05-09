@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/by46/whalefs/api"
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
@@ -21,6 +20,7 @@ func (s *Server) favicon(ctx echo.Context) error {
 func (s *Server) faq(ctx echo.Context) error {
 	return ctx.HTML(http.StatusOK, "<!-- Newegg -->")
 }
+
 func (s *Server) tools(ctx echo.Context) error {
 	if ctx.Request().Method == "GET" {
 		return ctx.File("templates/tools.html")
@@ -29,23 +29,9 @@ func (s *Server) tools(ctx echo.Context) error {
 }
 
 func (s *Server) download(ctx echo.Context) error {
-	context, success := ctx.(*middleware.ExtendContext)
-	if !success {
-		return echo.ErrBadRequest
-	}
+	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileParams.Bucket
-
-	hash, err := s.hashKey(ctx.Request().URL.Path)
-	if err != nil {
-		return s.fatal(err)
-	}
-	entity := &model.FileEntity{}
-	if err := s.Meta.Get(hash, entity); err != nil {
-		if err == api.ErrNoEntity {
-			return s.error(http.StatusNotFound, fmt.Errorf("file not found"))
-		}
-		return s.error(http.StatusInternalServerError, err)
-	}
+	entity := context.FileParams.Entity
 
 	maxAge := bucket.MaxAge()
 	ctx.Response().Header().Add(common.HeaderExpires, entity.HeaderExpires(maxAge))
@@ -76,11 +62,9 @@ func (s *Server) download(ctx echo.Context) error {
 }
 
 func (s *Server) upload(ctx echo.Context) error {
-	context, success := ctx.(*middleware.ExtendContext)
-	if !success {
-		return echo.ErrBadRequest
-	}
+	context := ctx.(*middleware.ExtendContext)
 	params := context.FileParams
+
 	form := params.Content
 	headers := http.Header(form.Header)
 	body, err := form.Open()
@@ -93,10 +77,7 @@ func (s *Server) upload(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	hash, err := s.hashKey(params.Key)
-	if err != nil {
-		return err
-	}
+	hash := params.HashKey()
 	entity.RawKey = params.Key
 	if err := s.Meta.Set(hash, entity); err != nil {
 		return err

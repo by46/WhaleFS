@@ -8,7 +8,11 @@ import (
 )
 
 type Server interface {
+	// get bucket info
 	GetBucket(string) (*model.Bucket, error)
+
+	// get meta information
+	GetFileEntity(hash string) (*model.FileEntity, error)
 }
 
 type ParseFileParamsConfig struct {
@@ -23,6 +27,13 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 				switch strings.ToLower(ctx.Request().Method) {
 				case "post":
 					if err := binding.Bind(ctx.Request(), params); err != nil {
+						return echo.ErrBadRequest
+					}
+				case "head", "get":
+					if err = params.Bind(ctx); err != nil {
+						return echo.ErrBadRequest
+					}
+					if params.Entity, err = config.Server.GetFileEntity(params.HashKey()); err != nil {
 						return echo.ErrBadRequest
 					}
 				default:
