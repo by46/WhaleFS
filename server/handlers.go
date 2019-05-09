@@ -95,7 +95,7 @@ func (s *Server) head(ctx echo.Context) error {
 	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))
 	response.Header().Set(echo.HeaderLastModified, utils.TimestampToRFC822(entity.LastModified))
 	response.Header().Set(utils.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
-	response.WriteHeader(http.StatusOK)
+	response.WriteHeader(http.StatusNoContent)
 	return nil
 }
 
