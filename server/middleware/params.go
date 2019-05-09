@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/by46/whalefs/model"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/mholt/binding"
 	"strings"
 )
@@ -16,12 +17,23 @@ type Server interface {
 }
 
 type ParseFileParamsConfig struct {
+	// Skipper defines a function to skip middleware.
+	Skipper middleware.Skipper
+
 	Server Server
 }
 
 func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
+
+	if config.Skipper == nil {
+		config.Skipper = middleware.DefaultSkipper
+	}
+
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) (err error) {
+			if config.Skipper(ctx) {
+				return next(ctx)
+			}
 			if context, success := ctx.(*ExtendContext); success {
 				params := new(model.FileParams)
 				switch strings.ToLower(ctx.Request().Method) {

@@ -111,7 +111,10 @@ func (s *Server) install() {
 	s.app.Use(middleware2.InjectContext())
 
 	s.app.Use(middleware2.ParseFileParams(middleware2.ParseFileParamsConfig{
-		s,
+		Server: s,
+		Skipper: func(context echo.Context) bool {
+			return strings.ToLower(context.Request().URL.Path) == "/tools"
+		},
 	}))
 
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
