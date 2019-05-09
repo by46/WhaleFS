@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/by46/whalefs/utils"
 	"github.com/by46/whalefs/model"
+	"github.com/by46/whalefs/utils"
 	"github.com/labstack/echo"
 )
 
@@ -86,14 +86,8 @@ func (s *Server) upload(ctx echo.Context) error {
 }
 
 func (s *Server) head(ctx echo.Context) error {
-	key, err := s.hashKey(ctx.Request().URL.Path)
-	if err != nil {
-		return s.fatal(err)
-	}
-	entity := &model.FileEntity{}
-	if err := s.Meta.Get(key, entity); err != nil {
-		return s.fatal(err)
-	}
+	context := ctx.(*middleware.ExtendContext)
+	entity := context.FileParams.Entity
 
 	response := ctx.Response()
 	response.Header().Set(echo.HeaderContentType, entity.MimeType)
