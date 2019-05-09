@@ -36,30 +36,33 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 			if config.Skipper(ctx) {
 				return next(ctx)
 			}
-			if context, success := ctx.(*ExtendContext); success {
-				params := new(model.FileParams)
-				switch strings.ToLower(ctx.Request().Method) {
-				case "post":
-					if err := binding.Bind(ctx.Request(), params); err != nil {
-						return echo.ErrBadRequest
-					}
-				case "head", "get":
-					if err = params.Bind(ctx); err != nil {
-						return echo.ErrBadRequest
-					}
-					if params.Entity, err = config.Server.GetFileEntity(params.HashKey()); err != nil {
-						return echo.ErrBadRequest
-					}
-				default:
-					if err := params.Bind(ctx); err != nil {
-						return echo.ErrBadRequest
-					}
-				}
-				if params.Bucket, err = config.Server.GetBucket(params.BucketName); err != nil {
-					return echo.ErrBadRequest
-				}
-				context.FileParams = params
+			context, success := ctx.(*ExtendContext)
+			if !success {
+				return next(ctx)
 			}
+			
+			params := new(model.FileParams)
+			switch strings.ToLower(ctx.Request().Method) {
+			case "post":
+				if err := binding.Bind(ctx.Request(), params); err != nil {
+					return err
+				}
+			case "head", "get":
+				if err = params.Bind(ctx); err != nil {
+					return err
+				}
+				if params.Entity, err = config.Server.GetFileEntity(params.HashKey()); err != nil {
+					return err
+				}
+			default:
+				if err := params.Bind(ctx); err != nil {
+					return err
+				}
+			}
+			if params.Bucket, err = config.Server.GetBucket(params.BucketName); err != nil {
+				return echo.ErrBadRequest
+			}
+			context.FileParams = params
 			return next(ctx)
 		}
 	}

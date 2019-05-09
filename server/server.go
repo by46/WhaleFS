@@ -94,7 +94,7 @@ func NewServer() *Server {
 	bucketMeta := buildBucketMeta(config)
 
 	app := echo.New()
-	app.Use(middleware.Logger())
+
 	srv := &Server{
 		app:        app,
 		Config:     config,
@@ -110,6 +110,11 @@ func NewServer() *Server {
 }
 
 func (s *Server) install() {
+
+	s.app.HTTPErrorHandler = s.HTTPErrorHandler
+
+	s.app.Use(middleware.Logger())
+
 	s.app.Use(middleware2.InjectContext())
 
 	s.app.Use(middleware2.ParseFileParams(middleware2.ParseFileParamsConfig{
