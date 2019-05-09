@@ -33,10 +33,7 @@ func (s *Server) download(ctx echo.Context) error {
 	if !success {
 		return echo.ErrBadRequest
 	}
-	bucket, err := s.getBucket(context.FileParams.BucketName)
-	if err != nil {
-		return s.fatal(err)
-	}
+	bucket := context.FileParams.Bucket
 
 	hash, err := s.hashKey(ctx.Request().URL.Path)
 	if err != nil {

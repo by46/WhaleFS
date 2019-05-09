@@ -1,3 +1,4 @@
+// provide customer middleware which common task
 package middleware
 
 import (

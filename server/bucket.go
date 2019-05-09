@@ -23,21 +23,15 @@ func (s *Server) parseBucket(ctx echo.Context) (*model.Bucket, error) {
 		return nil, fmt.Errorf("invalid url")
 	}
 	name := segments[1]
-	entity, err := s.getBucket(name)
+	entity, err := s.GetBucket(name)
 	if err != nil {
 		return nil, errors.Wrapf(err, "bucket %s not exists", name)
 	}
 	return entity, nil
 }
 
-func (s *Server) getBucket(name string) (*model.Bucket, error) {
-	name = strings.ToLower(name)
+func (s *Server) GetBucket(name string) (*model.Bucket, error) {
 	key := fmt.Sprintf("system.bucket.%s", name)
-	//key, err := common.Sha1(name)
-	//if err != nil {
-	//	return nil, errors.Wrapf(err, "compute sha1 digest for %s failed", name)
-	//}
-	//key = key[:10]
 
 	bucket, exists := s.buckets[name]
 	if exists {

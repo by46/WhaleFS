@@ -10,6 +10,7 @@ import (
 type FileParams struct {
 	Key         string
 	BucketName  string
+	Bucket      *Bucket
 	ExtractFile bool
 	Content     *multipart.FileHeader
 }

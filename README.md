@@ -67,3 +67,5 @@ import:
   version: ^0.8.0
 
 ```
+
+### golang 编程规范

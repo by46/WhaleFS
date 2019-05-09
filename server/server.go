@@ -110,7 +110,9 @@ func NewServer() *Server {
 func (s *Server) install() {
 	s.app.Use(middleware2.InjectContext())
 
-	s.app.Use(middleware2.ParseFileParams())
+	s.app.Use(middleware2.ParseFileParams(middleware2.ParseFileParamsConfig{
+		s,
+	}))
 
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},

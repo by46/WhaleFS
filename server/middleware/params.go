@@ -7,9 +7,17 @@ import (
 	"strings"
 )
 
-func ParseFileParams() echo.MiddlewareFunc {
+type Server interface {
+	GetBucket(string) (*model.Bucket, error)
+}
+
+type ParseFileParamsConfig struct {
+	Server Server
+}
+
+func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(ctx echo.Context) error {
+		return func(ctx echo.Context) (err error) {
 			if context, success := ctx.(*ExtendContext); success {
 				params := new(model.FileParams)
 				switch strings.ToLower(ctx.Request().Method) {
@@ -21,6 +29,9 @@ func ParseFileParams() echo.MiddlewareFunc {
 					if err := params.Bind(ctx); err != nil {
 						return echo.ErrBadRequest
 					}
+				}
+				if params.Bucket, err = config.Server.GetBucket(params.BucketName); err != nil {
+					return echo.ErrBadRequest
 				}
 				context.FileParams = params
 			}
