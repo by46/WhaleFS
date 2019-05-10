@@ -42,9 +42,9 @@ system.bucket.benjamin
   "last_edit_date": 123143,
   "last_edit_user":"by46",
   "sizes": [
-  {"name": "p200", "width":200, "height": 150, "mode": "normal"},
-  {"name": "p60", "width":60, "height": 45, "mode": "normal"},
-  {"name": "p160", "width":160, "height": 120, "mode": "normal"}]
+  {"name": "p200", "width":200, "height": 150, "mode": "stretch"},
+  {"name": "p60", "width":60, "height": 45, "mode": "fit"},
+  {"name": "p160", "width":160, "height": 120, "mode": "thumbnail"}]
 }
 ```
 
