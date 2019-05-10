@@ -29,6 +29,8 @@ func (s *Server) HTTPErrorHandler(err error, ctx echo.Context) {
 			code = http.StatusNotFound
 		case common.CodeBucketNotExists:
 			code = http.StatusForbidden
+		case common.CodeForbidden:
+			code = http.StatusForbidden
 		default:
 			code = http.StatusInternalServerError
 		}

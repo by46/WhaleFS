@@ -8,6 +8,7 @@ import (
 const (
 	CodeFileNotExists   = "FileNotExists"
 	CodeBucketNotExists = "BucketNotExists"
+	CodeForbidden       = "Forbidden"
 )
 
 type BusinessError struct {

@@ -9,6 +9,7 @@ import (
 
 	"github.com/labstack/echo"
 
+	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
@@ -66,6 +67,10 @@ func (s *Server) upload(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
 	params := context.FileParams
 
+	if err := s.validateFile(ctx); err != nil {
+		return err
+	}
+
 	form := params.Content
 	headers := http.Header(form.Header)
 	body, err := form.Open()
@@ -78,6 +83,7 @@ func (s *Server) upload(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
+
 	hash := params.HashKey()
 	entity.RawKey = params.Key
 	if err := s.Meta.Set(hash, entity); err != nil {
@@ -135,4 +141,18 @@ func (s *Server) freshCheck(ctx echo.Context, entity *model.FileEntity) bool {
 		}
 	}
 	return false
+}
+
+func (s *Server) validateFile(ctx echo.Context) error {
+	context := ctx.(*middleware.ExtendContext)
+	params := context.FileParams
+	hash := params.HashKey()
+	if !params.Override {
+		if exists, err := s.Meta.Exists(hash); err != nil {
+			return err
+		} else if exists {
+			return common.New(common.CodeForbidden)
+		}
+	}
+	return nil
 }

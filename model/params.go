@@ -11,8 +11,9 @@ import (
 )
 
 type FileParams struct {
-	Key         string
-	BucketName  string
+	Key        string
+	BucketName string
+	// 是否允许覆盖已存在文件
 	Override    bool
 	ExtractFile bool
 	Bucket      *Bucket

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 
@@ -10,10 +9,6 @@ import (
 	"github.com/couchbase/go-couchbase"
 	"github.com/couchbase/gomemcached"
 	"github.com/pkg/errors"
-)
-
-var (
-	ErrNoEntity = fmt.Errorf("entity not exists")
 )
 
 type metaClient struct {
@@ -53,6 +48,15 @@ func (m *metaClient) Set(key string, value interface{}) error {
 }
 
 func (m *metaClient) Exists(key string) (bool, error) {
+	_, err := m.Bucket.GetRaw(key)
+	if err != nil {
+		if response, success := err.(*gomemcached.MCResponse); success {
+			if response.Status == gomemcached.KEY_ENOENT {
+				return false, nil
+			}
+		}
+		return false, err
+	}
 	return true, nil
 }
 

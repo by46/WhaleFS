@@ -1,5 +1,5 @@
 hash: 735d55a7ae0d9d2eca030451631e64e6e814547e421b91822623450a60d49795
-updated: 2019-05-10T10:19:59.786723+08:00
+updated: 2019-05-10T12:12:26.628025+08:00
 imports:
 - name: github.com/couchbase/go-couchbase
   version: 6aeabeae85e5645306382779e3ee55a330ec558c
