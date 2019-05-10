@@ -60,6 +60,14 @@ func (f *FileEntity) IsPlain() bool {
 	}
 }
 
+func (f *FileEntity) IsImage() bool {
+	if f.MimeType == "" {
+		return false
+	}
+
+	return strings.HasPrefix(f.MimeType, "image/")
+}
+
 type FileObject struct {
 	Key         string
 	BucketName  string
