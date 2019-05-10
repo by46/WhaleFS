@@ -1,5 +1,5 @@
-hash: c5041eb7259a85eb7446c1d6d9dedf6dfedf88521192241a30f1f1be448ff55c
-updated: 2019-05-10T09:27:09.522319+08:00
+hash: 735d55a7ae0d9d2eca030451631e64e6e814547e421b91822623450a60d49795
+updated: 2019-05-10T10:19:59.786723+08:00
 imports:
 - name: github.com/couchbase/go-couchbase
   version: 6aeabeae85e5645306382779e3ee55a330ec558c
@@ -89,6 +89,12 @@ imports:
   - acme
   - acme/autocert
   - pbkdf2
+- name: golang.org/x/image
+  version: e4e5bf290fec812cbe38d879ea41d6ebb2c40ff5
+  subpackages:
+  - bmp
+  - tiff
+  - tiff/lzw
 - name: golang.org/x/net
   version: a4d6f7feada510cc50e69a37b484cb0fdc6b7876
   subpackages:

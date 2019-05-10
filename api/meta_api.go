@@ -53,7 +53,7 @@ func (m *metaClient) Set(key string, value interface{}) error {
 }
 
 func (m *metaClient) Exists(key string) (bool, error) {
-
+	return true, nil
 }
 
 func (m *metaClient) SetTTL(key string, value interface{}, ttl int) error {
