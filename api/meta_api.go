@@ -47,9 +47,16 @@ func (m *metaClient) Get(key string, value interface{}) error {
 	}
 	return err
 }
+
 func (m *metaClient) Set(key string, value interface{}) error {
 	return m.Bucket.Set(key, 0, value)
 }
+
+func (m *metaClient) Exists(key string) (bool, error) {
+
+}
+
 func (m *metaClient) SetTTL(key string, value interface{}, ttl int) error {
+	// TODO(benjamin)
 	return nil
 }

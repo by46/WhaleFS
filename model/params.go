@@ -13,9 +13,10 @@ import (
 type FileParams struct {
 	Key         string
 	BucketName  string
+	Override    bool
+	ExtractFile bool
 	Bucket      *Bucket
 	Entity      *FileEntity
-	ExtractFile bool
 	Content     *multipart.FileHeader
 }
 
@@ -30,6 +31,9 @@ func (self *FileParams) FieldMap(r *http.Request) binding.FieldMap {
 				}
 				return errors
 			},
+		},
+		&self.Override: binding.Field{
+			Form: "override",
 		},
 		&self.Content: binding.Field{
 			Form: "file",
