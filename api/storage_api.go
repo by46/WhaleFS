@@ -74,7 +74,7 @@ func NewStorageClient(masters []string) common.Storage {
 	}
 }
 
-func (c *storageClient) Download(fid string) (io.ReadCloser, http.Header, error) {
+func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	volumeId, _, _, err := parseFileId(fid)
 	if err != nil {
 		return nil, nil, fmt.Errorf("parse file id error %v", err)

@@ -49,6 +49,11 @@ func (s *Server) download(ctx echo.Context) error {
 		return err
 	}
 
+	body, err = s.resize(ctx, body)
+	if err != nil {
+		return err
+	}
+
 	response := ctx.Response()
 	response.Header().Set(echo.HeaderContentType, entity.MimeType)
 	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))

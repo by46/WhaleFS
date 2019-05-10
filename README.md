@@ -40,7 +40,11 @@ system.bucket.benjamin
   "extends":[{"key":"keepdate", "value":"21"}],
   "memo":"mo bucket",
   "last_edit_date": 123143,
-  "last_edit_user":"by46"
+  "last_edit_user":"by46",
+  "sizes": [
+  {"name": "p200", "width":200, "height": 150, "mode": "normal"},
+  {"name": "p60", "width":60, "height": 45, "mode": "normal"},
+  {"name": "p160", "width":160, "height": 120, "mode": "normal"}]
 }
 ```
 

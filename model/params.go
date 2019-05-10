@@ -1,13 +1,18 @@
 package model
 
 import (
+	"fmt"
 	"mime/multipart"
 	"net/http"
+	"strings"
 
-	"github.com/labstack/echo"
 	"github.com/mholt/binding"
 
 	"github.com/by46/whalefs/utils"
+)
+
+const (
+	Separator = "/"
 )
 
 type FileParams struct {
@@ -19,6 +24,7 @@ type FileParams struct {
 	Bucket      *Bucket
 	Entity      *FileEntity
 	Content     *multipart.FileHeader
+	Size        *ImageSize
 }
 
 func (self *FileParams) FieldMap(r *http.Request) binding.FieldMap {
@@ -43,15 +49,24 @@ func (self *FileParams) FieldMap(r *http.Request) binding.FieldMap {
 }
 
 func (self *FileParams) ParseKeyAndBucketName(value string) (err error) {
-	self.Key = normalizePath(value)
-	self.BucketName, err = parseBucketName(self.Key)
+	self.Key = utils.PathNormalize(strings.ToLower(value))
+	self.BucketName = utils.PathSegment(self.Key, 0)
+	if self.BucketName == "" {
+		return fmt.Errorf("invalid bucket name")
+	}
 	return
 }
 
-func (self *FileParams) Bind(ctx echo.Context) (err error) {
-	self.Key = normalizePath(ctx.Request().URL.Path)
-	self.BucketName, err = parseBucketName(self.Key)
-	return
+// parse image size from path, used to resize picture
+func (self *FileParams) ParseImageSize(bucket *Bucket) {
+	name, key := utils.PathRemoveSegment(self.Key, 1)
+	if name == "" {
+		return
+	}
+	size := bucket.getSize(name)
+	if size != nil {
+		self.Key, self.Size = key, size
+	}
 }
 
 func (self *FileParams) HashKey() string {

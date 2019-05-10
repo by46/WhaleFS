@@ -66,6 +66,8 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 			}
 
 			if method == "get" || method == "head" {
+				params.ParseImageSize(params.Bucket)
+
 				if params.Entity, err = config.Server.GetFileEntity(params.HashKey()); err != nil {
 					return err
 				}

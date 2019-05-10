@@ -28,7 +28,8 @@ type Server struct {
 	Logger     common.Logger
 	Version    string
 	app        *echo.Echo
-	buckets    map[string]*model.Bucket
+	// TODO(benjamin): 解决并发操作字典问题
+	buckets map[string]*model.Bucket
 }
 
 func buildConfig() (*model.Config, error) {

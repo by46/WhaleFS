@@ -8,6 +8,6 @@ import (
 )
 
 type Storage interface {
-	Download(url string) (io.ReadCloser, http.Header, error)
+	Download(url string) (io.Reader, http.Header, error)
 	Upload(mimeType string, body io.Reader) (entity *model.FileEntity, err error)
 }
