@@ -94,7 +94,7 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	return nil, nil, fmt.Errorf("download file error for all location %v", entity.Locations)
 }
 
-func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileEntity, error) {
+func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta, error) {
 	var size int64
 	var preReadSize int
 	var err error
@@ -140,7 +140,7 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileEnti
 	if response.StatusCode < http.StatusOK && response.StatusCode >= http.StatusBadRequest {
 		return nil, fmt.Errorf("upload content error, code %s", response.Status)
 	}
-	entity := &model.FileEntity{
+	entity := &model.FileMeta{
 		FID:          fid.FID,
 		ETag:         strings.Trim(response.Header.Get(utils.HeaderETag), `"`),
 		LastModified: time.Now().UTC().Unix(),

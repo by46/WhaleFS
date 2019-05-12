@@ -76,15 +76,8 @@ func (s *Server) upload(ctx echo.Context) error {
 		return err
 	}
 
-	form := params.Content
-	headers := http.Header(form.Header)
-	body, err := form.Open()
-	if err != nil {
-		return err
-	}
-
-	defer body.Close()
-	entity, err := s.Storage.Upload(headers.Get(echo.HeaderContentType), body)
+	file := params.File
+	entity, err := s.Storage.Upload(file.MimeType, file.Content)
 	if err != nil {
 		return err
 	}
@@ -124,7 +117,7 @@ func (s *Server) form(ctx echo.Context) (*multipart.FileHeader, error) {
 	return nil, nil
 }
 
-func (s *Server) freshCheck(ctx echo.Context, entity *model.FileEntity) bool {
+func (s *Server) freshCheck(ctx echo.Context, entity *model.FileMeta) bool {
 	headers := ctx.Request().Header
 	if since := headers.Get(echo.HeaderIfModifiedSince); since != "" {
 		sinceDate, err := utils.RFC822ToTime(since)
@@ -151,6 +144,19 @@ func (s *Server) freshCheck(ctx echo.Context, entity *model.FileEntity) bool {
 func (s *Server) validateFile(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
 	params := context.FileParams
+	limit := context.FileParams.Bucket.Limit
+	file := context.FileParams.File
+
+	if limit != nil {
+		if limit.MinSize != 0 && file.Size < limit.MinSize {
+			return common.New(common.CodeLimit)
+		}
+
+		if limit.MaxSize != 0 && file.Size > limit.MaxSize {
+			return common.New(common.CodeLimit)
+		}
+	}
+
 	hash := params.HashKey()
 	if !params.Override {
 		if exists, err := s.Meta.Exists(hash); err != nil {

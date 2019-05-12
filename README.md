@@ -35,16 +35,24 @@ system.bucket.benjamin
 ```json
 {
   "name": "benjamin",
+  "memo":"mo bucket",
   "alias": ["benjamin1", "benjamin2"],
   "expires": 20,
   "extends":[{"key":"keepdate", "value":"21"}],
-  "memo":"mo bucket",
+  "limit": {
+    "min_size": -1,
+    "max_size": 102400,
+    "width": 10,
+    "height": 10,
+    "mime_types": ["image/png", "image/jpeg", "image/png"]
+  },
   "last_edit_date": 123143,
   "last_edit_user":"by46",
   "sizes": [
   {"name": "p200", "width":200, "height": 150, "mode": "stretch"},
   {"name": "p60", "width":60, "height": 45, "mode": "fit"},
-  {"name": "p160", "width":160, "height": 120, "mode": "thumbnail"}]
+  {"name": "p160", "width":160, "height": 120, "mode": "thumbnail"}
+  ]
 }
 ```
 

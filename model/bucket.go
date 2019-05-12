@@ -27,6 +27,14 @@ type ImageSize struct {
 	Mode   string `json:"mode"`
 }
 
+type BucketLimit struct {
+	MinSize   int64    `json:"min_size"`
+	MaxSize   int64    `json:"max_size"`
+	Width     int      `json:"width"`
+	Height    int      `json:"height"`
+	MimeTypes []string `json:"mime_types"`
+}
+
 type Bucket struct {
 	Name         string         `json:"name"`
 	Expires      int            `json:"expires"` // unit: day
@@ -35,6 +43,7 @@ type Bucket struct {
 	LastEditDate int64          `json:"last_edit_date"`
 	LastEditUser string         `json:"last_edit_user"`
 	Sizes        []*ImageSize   `json:"Sizes"`
+	Limit        *BucketLimit   `json:"limit"`
 	sizesMapping map[string]*ImageSize
 	sync.Mutex
 }
@@ -69,7 +78,7 @@ func (b *Bucket) getExtendInt(key string) int {
 
 }
 
-func (b *Bucket) getSize(name string) *ImageSize {
+func (b *Bucket) GetSize(name string) *ImageSize {
 	if b.Sizes == nil {
 		return nil
 	}

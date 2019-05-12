@@ -2,17 +2,15 @@ package model
 
 import (
 	"fmt"
-	"mime/multipart"
-	"net/http"
+	"io"
+	"net/textproto"
 	"strings"
 	"time"
 
 	"github.com/by46/whalefs/utils"
-
-	"github.com/mholt/binding"
 )
 
-type FileEntity struct {
+type FileMeta struct {
 	RawKey       string `json:"raw_key,omitempty"`
 	Url          string `json:"url,omitempty"`
 	FID          string `json:"fid,omitempty"`
@@ -22,29 +20,29 @@ type FileEntity struct {
 	MimeType     string `json:"mime_type,omitempty"`
 }
 
-func (f *FileEntity) LastModifiedTime() time.Time {
+func (f *FileMeta) LastModifiedTime() time.Time {
 	return time.Unix(f.LastModified, 0).UTC()
 }
 
-func (f *FileEntity) HeaderISOExpires(cacheMaxAge int) string {
+func (f *FileMeta) HeaderISOExpires(cacheMaxAge int) string {
 	return fmt.Sprintf("max-age=%d, must-revalidate", cacheMaxAge)
 }
 
-func (f *FileEntity) HeaderExpires(cacheMaxAge int) string {
+func (f *FileMeta) HeaderExpires(cacheMaxAge int) string {
 	duration := uint64(cacheMaxAge) * uint64(time.Second)
 	expired := time.Now().Add(time.Duration(duration)).UTC()
 	return utils.TimeToRFC822(expired)
 }
 
-func (f *FileEntity) HeaderETag() string {
+func (f *FileMeta) HeaderETag() string {
 	return fmt.Sprintf(`"%s"`, f.ETag)
 }
 
-func (f *FileEntity) HeaderLastModified() string {
+func (f *FileMeta) HeaderLastModified() string {
 	return utils.TimeToRFC822(f.LastModifiedTime())
 }
 
-func (f *FileEntity) IsPlain() bool {
+func (f *FileMeta) IsPlain() bool {
 	if f.MimeType == "" {
 		return false
 	}
@@ -60,7 +58,7 @@ func (f *FileEntity) IsPlain() bool {
 	}
 }
 
-func (f *FileEntity) IsImage() bool {
+func (f *FileMeta) IsImage() bool {
 	if f.MimeType == "" {
 		return false
 	}
@@ -68,31 +66,10 @@ func (f *FileEntity) IsImage() bool {
 	return strings.HasPrefix(f.MimeType, "image/")
 }
 
-type FileObject struct {
-	Key         string
-	BucketName  string
-	ExtractFile bool
-	Content     *multipart.FileHeader
-}
-
-func (self *FileObject) FieldMap(r *http.Request) binding.FieldMap {
-	return binding.FieldMap{
-		&self.Key: binding.Field{
-			Form:     "key",
-			Required: true,
-			Binder: func(name string, values []string, errors binding.Errors) binding.Errors {
-				var err error
-				self.Key = utils.PathNormalize(values[0])
-				self.BucketName, err = parseBucketName(self.Key)
-				if err != nil {
-					errors.Add([]string{name}, binding.TypeError, err.Error())
-				}
-				return errors
-			},
-		},
-		&self.Content: binding.Field{
-			Form:     "file",
-			Required: true,
-		},
-	}
+type FileContent struct {
+	MimeType string
+	Size     int64
+	Override bool
+	Headers  textproto.MIMEHeader
+	Content  io.Reader
 }

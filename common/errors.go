@@ -9,6 +9,7 @@ const (
 	CodeFileNotExists   = "FileNotExists"
 	CodeBucketNotExists = "BucketNotExists"
 	CodeForbidden       = "Forbidden"
+	CodeLimit           = "Limit"
 )
 
 type BusinessError struct {
