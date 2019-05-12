@@ -33,7 +33,7 @@ func (s *Server) tools(ctx echo.Context) error {
 func (s *Server) download(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileParams.Bucket
-	entity := context.FileParams.Entity
+	entity := context.FileParams.Meta
 
 	maxAge := bucket.MaxAge()
 	ctx.Response().Header().Add(utils.HeaderExpires, entity.HeaderExpires(maxAge))
@@ -92,7 +92,7 @@ func (s *Server) upload(ctx echo.Context) error {
 
 func (s *Server) head(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
-	entity := context.FileParams.Entity
+	entity := context.FileParams.Meta
 
 	response := ctx.Response()
 	response.Header().Set(echo.HeaderContentType, entity.MimeType)

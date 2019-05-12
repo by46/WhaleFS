@@ -25,7 +25,7 @@ var (
 func (s *Server) resize(ctx echo.Context, r io.Reader) (io.Reader, error) {
 	context := ctx.(*middleware.ExtendContext)
 
-	if !context.FileParams.Entity.IsImage() {
+	if !context.FileParams.Meta.IsImage() {
 		return r, nil
 	}
 
@@ -43,7 +43,7 @@ func (s *Server) resize(ctx echo.Context, r io.Reader) (io.Reader, error) {
 		newImg := imaging.Fit(img, size.Width, size.Height, imaging.Lanczos)
 		if !img.Bounds().Eq(newImg.Bounds()) {
 			var c color.Color = image.White
-			if context.FileParams.Entity.MimeType == "image/png" {
+			if context.FileParams.Meta.MimeType == "image/png" {
 				c = ColorTransparency
 			}
 			background := imaging.New(size.Width, size.Height, c)
@@ -61,7 +61,7 @@ func (s *Server) resize(ctx echo.Context, r io.Reader) (io.Reader, error) {
 
 func (s *Server) encode(ctx echo.Context, img image.Image) (io.Reader, error) {
 	context := ctx.(*middleware.ExtendContext)
-	entity := context.FileParams.Entity
+	entity := context.FileParams.Meta
 
 	buff := bytes.NewBuffer(nil)
 

@@ -45,7 +45,7 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 
 			method := strings.ToLower(ctx.Request().Method)
 
-			fileParams := new(model.FileParams)
+			fileParams := new(model.FileContext)
 			params, err := model.Bind(ctx)
 			// todo(benjamin): process error for right way
 			//if err != nil {
@@ -68,7 +68,7 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 
 			if method == "get" || method == "head" {
 				fileParams.ParseImageSize(bucket)
-				if fileParams.Entity, err = config.Server.GetFileEntity(fileParams.HashKey()); err != nil {
+				if fileParams.Meta, err = config.Server.GetFileEntity(fileParams.HashKey()); err != nil {
 					return err
 				}
 			} else if method == "post" {
