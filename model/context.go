@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/mholt/binding"
@@ -41,27 +42,43 @@ func (self *FileContext) ParseImageSize(bucket *Bucket) {
 }
 
 func (self *FileContext) ParseFileContent(params *Params) (err error) {
-	// todo(benjamin): upload file from internet source
-	file := new(FileContent)
-	form := params.Content
-	file.Headers = form.Header
+	if params.Source != "" {
+		self.File, err = self.parseFileContentFromRemote(params.Source)
+	} else {
+		self.File, err = self.parseFileContentFromForm(params.Content)
+	}
+	return
+}
+
+func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) (*FileContent, error) {
 	body, err := form.Open()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func() {
 		_ = body.Close()
 	}()
 	buf, err := ioutil.ReadAll(body)
 	if err != nil {
-		return
+		return nil, err
 	}
+	file := new(FileContent)
+	file.Headers = form.Header
 	file.Content = bytes.NewBuffer(buf)
 	file.MimeType = form.Header.Get(echo.HeaderContentType)
-	self.File = file
-	return
+	return file, nil
 }
 
+func (self *FileContext) parseFileContentFromRemote(source string) (*FileContent, error) {
+	body, headers, err := utils.Get(source)
+	if err != nil {
+		return nil, err
+	}
+	file := new(FileContent)
+	file.Content = bytes.NewBuffer(body)
+	file.MimeType = headers.Get(echo.HeaderContentType)
+	return file, nil
+}
 func (self *FileContext) HashKey() string {
 	hash, _ := utils.Sha1(self.Key)
 	return hash
@@ -69,6 +86,7 @@ func (self *FileContext) HashKey() string {
 
 type Params struct {
 	Key      string
+	Source   string
 	Override bool
 	Content  *multipart.FileHeader
 }
@@ -78,6 +96,9 @@ func (self *Params) FieldMap(r *http.Request) binding.FieldMap {
 		&self.Key: binding.Field{
 			Form:     "key",
 			Required: true,
+		},
+		&self.Source: binding.Field{
+			Form: "source",
 		},
 		&self.Override: binding.Field{
 			Form: "override",
@@ -91,7 +112,7 @@ func (self *Params) FieldMap(r *http.Request) binding.FieldMap {
 func Bind(ctx echo.Context) (*Params, error) {
 	entity := new(Params)
 
-	method := ctx.Request().Method
+	method := strings.ToLower(ctx.Request().Method)
 	if method == "get" || method == "head" {
 		values := ctx.Request().URL.Query()
 		values.Set("key", ctx.Request().URL.Path)

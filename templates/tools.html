@@ -6,8 +6,11 @@
 </head>
 <body>
 <form action="/" method="post" enctype="multipart/form-data">
-    <input id="key" name="key">
+    <label for="key">对象Key</label>
+    <input id="key" name="key"/>
     <input id="file" type="file" name="file">
+    <label for="source">外部url</label>
+    <input id="source" type="text" name="source"/>
     <label for="override">是否覆盖(默认为false, 不允许覆盖, 存在同名文件会抛出错误)</label>
     <input id="override" name="override" type="checkbox" value="1"/>
     <button type="submit">Submit</button>
