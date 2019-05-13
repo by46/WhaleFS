@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	url2 "net/url"
+	"time"
 )
 
 const (
@@ -11,6 +12,12 @@ const (
 	HeaderIfNoneMatch  = "If-None-Match"
 	HeaderExpires      = "Expires"
 	HeaderCacheControl = "Cache-Control"
+)
+
+var (
+	client = &http.Client{
+		Timeout: 30 * time.Second,
+	}
 )
 
 func Get(url string) ([]byte, http.Header, error) {
@@ -22,7 +29,6 @@ func Get(url string) ([]byte, http.Header, error) {
 		Method: "GET",
 		URL:    u,
 	}
-	client := &http.Client{}
 
 	resp, err := client.Do(req)
 	if resp != nil {
