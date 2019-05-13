@@ -11,6 +11,7 @@ type TarEntity struct {
 	Reader io.Reader
 	Size   int64
 	Target string
+	Err    error
 }
 
 func BuildPackage(tw *tar.Writer, tarEntity *TarEntity) error {

@@ -81,33 +81,35 @@ func (s *Server) tarDownload(ctx echo.Context) error {
 	fileReaderChan := make(chan *utils.TarEntity, len(tarFileEntity.Items))
 	defer close(fileReaderChan)
 
-	errors := make([]error, len(tarFileEntity.Items))
-
 	for _, item := range tarFileEntity.Items {
 		go func(item model.TarFileItem) {
+			tarEntity := &utils.TarEntity{
+				Target: item.Target,
+			}
+			defer func() { fileReaderChan <- tarEntity }()
+
 			hashKey, err := utils.Sha1(item.RawKey)
 			if err != nil {
-				errors = append(errors, err)
+				tarEntity.Err = err
+				fileReaderChan <- tarEntity
 				return
 			}
 			entity, err := s.GetFileEntity(hashKey)
 			if err != nil {
-				errors = append(errors, err)
+				tarEntity.Err = err
+				fileReaderChan <- tarEntity
 				return
 			}
 
 			body, _, err := s.Storage.Download(entity.FID)
 			if err != nil {
-				errors = append(errors, err)
+				tarEntity.Err = err
+				fileReaderChan <- tarEntity
 				return
 			}
 
-			tarEntity := &utils.TarEntity{
-				Reader: body,
-				Size:   entity.Size,
-				Target: item.Target,
-			}
-			fileReaderChan <- tarEntity
+			tarEntity.Size = entity.Size
+			tarEntity.Reader = body
 		}(item)
 	}
 
@@ -119,17 +121,15 @@ func (s *Server) tarDownload(ctx echo.Context) error {
 	tw := tar.NewWriter(response)
 	defer tw.Close()
 
-	for i, _ := range tarFileEntity.Items {
+	for i := 0; i < len(tarFileEntity.Items); i++ {
 		tarEntity := <-fileReaderChan
-		fmt.Println(i)
+		if tarEntity.Err != nil {
+			return tarEntity.Err
+		}
 		err := utils.BuildPackage(tw, tarEntity)
 		if err != nil {
 			return err
 		}
-	}
-
-	if len(errors) > 0 && errors[0] != nil {
-		return errors[0]
 	}
 
 	return nil
