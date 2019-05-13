@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/mholt/binding"
+	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/utils"
 )
@@ -17,7 +18,7 @@ const (
 )
 
 type FileContext struct {
-	Key        string
+	Key string
 	// 是否允许覆盖已存在文件
 	Override    bool
 	ExtractFile bool
@@ -98,5 +99,8 @@ func Bind(ctx echo.Context) (*Params, error) {
 	}
 
 	err := binding.Bind(ctx.Request(), entity)
-	return entity, err
+	if err != nil {
+		return nil, errors.Wrap(err, "")
+	}
+	return entity, nil
 }

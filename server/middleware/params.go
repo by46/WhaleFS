@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/labstack/echo"
@@ -47,17 +46,16 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 
 			fileParams := new(model.FileContext)
 			params, err := model.Bind(ctx)
-			// todo(benjamin): process error for right way
-			//if err != nil {
-			//	return err
-			//}
+			if err != nil {
+				return err
+			}
 
 			key := utils.PathNormalize(params.Key)
 			fileParams.Key = key
 			fileParams.Override = params.Override
 			bucketName := utils.PathSegment(key, 0)
 			if bucketName == "" {
-				return fmt.Errorf("invalid bucket name")
+				return common.New(common.CodeBucketNotExists)
 			}
 
 			bucket, err := config.Server.GetBucket(bucketName)
