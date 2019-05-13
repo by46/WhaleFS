@@ -80,7 +80,7 @@ func (s *Server) overlay(ctx echo.Context, img image.Image) (image.Image, error)
 		return img, nil
 	}
 	pt := overlay.RealPosition(img, overlayImage)
-	img = imaging.Overlay(img, overlayImage, pt, 0.8)
+	img = imaging.Overlay(img, overlayImage, pt, overlay.Opacity)
 	return img, nil
 }
 

@@ -46,6 +46,7 @@ type ImageOverlay struct {
 	Default        bool                  `json:"default"`
 	PositionString string                `json:"position"`
 	Image          string                `json:"image"`
+	Opacity        float64               `json:"opacity"`
 	Position       *ImageOverlayPosition `json:"-"`
 }
 

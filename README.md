@@ -49,11 +49,11 @@ system.bucket.benjamin
   "last_edit_date": 123143,
   "last_edit_user":"by46",
   "overlays": [
-    {"name": "demo1", "default": true, "position": "TopLeft", "image": "7,15154f3ef7"},
-    {"name": "demo2", "default": false, "position": "TopRight", "image": "7,15154f3ef7"},
-    {"name": "demo3", "default": false, "position": "BottomLeft", "image": "7,15154f3ef7"},
-    {"name": "demo4", "default": false, "position": "BottomRight", "image": "7,15154f3ef7"},
-    {"name": "demo5", "default": false, "position": "{\"top\":null, \"right\":0,\"bottom\":0, \"left\":0}", "image": "7,15154f3ef7"}
+    {"name": "demo1", "default": true, "position": "TopLeft", "image": "7,15154f3ef7", "opacity":  0.8},
+    {"name": "demo2", "default": false, "position": "TopRight", "image": "7,15154f3ef7", "opacity":  0.8},
+    {"name": "demo3", "default": false, "position": "BottomLeft", "image": "7,15154f3ef7", "opacity":  0.8},
+    {"name": "demo4", "default": false, "position": "BottomRight", "image": "7,15154f3ef7", "opacity":  0.8},
+    {"name": "demo5", "default": false, "position": "{\"top\":null, \"right\":0,\"bottom\":0, \"left\":0}", "image": "7,15154f3ef7", "opacity":  0.8}
   ],
   "sizes": [
   {"name": "p200", "width":200, "height": 150, "mode": "stretch"},
