@@ -18,6 +18,7 @@ import (
 )
 
 func (s *Server) favicon(ctx echo.Context) error {
+	// TODO(benjamin): 添加新鲜度检查
 	return ctx.File("static/logo.png")
 }
 
