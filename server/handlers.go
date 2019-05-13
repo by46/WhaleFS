@@ -1,6 +1,8 @@
 package server
 
 import (
+	"archive/tar"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -66,6 +68,71 @@ func (s *Server) download(ctx echo.Context) error {
 	}
 	_, err = io.Copy(response, body)
 	return err
+}
+
+func (s *Server) tarDownload(ctx echo.Context) error {
+	content := ctx.FormValue("content")
+	tarFileEntity := new(model.TarFileEntity)
+	err := json.Unmarshal([]byte(content), &tarFileEntity)
+	if err != nil {
+		return err
+	}
+
+	fileReaderChan := make(chan *utils.TarEntity, len(tarFileEntity.Items))
+	defer close(fileReaderChan)
+
+	errors := make([]error, len(tarFileEntity.Items))
+
+	for _, item := range tarFileEntity.Items {
+		go func(item model.TarFileItem) {
+			hashKey, err := utils.Sha1(item.RawKey)
+			if err != nil {
+				errors = append(errors, err)
+				return
+			}
+			entity, err := s.GetFileEntity(hashKey)
+			if err != nil {
+				errors = append(errors, err)
+				return
+			}
+
+			body, _, err := s.Storage.Download(entity.FID)
+			if err != nil {
+				errors = append(errors, err)
+				return
+			}
+
+			tarEntity := &utils.TarEntity{
+				Reader: body,
+				Size:   entity.Size,
+				Target: item.Target,
+			}
+			fileReaderChan <- tarEntity
+		}(item)
+	}
+
+	response := ctx.Response()
+
+	response.Header().Set(echo.HeaderContentType, "application/tar")
+	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", tarFileEntity.Name))
+
+	tw := tar.NewWriter(response)
+	defer tw.Close()
+
+	for i, _ := range tarFileEntity.Items {
+		tarEntity := <-fileReaderChan
+		fmt.Println(i)
+		err := utils.BuildPackage(tw, tarEntity)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(errors) > 0 && errors[0] != nil {
+		return errors[0]
+	}
+
+	return nil
 }
 
 func (s *Server) upload(ctx echo.Context) error {

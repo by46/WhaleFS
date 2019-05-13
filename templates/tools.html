@@ -5,7 +5,7 @@
     <title>Upload Test</title>
 </head>
 <body>
-<form action="/" method="post" enctype="multipart/form-data">
+<form action="/upload" method="post" enctype="multipart/form-data">
     <label for="key">对象Key</label>
     <input id="key" name="key"/>
     <input id="file" type="file" name="file">
@@ -14,6 +14,11 @@
     <label for="override">是否覆盖(默认为false, 不允许覆盖, 存在同名文件会抛出错误)</label>
     <input id="override" name="override" type="checkbox" value="1"/>
     <button type="submit">Submit</button>
+</form>
+<form action="/tarDownload" method="post">
+    <label for="tarInput">打包下载json</label>
+    <textarea id="tarInput" rows = "10" cols = "50" name="content"></textarea>
+    <button type="submit">Download</button>
 </form>
 </body>
 </html>

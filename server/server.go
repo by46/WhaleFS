@@ -122,7 +122,8 @@ func (s *Server) install() {
 	s.app.Use(middleware2.ParseFileParams(middleware2.ParseFileParamsConfig{
 		Server: s,
 		Skipper: func(context echo.Context) bool {
-			return strings.ToLower(context.Request().URL.Path) == "/tools"
+			return strings.ToLower(context.Request().URL.Path) == "/tools" ||
+				context.Request().URL.Path == "/tarDownload"
 		},
 	}))
 
@@ -137,7 +138,8 @@ func (s *Server) install() {
 	s.app.GET("/faq.htm", s.faq)
 	s.app.GET("/*", s.download)
 	s.app.HEAD("/*", s.head)
-	s.app.POST("/*", s.upload)
+	s.app.POST("/upload", s.upload)
+	s.app.POST("/tarDownload", s.tarDownload)
 	s.app.GET("/tools", s.tools)
 	s.app.GET("/favicon.ico", s.favicon)
 }
