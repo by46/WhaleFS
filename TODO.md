@@ -33,6 +33,7 @@
  17. 文件索引支持模糊查找
  18. 权限控制(access key)
  19. 通过外部URL上传资源 - p1 - done
+ 20. 简单部署
 
 
 目前根据facebook的一篇针对小文件优化的文件系统的论文, 找了一个golang的开源实现, 在此基础上进行开发, https://github.com/chrislusf/seaweedfs

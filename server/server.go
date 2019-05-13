@@ -122,7 +122,7 @@ func (s *Server) install() {
 		Skipper: func(context echo.Context) bool {
 			url := strings.ToLower(context.Request().URL.Path)
 			return url == "/tools" ||
-				url == "/tarDownload" ||
+				url == "/tardownload" ||
 				url == "/favicon.ico"
 		},
 	}))
