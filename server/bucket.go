@@ -32,17 +32,15 @@ func (s *Server) parseBucket(ctx echo.Context) (*model.Bucket, error) {
 }
 
 func (s *Server) GetBucket(name string) (*model.Bucket, error) {
-	key := fmt.Sprintf("system.bucket.%s", name)
-
-	bucket, exists := s.buckets[name]
+	key := fmt.Sprintf("%s.%s", KeyBucket, name)
+	value, exists := s.buckets.Load(key)
 	if exists {
-		return bucket, nil
+		return value.(*model.Bucket), nil
 	}
-	bucket = new(model.Bucket)
+	bucket := new(model.Bucket)
 	if err := s.BucketMeta.Get(key, bucket); err != nil {
 		return nil, errors.Wrapf(err, "get bucket %s failed", name)
 	}
-	// TODO(benjamin): use more effective data structure
-	s.buckets[name] = bucket
+	s.buckets.Store(key, bucket)
 	return bucket, nil
 }

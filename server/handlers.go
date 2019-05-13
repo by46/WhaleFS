@@ -63,7 +63,7 @@ func (s *Server) download(ctx echo.Context) error {
 	response.Header().Set(utils.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
 
 	// support gzip
-	if entity.Size >= (5<<10) && entity.IsPlain() && s.shouldGzip(ctx) {
+	if entity.Size >= GzipLimit && entity.IsPlain() && s.shouldGzip(ctx) {
 		return s.compress(ctx, body)
 	}
 	_, err = io.Copy(response, body)

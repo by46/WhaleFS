@@ -2,10 +2,10 @@ package server
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -28,8 +28,7 @@ type Server struct {
 	Logger     common.Logger
 	Version    string
 	app        *echo.Echo
-	// TODO(benjamin): 解决并发操作字典问题
-	buckets map[string]*model.Bucket
+	buckets    *sync.Map
 }
 
 func buildConfig() (*model.Config, error) {
@@ -84,7 +83,6 @@ func buildBucketMeta(config *model.Config) common.Meta {
 }
 
 func NewServer() *Server {
-
 	config, err := buildConfig()
 	if err != nil {
 		panic(fmt.Errorf("Load config fatal: %s\n", err))
@@ -105,8 +103,8 @@ func NewServer() *Server {
 		BucketMeta: bucketMeta,
 		Logger:     logger,
 		Version:    VERSION,
+		buckets:    &sync.Map{},
 	}
-	srv.buckets = make(map[string]*model.Bucket)
 	srv.install()
 	return srv
 }
@@ -142,23 +140,6 @@ func (s *Server) install() {
 	s.app.POST("/tarDownload", s.tarDownload)
 	s.app.GET("/tools", s.tools)
 	s.app.GET("/favicon.ico", s.favicon)
-}
-
-func (s *Server) error(code int, err error) error {
-	s.Logger.Error(err)
-	return &echo.HTTPError{
-		Code:    code,
-		Message: err.Error(),
-	}
-}
-
-func (s *Server) fatal(err error) error {
-	return s.error(http.StatusInternalServerError, err)
-}
-
-func (s *Server) objectKey(ctx echo.Context) string {
-	uri := ctx.Request().URL.Path
-	return strings.ToLower(uri)
 }
 
 func (s *Server) hashKey(uri string) (string, error) {
