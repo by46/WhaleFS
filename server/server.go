@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -27,8 +28,7 @@ type Server struct {
 	Logger     common.Logger
 	Version    string
 	app        *echo.Echo
-	// TODO(benjamin): 解决并发操作字典问题
-	buckets map[string]*model.Bucket
+	buckets    *sync.Map
 }
 
 func buildConfig() (*model.Config, error) {
@@ -83,7 +83,6 @@ func buildBucketMeta(config *model.Config) common.Meta {
 }
 
 func NewServer() *Server {
-
 	config, err := buildConfig()
 	if err != nil {
 		panic(fmt.Errorf("Load config fatal: %s\n", err))
@@ -104,8 +103,8 @@ func NewServer() *Server {
 		BucketMeta: bucketMeta,
 		Logger:     logger,
 		Version:    VERSION,
+		buckets:    &sync.Map{},
 	}
-	srv.buckets = make(map[string]*model.Bucket)
 	srv.install()
 	return srv
 }
