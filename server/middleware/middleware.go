@@ -9,5 +9,5 @@ import (
 
 type ExtendContext struct {
 	echo.Context
-	FileParams *model.FileContext
+	FileContext *model.FileContext
 }

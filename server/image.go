@@ -22,28 +22,35 @@ var (
 	ColorTransparency = color.RGBA{255, 255, 255, 0}
 )
 
-func (s *Server) resize(ctx echo.Context, r io.Reader) (io.Reader, error) {
+func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 	context := ctx.(*middleware.ExtendContext)
 
-	if !context.FileParams.Meta.IsImage() {
+	if !context.FileContext.Meta.IsImage() {
 		return r, nil
 	}
 
-	size := context.FileParams.Size
+	// 检查是否需要动态切图
+	size := context.FileContext.Size
 	if size == nil {
 		return r, nil
 	}
 
-	img, err := imaging.Decode(r)
+	img, err := s.preThumbnail(ctx, r)
 	if err != nil {
 		return nil, err
 	}
+
+	img, err = s.overlay(ctx, img)
+	if err != nil {
+		return nil, err
+	}
+
 	switch size.Mode {
 	case ModeFit:
 		newImg := imaging.Fit(img, size.Width, size.Height, imaging.Lanczos)
 		if !img.Bounds().Eq(newImg.Bounds()) {
 			var c color.Color = image.White
-			if context.FileParams.Meta.MimeType == "image/png" {
+			if context.FileContext.Meta.MimeType == "image/png" {
 				c = ColorTransparency
 			}
 			background := imaging.New(size.Width, size.Height, c)
@@ -59,9 +66,40 @@ func (s *Server) resize(ctx echo.Context, r io.Reader) (io.Reader, error) {
 	return s.encode(ctx, img)
 }
 
+func (s *Server) overlay(ctx echo.Context, img image.Image) (image.Image, error) {
+	context := ctx.(*middleware.ExtendContext)
+	bucket := context.FileContext.Bucket
+	overlay := bucket.GetOverlay("")
+	if overlay == nil {
+		return img, nil
+	}
+
+	overlayImage, err := s.downloadOverlay(overlay.Image)
+	if err != nil {
+		// 如果获取水印出现错误, 就放弃添加水印, 返回原图
+		return img, nil
+	}
+	pt := overlay.RealPosition(img, overlayImage)
+	img = imaging.Overlay(img, overlayImage, pt, 0.8)
+	return img, nil
+}
+
+func (s *Server) preThumbnail(ctx echo.Context, r io.Reader) (image.Image, error) {
+	// TODO(benjamin): 对图片进行预处理, 减少处理时间
+	return imaging.Decode(r)
+}
+
+func (s *Server) downloadOverlay(fid string) (image.Image, error) {
+	content, _, err := s.Storage.Download(fid)
+	if err != nil {
+		return nil, err
+	}
+	return imaging.Decode(content)
+}
+
 func (s *Server) encode(ctx echo.Context, img image.Image) (io.Reader, error) {
 	context := ctx.(*middleware.ExtendContext)
-	entity := context.FileParams.Meta
+	entity := context.FileContext.Meta
 
 	buff := bytes.NewBuffer(nil)
 

@@ -75,7 +75,7 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 				}
 			}
 
-			context.FileParams = fileParams
+			context.FileContext = fileParams
 			return next(ctx)
 		}
 	}

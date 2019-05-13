@@ -34,8 +34,8 @@ func (s *Server) tools(ctx echo.Context) error {
 
 func (s *Server) download(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
-	bucket := context.FileParams.Bucket
-	entity := context.FileParams.Meta
+	bucket := context.FileContext.Bucket
+	entity := context.FileContext.Meta
 
 	maxAge := bucket.MaxAge()
 	ctx.Response().Header().Add(utils.HeaderExpires, entity.HeaderExpires(maxAge))
@@ -51,7 +51,7 @@ func (s *Server) download(ctx echo.Context) error {
 		return err
 	}
 
-	body, err = s.resize(ctx, body)
+	body, err = s.thumbnail(ctx, body)
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func (s *Server) tarDownload(ctx echo.Context) error {
 
 func (s *Server) upload(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
-	params := context.FileParams
+	params := context.FileContext
 
 	if err := s.validateFile(ctx); err != nil {
 		return err
@@ -159,7 +159,7 @@ func (s *Server) upload(ctx echo.Context) error {
 
 func (s *Server) head(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
-	entity := context.FileParams.Meta
+	entity := context.FileContext.Meta
 
 	response := ctx.Response()
 	response.Header().Set(echo.HeaderContentType, entity.MimeType)
@@ -210,9 +210,9 @@ func (s *Server) freshCheck(ctx echo.Context, entity *model.FileMeta) bool {
 
 func (s *Server) validateFile(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
-	params := context.FileParams
-	limit := context.FileParams.Bucket.Limit
-	file := context.FileParams.File
+	params := context.FileContext
+	limit := context.FileContext.Bucket.Limit
+	file := context.FileContext.File
 
 	if limit != nil {
 		if limit.MinSize != 0 && file.Size < limit.MinSize {

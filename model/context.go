@@ -79,6 +79,7 @@ func (self *FileContext) parseFileContentFromRemote(source string) (*FileContent
 	file.MimeType = headers.Get(echo.HeaderContentType)
 	return file, nil
 }
+
 func (self *FileContext) HashKey() string {
 	hash, _ := utils.Sha1(self.Key)
 	return hash
