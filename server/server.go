@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -140,23 +139,6 @@ func (s *Server) install() {
 	s.app.POST("/*", s.upload)
 	s.app.GET("/tools", s.tools)
 	s.app.GET("/favicon.ico", s.favicon)
-}
-
-func (s *Server) error(code int, err error) error {
-	s.Logger.Error(err)
-	return &echo.HTTPError{
-		Code:    code,
-		Message: err.Error(),
-	}
-}
-
-func (s *Server) fatal(err error) error {
-	return s.error(http.StatusInternalServerError, err)
-}
-
-func (s *Server) objectKey(ctx echo.Context) string {
-	uri := ctx.Request().URL.Path
-	return strings.ToLower(uri)
 }
 
 func (s *Server) hashKey(uri string) (string, error) {

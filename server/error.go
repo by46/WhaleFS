@@ -59,3 +59,15 @@ func (s *Server) HTTPErrorHandler(err error, ctx echo.Context) {
 		s.Logger.Error(err)
 	}
 }
+
+func (s *Server) error(code int, err error) error {
+	s.Logger.Error(err)
+	return &echo.HTTPError{
+		Code:    code,
+		Message: err.Error(),
+	}
+}
+
+func (s *Server) fatal(err error) error {
+	return s.error(http.StatusInternalServerError, err)
+}
