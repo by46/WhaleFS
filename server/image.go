@@ -35,7 +35,7 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 		return r, nil
 	}
 
-	img, err := s.preThumbnail(ctx, r)
+	img, err := s.prepare(ctx, r)
 	if err != nil {
 		return nil, err
 	}
@@ -84,10 +84,9 @@ func (s *Server) overlay(ctx echo.Context, img image.Image) (image.Image, error)
 	return img, nil
 }
 
-func (s *Server) preThumbnail(ctx echo.Context, r io.Reader) (image.Image, error) {
-	// TODO(benjamin): 对图片进行预处理, 减少处理时间
-	img, err := imaging.Decode(r)
-	if err != nil {
+// 对图片进行预处理, 减少处理时间
+func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err error) {
+	if img, err = imaging.Decode(r); err != nil {
 		return nil, err
 	}
 

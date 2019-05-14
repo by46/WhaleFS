@@ -37,6 +37,11 @@ system.bucket.benjamin
   "name": "benjamin",
   "memo":"mo bucket",
   "alias": ["benjamin1", "benjamin2"],
+  "basis": {
+    "expires": 20,
+    "prepare_thumbnail_min_width": 1024,
+    "prepare_thumbnail": ""
+  },
   "expires": 20,
   "extends":[{"key":"keepdate", "value":"21"}],
   "limit": {
@@ -56,9 +61,9 @@ system.bucket.benjamin
     {"name": "demo5", "default": false, "position": "{\"top\":null, \"right\":0,\"bottom\":0, \"left\":0}", "image": "7,15154f3ef7", "opacity":  0.8}
   ],
   "sizes": [
-  {"name": "p200", "width":200, "height": 150, "mode": "stretch"},
-  {"name": "p60", "width":60, "height": 45, "mode": "fit"},
-  {"name": "p160", "width":160, "height": 120, "mode": "thumbnail"}
+      {"name": "p200", "width":200, "height": 150, "mode": "stretch"},
+      {"name": "p60", "width":60, "height": 45, "mode": "fit"},
+      {"name": "p160", "width":160, "height": 120, "mode": "thumbnail"}
   ]
 }
 ```
