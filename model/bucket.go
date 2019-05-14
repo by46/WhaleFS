@@ -35,7 +35,7 @@ type Buckets struct {
 }
 
 type Basis struct {
-	Expires                  int    `json:"expires"` // unit: day
+	Expires                  *int   `json:"expires"` // unit: second
 	PrepareThumbnail         string `json:"prepare_thumbnail"`
 	PrepareThumbnailMinWidth int    `json:"prepare_thumbnail_min_width"`
 }
@@ -122,7 +122,6 @@ type BucketLimit struct {
 type Bucket struct {
 	Name           string                   `json:"name"`
 	Memo           string                   `json:"memo"`
-	Expires        int                      `json:"expires"` // unit: day
 	Basis          *Basis                   `json:"basis"`
 	Extends        [] *ExtendItem           `json:"extends"`
 	LastEditDate   int64                    `json:"last_edit_date"`
@@ -141,7 +140,8 @@ func (b *Bucket) Key() string {
 }
 
 func (b *Bucket) MaxAge() int {
-	return b.getExtendInt(ExtendKeyMaxAge)
+	// TODO(benjamin): 处理最大过期时间
+	return *b.Basis.Expires
 }
 
 func (b *Bucket) getExtend(key string) string {
