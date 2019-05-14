@@ -19,10 +19,10 @@ const (
 )
 
 var (
-	PositionTopRight    = &ImageOverlayPosition{0, -1, -1, 0}
-	PositionTopLeft     = &ImageOverlayPosition{0, 0, -1, -1}
-	PositionBottomRight = &ImageOverlayPosition{-1, -1, 0, 0}
-	PositionBottomLeft  = &ImageOverlayPosition{-1, 0, 0, -1}
+	PositionTopRight    = &ImageOverlayPosition{new(int), nil, nil, new(int)}
+	PositionTopLeft     = &ImageOverlayPosition{new(int), new(int), nil, nil}
+	PositionBottomRight = &ImageOverlayPosition{nil, nil, new(int), new(int)}
+	PositionBottomLeft  = &ImageOverlayPosition{nil, new(int), new(int), nil}
 )
 
 type ExtendItem struct {
@@ -41,10 +41,10 @@ type Basis struct {
 }
 
 type ImageOverlayPosition struct {
-	Top    int `json:"top"`
-	Left   int `json:"left"`
-	Bottom int `json:"bottom"`
-	Right  int `json:"right"`
+	Top    *int `json:"top"`
+	Left   *int `json:"left"`
+	Bottom *int `json:"bottom"`
+	Right  *int `json:"right"`
 }
 
 type ImageOverlay struct {
@@ -79,28 +79,28 @@ func (o *ImageOverlay) RealPosition(background, img image.Image) image.Point {
 	width := float64(background.Bounds().Dx() - img.Bounds().Dx())
 	height := float64(background.Bounds().Dy() - img.Bounds().Dy())
 	position := o.Position
-	if position.Top >= 0 && position.Left >= 0 {
+	if position.Top != nil && position.Left != nil {
 		return image.Point{
-			X: int(math.Min(float64(position.Left), width)),
-			Y: int(math.Min(float64(position.Top), height)),
+			X: int(math.Min(float64(*position.Left), width)),
+			Y: int(math.Min(float64(*position.Top), height)),
 		}
 	}
-	if position.Top >= 0 && position.Right >= 0 {
+	if position.Top != nil && position.Right != nil {
 		return image.Point{
-			X: int(math.Max(0.0, float64(background.Bounds().Dx()-img.Bounds().Dx()-position.Right))),
-			Y: int(math.Min(float64(position.Top), height)),
+			X: int(math.Max(0.0, float64(background.Bounds().Dx()-img.Bounds().Dx()-*position.Right))),
+			Y: int(math.Min(float64(*position.Top), height)),
 		}
 	}
-	if position.Bottom >= 0 && position.Left >= 0 {
+	if position.Bottom != nil && position.Left != nil {
 		return image.Point{
-			X: int(math.Min(float64(position.Left), width)),
-			Y: int(math.Max(0.0, float64(background.Bounds().Dy()-img.Bounds().Dy()-position.Bottom))),
+			X: int(math.Min(float64(*position.Left), width)),
+			Y: int(math.Max(0.0, float64(background.Bounds().Dy()-img.Bounds().Dy()-*position.Bottom))),
 		}
 	}
 	// if position.Bottom >= 0 && position.Right >= 0
 	return image.Point{
-		X: int(math.Max(0.0, float64(background.Bounds().Dx()-img.Bounds().Dx()-position.Right))),
-		Y: int(math.Max(0.0, float64(background.Bounds().Dy()-img.Bounds().Dy()-position.Bottom))),
+		X: int(math.Max(0.0, float64(background.Bounds().Dx()-img.Bounds().Dx()-*position.Right))),
+		Y: int(math.Max(0.0, float64(background.Bounds().Dy()-img.Bounds().Dy()-*position.Bottom))),
 	}
 }
 
