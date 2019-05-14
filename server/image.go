@@ -40,11 +40,6 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 		return nil, err
 	}
 
-	img, err = s.overlay(ctx, img)
-	if err != nil {
-		return nil, err
-	}
-
 	switch size.Mode {
 	case ModeFit:
 		newImg := imaging.Fit(img, size.Width, size.Height, imaging.Lanczos)
@@ -63,6 +58,11 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 	default:
 		img = imaging.Thumbnail(img, size.Width, size.Height, imaging.Lanczos)
 	}
+
+	img, err = s.overlay(ctx, img)
+	if err != nil {
+		return nil, err
+	}
 	return s.encode(ctx, img)
 }
 
@@ -79,6 +79,12 @@ func (s *Server) overlay(ctx echo.Context, img image.Image) (image.Image, error)
 		// 如果获取水印出现错误, 就放弃添加水印, 返回原图
 		return img, nil
 	}
+
+	// 针对水印进行缩放
+	ratio := float64(img.Bounds().Dx()) / float64(bucket.Basis.PrepareThumbnailMinWidth)
+	width, height := overlayImage.Bounds().Dx(), overlayImage.Bounds().Dy()
+	overlayImage = imaging.Resize(overlayImage, int(float64(width)*ratio), int(float64(height)*ratio), imaging.Lanczos)
+
 	pt := overlay.RealPosition(img, overlayImage)
 	img = imaging.Overlay(img, overlayImage, pt, overlay.Opacity)
 	return img, nil

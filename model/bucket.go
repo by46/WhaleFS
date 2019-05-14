@@ -19,10 +19,10 @@ const (
 )
 
 var (
-	PositionTopRight    = &ImageOverlayPosition{0, 0, -1, -1}
+	PositionTopRight    = &ImageOverlayPosition{0, -1, -1, 0}
 	PositionTopLeft     = &ImageOverlayPosition{0, 0, -1, -1}
-	PositionBottomRight = &ImageOverlayPosition{0, 0, -1, -1}
-	PositionBottomLeft  = &ImageOverlayPosition{0, 0, -1, -1}
+	PositionBottomRight = &ImageOverlayPosition{-1, -1, 0, 0}
+	PositionBottomLeft  = &ImageOverlayPosition{-1, 0, 0, -1}
 )
 
 type ExtendItem struct {
@@ -32,6 +32,12 @@ type ExtendItem struct {
 
 type Buckets struct {
 	Buckets []string `json:"buckets"`
+}
+
+type Basis struct {
+	Expires                  int    `json:"expires"` // unit: day
+	PrepareThumbnail         string `json:"prepare_thumbnail"`
+	PrepareThumbnailMinWidth int    `json:"prepare_thumbnail_min_width"`
 }
 
 type ImageOverlayPosition struct {
@@ -81,20 +87,20 @@ func (o *ImageOverlay) RealPosition(background, img image.Image) image.Point {
 	}
 	if position.Top >= 0 && position.Right >= 0 {
 		return image.Point{
-			X: int(math.Min(0.0, float64(background.Bounds().Dx()-img.Bounds().Dx()-position.Right))),
+			X: int(math.Max(0.0, float64(background.Bounds().Dx()-img.Bounds().Dx()-position.Right))),
 			Y: int(math.Min(float64(position.Top), height)),
 		}
 	}
 	if position.Bottom >= 0 && position.Left >= 0 {
 		return image.Point{
 			X: int(math.Min(float64(position.Left), width)),
-			Y: int(math.Min(0.0, float64(background.Bounds().Dy()-img.Bounds().Dy()-position.Bottom))),
+			Y: int(math.Max(0.0, float64(background.Bounds().Dy()-img.Bounds().Dy()-position.Bottom))),
 		}
 	}
 	// if position.Bottom >= 0 && position.Right >= 0
 	return image.Point{
-		X: int(math.Min(0.0, float64(background.Bounds().Dx()-img.Bounds().Dx()-position.Right))),
-		Y: int(math.Min(0.0, float64(background.Bounds().Dy()-img.Bounds().Dy()-position.Bottom))),
+		X: int(math.Max(0.0, float64(background.Bounds().Dx()-img.Bounds().Dx()-position.Right))),
+		Y: int(math.Max(0.0, float64(background.Bounds().Dy()-img.Bounds().Dy()-position.Bottom))),
 	}
 }
 
@@ -115,9 +121,10 @@ type BucketLimit struct {
 
 type Bucket struct {
 	Name           string                   `json:"name"`
-	Expires        int                      `json:"expires"` // unit: day
-	Extends        [] *ExtendItem           `json:"extends"`
 	Memo           string                   `json:"memo"`
+	Expires        int                      `json:"expires"` // unit: day
+	Basis          *Basis                   `json:"basis"`
+	Extends        [] *ExtendItem           `json:"extends"`
 	LastEditDate   int64                    `json:"last_edit_date"`
 	LastEditUser   string                   `json:"last_edit_user"`
 	Sizes          []*ImageSize             `json:"Sizes"`
