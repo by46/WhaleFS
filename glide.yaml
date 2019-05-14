@@ -21,4 +21,3 @@ import:
 - package: github.com/disintegration/imaging
   version: ^1.6.0
 - package: golang.org/x/image
-- package: gopkg.in/couchbase/gocb.v1
