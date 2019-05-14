@@ -1,7 +1,7 @@
 Host: :8089
-Meta: couchbase://whalefs:123456@192.168.1.9:8091/whalefs
+Meta: http://whalefs:123456@192.168.1.9:8091/whalefs
 MetaPassword: 123456
-BucketMeta: couchbase://whalefs:123456@192.168.1.9:8091/whalefs
+BucketMeta: http://whalefs:123456@192.168.1.9:8091/whalefs
 BucketMetaPassword: 123456
 Storage:
   Cluster:

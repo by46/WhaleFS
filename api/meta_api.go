@@ -22,7 +22,6 @@ func NewMetaClient(connectionString string, password string) common.Meta {
 	}
 	bucketName := strings.Trim(result.Path, "/")
 	user := result.User
-	result.Scheme = "http"
 	result.User = nil
 	result.Path = ""
 
