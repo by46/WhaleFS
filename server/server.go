@@ -120,8 +120,10 @@ func (s *Server) install() {
 	s.app.Use(middleware2.ParseFileParams(middleware2.ParseFileParamsConfig{
 		Server: s,
 		Skipper: func(context echo.Context) bool {
-			return strings.ToLower(context.Request().URL.Path) == "/tools" ||
-				context.Request().URL.Path == "/tarDownload"
+			url := strings.ToLower(context.Request().URL.Path)
+			return url == "/tools" ||
+				url == "/tardownload" ||
+				url == "/favicon.ico"
 		},
 	}))
 
