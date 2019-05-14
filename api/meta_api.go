@@ -45,7 +45,7 @@ func (m *metaClient) Get(key string, value interface{}) error {
 }
 
 func (m *metaClient) Set(key string, value interface{}) error {
-	_, err := m.Bucket.Insert(key, value, 0)
+	_, err := m.Bucket.Upsert(key, value, 0)
 	return err
 }
 
