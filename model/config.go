@@ -19,4 +19,6 @@ type Config struct {
 	MetaPassword       string
 	BucketMeta         string `default:"couchbase://scpodb01:8091/buckets`
 	BucketMetaPassword string
+	TaskBucket         string
+	TaskFileBucketName string
 }

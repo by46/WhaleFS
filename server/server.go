@@ -20,15 +20,17 @@ import (
 )
 
 type Server struct {
-	Debug      bool
-	Config     *model.Config
-	Storage    common.Storage
-	Meta       common.Meta
-	BucketMeta common.Meta
-	Logger     common.Logger
-	Version    string
-	app        *echo.Echo
-	buckets    *sync.Map
+	Debug          bool
+	Config         *model.Config
+	Storage        common.Storage
+	Meta           common.Meta
+	BucketMeta     common.Meta
+	TaskMeta       common.Task
+	Logger         common.Logger
+	Version        string
+	app            *echo.Echo
+	buckets        *sync.Map
+	TaskBucketName string
 }
 
 func BuildConfig() (*model.Config, error) {
@@ -75,11 +77,15 @@ func buildStorage(config *model.StorageConfig) common.Storage {
 }
 
 func buildMeta(config *model.Config) common.Meta {
-	return api.NewMetaClient(config.Meta, config.MetaPassword)
+	return api.NewMetaClient(config.Meta)
 }
 
 func buildBucketMeta(config *model.Config) common.Meta {
-	return api.NewMetaClient(config.BucketMeta, config.BucketMetaPassword)
+	return api.NewMetaClient(config.BucketMeta)
+}
+
+func buildTaskMeta(config *model.Config) common.Task {
+	return api.NewTaskClient(config.TaskBucket)
 }
 
 func NewServer() *Server {
@@ -92,18 +98,20 @@ func NewServer() *Server {
 	storage := buildStorage(config.Storage)
 	meta := buildMeta(config)
 	bucketMeta := buildBucketMeta(config)
-
+	taskMeta := buildTaskMeta(config)
 	app := echo.New()
 
 	srv := &Server{
-		app:        app,
-		Config:     config,
-		Storage:    storage,
-		Meta:       meta,
-		BucketMeta: bucketMeta,
-		Logger:     logger,
-		Version:    VERSION,
-		buckets:    &sync.Map{},
+		app:            app,
+		Config:         config,
+		Storage:        storage,
+		Meta:           meta,
+		BucketMeta:     bucketMeta,
+		Logger:         logger,
+		Version:        VERSION,
+		buckets:        &sync.Map{},
+		TaskBucketName: config.TaskFileBucketName,
+		TaskMeta:       taskMeta,
 	}
 	srv.install()
 	return srv
@@ -123,6 +131,7 @@ func (s *Server) install() {
 			url := strings.ToLower(context.Request().URL.Path)
 			return url == "/tools" ||
 				url == "/tardownload" ||
+				url == "/tasks" ||
 				url == "/favicon.ico"
 		},
 	}))
@@ -142,6 +151,7 @@ func (s *Server) install() {
 	s.app.POST("/tarDownload", s.tarDownload)
 	s.app.GET("/tools", s.tools)
 	s.app.GET("/favicon.ico", s.favicon)
+	s.app.GET("/tasks", s.checkTask)
 }
 
 func (s *Server) hashKey(uri string) (string, error) {
