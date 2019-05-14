@@ -18,6 +18,7 @@ type FileMeta struct {
 	ETag         string `json:"etag,omitempty"`
 	Size         int64  `json:"size,omitempty"`
 	MimeType     string `json:"mime_type,omitempty"`
+	ThumbnailFID string `json:"thumbnail_fid,omitempty"`
 }
 
 func (f *FileMeta) LastModifiedTime() time.Time {

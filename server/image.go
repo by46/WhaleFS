@@ -86,7 +86,12 @@ func (s *Server) overlay(ctx echo.Context, img image.Image) (image.Image, error)
 
 func (s *Server) preThumbnail(ctx echo.Context, r io.Reader) (image.Image, error) {
 	// TODO(benjamin): 对图片进行预处理, 减少处理时间
-	return imaging.Decode(r)
+	img, err := imaging.Decode(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return img, err
 }
 
 func (s *Server) downloadOverlay(fid string) (image.Image, error) {
