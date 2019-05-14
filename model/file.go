@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net/textproto"
-	"strings"
 	"time"
 
 	"github.com/by46/whalefs/utils"
@@ -44,27 +43,11 @@ func (f *FileMeta) HeaderLastModified() string {
 }
 
 func (f *FileMeta) IsPlain() bool {
-	if f.MimeType == "" {
-		return false
-	}
-
-	if strings.HasPrefix(f.MimeType, "text/") {
-		return true
-	}
-	switch f.MimeType {
-	default:
-		return false
-	case "application/javascript", "application/x-javascript":
-		return true
-	}
+	return utils.IsPlain(f.MimeType)
 }
 
 func (f *FileMeta) IsImage() bool {
-	if f.MimeType == "" {
-		return false
-	}
-
-	return strings.HasPrefix(f.MimeType, "image/")
+	return utils.IsImage(f.MimeType)
 }
 
 type FileContent struct {
@@ -73,4 +56,8 @@ type FileContent struct {
 	Override bool
 	Headers  textproto.MIMEHeader
 	Content  io.Reader
+}
+
+func (f *FileContent) IsImage() bool {
+	return utils.IsImage(f.MimeType)
 }

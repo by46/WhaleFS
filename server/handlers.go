@@ -193,13 +193,18 @@ func (s *Server) validateFile(ctx echo.Context) error {
 	file := context.FileContext.File
 
 	if limit != nil {
-		if limit.MinSize != 0 && file.Size < limit.MinSize {
+		if limit.MinSize != nil && file.Size < *limit.MinSize {
 			return common.New(common.CodeLimit)
 		}
 
-		if limit.MaxSize != 0 && file.Size > limit.MaxSize {
+		if limit.MaxSize != nil && file.Size > *limit.MaxSize {
 			return common.New(common.CodeLimit)
 		}
+
+		if file.IsImage() {
+			// TODO(benjamin): 检查图片的宽度和高度
+		}
+
 	}
 
 	hash := params.HashKey()

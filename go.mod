@@ -31,3 +31,5 @@ require (
 	gopkg.in/couchbaselabs/gojcbmock.v1 v1.0.3 // indirect
 	gopkg.in/couchbaselabs/jsonx.v1 v1.0.0 // indirect
 )
+
+replace golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5 => github.com/golang/net v0.0.0-20190509222800-a4d6f7feada5

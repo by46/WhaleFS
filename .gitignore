@@ -5,3 +5,4 @@ logs
 fs
 raft-*
 .DS_Store
+main
