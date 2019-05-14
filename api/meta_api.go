@@ -75,3 +75,8 @@ func (m *metaClient) SetTTL(key string, value interface{}, ttl int) error {
 	// TODO(benjamin)
 	return nil
 }
+
+func (m *metaClient) Query(n1sql string, params interface{}) (gocb.QueryResults, error) {
+	query := gocb.NewN1qlQuery(n1sql)
+	return m.ExecuteN1qlQuery(query, params)
+}

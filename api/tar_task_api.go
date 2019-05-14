@@ -7,28 +7,14 @@ import (
 )
 
 type taskClient struct {
-	*gocb.Bucket
+	common.Meta
 }
 
 func NewTaskClient(connectionString string) common.Task {
-	bucket := common.OpenBucket(connectionString)
-	return &taskClient{bucket}
-}
-
-func (m *taskClient) Get(key string, value interface{}) error {
-	_, err := m.Bucket.Get(key, &value)
-	if err != nil && err == gocb.ErrKeyNotFound {
-		return common.New(common.CodeFileNotExists)
-	}
-	return err
-}
-
-func (m *taskClient) Set(key string, value interface{}) error {
-	_, err := m.Bucket.Upsert(key, value, 0)
-	return err
+	meta := NewMetaClient(connectionString)
+	return &taskClient{meta}
 }
 
 func (m *taskClient) QueryPendingTarTask(n1sql string) (gocb.QueryResults, error) {
-	query := gocb.NewN1qlQuery(n1sql)
-	return m.ExecuteN1qlQuery(query, nil)
+	return m.Query(n1sql, nil)
 }
