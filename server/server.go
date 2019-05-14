@@ -31,7 +31,7 @@ type Server struct {
 	buckets    *sync.Map
 }
 
-func buildConfig() (*model.Config, error) {
+func BuildConfig() (*model.Config, error) {
 	srvConfig := new(model.Config)
 	config := viper.New()
 	env := os.Getenv("ENV")
@@ -75,15 +75,15 @@ func buildStorage(config *model.StorageConfig) common.Storage {
 }
 
 func buildMeta(config *model.Config) common.Meta {
-	return api.NewMetaClient(config.Meta)
+	return api.NewMetaClient(config.Meta, config.MetaPassword)
 }
 
 func buildBucketMeta(config *model.Config) common.Meta {
-	return api.NewMetaClient(config.BucketMeta)
+	return api.NewMetaClient(config.BucketMeta, config.BucketMetaPassword)
 }
 
 func NewServer() *Server {
-	config, err := buildConfig()
+	config, err := BuildConfig()
 	if err != nil {
 		panic(fmt.Errorf("Load config fatal: %s\n", err))
 	}
