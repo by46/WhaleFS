@@ -24,7 +24,7 @@ var (
 )
 
 const (
-	TMP_DIR = "./tmp/"
+	TmpDir = "./tmp/"
 )
 
 func init() {
@@ -32,13 +32,13 @@ func init() {
 }
 
 func executeTask(cmd *cobra.Command, args []string) {
-	exist, err := pathExists(TMP_DIR)
+	exist, err := pathExists(TmpDir)
 	if err != nil {
 		panic(fmt.Errorf("System error: %s\n", err))
 	}
 
 	if !exist {
-		err = os.Mkdir(TMP_DIR, os.ModePerm)
+		err = os.Mkdir(TmpDir, os.ModePerm)
 		if err != nil {
 			panic(fmt.Errorf("System error: %s\n", err))
 		}
@@ -59,12 +59,14 @@ func executeTask(cmd *cobra.Command, args []string) {
 	}
 
 	taskMap := make(map[string]interface{})
-	var tmpTask model.TarTask
-	for tasks.Next(&tmpTask) {
+
+	for {
+		tmpTask := new(model.TarTask)
+		if tasks.Next(tmpTask) == false {
+			break
+		}
 		tmpTask.Status = model.TASK_RUNNING
 		taskMap[tmpTask.Id] = tmpTask
-		tarFileInfo := *tmpTask.TarFileInfo
-		tmpTask.TarFileInfo = &tarFileInfo
 	}
 	err = taskClient.BulkUpdate(taskMap)
 	if err != nil {
@@ -74,13 +76,18 @@ func executeTask(cmd *cobra.Command, args []string) {
 	taskChan := make(chan *model.TarTask, len(taskMap))
 
 	for _, value := range taskMap {
-		tarTask := value.(model.TarTask)
+		tarTask := value.(*model.TarTask)
 		go func(task *model.TarTask) {
 			defer func() {
-				taskChan <- task
+				defer func() { taskChan <- task }()
+				task.Progress = 100
+				err = taskClient.Set(task.Id, task)
+				if err != nil {
+					fmt.Printf("Task update failed![%v]\n", err)
+				}
 			}()
 
-			tempFileName := TMP_DIR + task.TarFileInfo.Name
+			tempFileName := TmpDir + task.TarFileInfo.Name
 
 			file, err := os.Create(tempFileName)
 			if err != nil {
@@ -88,6 +95,7 @@ func executeTask(cmd *cobra.Command, args []string) {
 				fillErrorTask(task, errMsg)
 				return
 			}
+			updateProgress(task, taskClient, 10)
 
 			defer func() {
 				err = os.Remove(tempFileName)
@@ -102,6 +110,7 @@ func executeTask(cmd *cobra.Command, args []string) {
 				fillErrorTask(task, errMsg)
 				return
 			}
+			updateProgress(task, taskClient, 40)
 
 			err = file.Close()
 			if err != nil {
@@ -116,6 +125,7 @@ func executeTask(cmd *cobra.Command, args []string) {
 				fillErrorTask(task, errMsg)
 				return
 			}
+			updateProgress(task, taskClient, 50)
 
 			entity, err := storageClient.Upload("application/tar", open)
 			if err != nil {
@@ -123,6 +133,7 @@ func executeTask(cmd *cobra.Command, args []string) {
 				fillErrorTask(task, errMsg)
 				return
 			}
+			updateProgress(task, taskClient, 99)
 
 			entity.RawKey = task.TarFileRawKey
 			if err := metaClient.Set(task.Id, entity); err != nil {
@@ -133,15 +144,12 @@ func executeTask(cmd *cobra.Command, args []string) {
 
 			task.Status = model.TASK_SUCCESS
 			task.EditDate = time.Now().Unix()
-		}(&tarTask)
+		}(tarTask)
 	}
 
 	for i := 0; i < len(taskMap); i++ {
 		completedTask := <-taskChan
-		err = taskClient.Set(completedTask.Id, completedTask)
-		if err != nil {
-			fmt.Printf("Task update failed![%v]\n", err)
-		}
+		fmt.Printf("Task %s completed!\n", completedTask.TarFileInfo.Name)
 	}
 
 	fmt.Printf("All tasks completed!\n")
@@ -178,4 +186,13 @@ func pathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+func updateProgress(task *model.TarTask, taskClient common.Task, progress int8) {
+	tmpTask := new(model.TarTask)
+	task.Progress = progress
+	err := taskClient.Set(task.Id, tmpTask)
+	if err != nil {
+		fmt.Printf("Update progress failed!\n")
+	}
 }
