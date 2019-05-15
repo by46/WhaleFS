@@ -202,7 +202,7 @@ func (s *Server) validateFile(ctx echo.Context) error {
 			return common.New(common.CodeLimit)
 		}
 
-		if file.IsImage() && (limit.Width != nil || limit.Height != nil || limit.Ratio != nil) {
+		if file.IsImage() && (limit.Width != nil || limit.Height != nil || limit.Ratio != "") {
 			// TODO(benjamin): 检查图片的宽度和高度
 			reader := bytes.NewReader(file.Content)
 			config, err := utils.DecodeConfig(file.MimeType, reader)
