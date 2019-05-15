@@ -6,9 +6,9 @@ import (
 
 	"gopkg.in/couchbase/gocb.v1"
 
-	"github.com/by46/whalefs/common"
-
 	"github.com/pkg/errors"
+
+	"github.com/by46/whalefs/common"
 )
 
 type metaClient struct {
@@ -79,4 +79,16 @@ func (m *metaClient) SetTTL(key string, value interface{}, ttl int) error {
 func (m *metaClient) Query(n1sql string, params interface{}) (gocb.QueryResults, error) {
 	query := gocb.NewN1qlQuery(n1sql)
 	return m.ExecuteN1qlQuery(query, params)
+}
+
+func (m *metaClient) BulkUpdate(values map[string]interface{}) error {
+	var ops []gocb.BulkOp
+	for key, value := range values {
+		op := gocb.UpsertOp{
+			Key:   key,
+			Value: value,
+		}
+		ops = append(ops, &op)
+	}
+	return m.Bucket.Do(ops)
 }

@@ -2,7 +2,8 @@ package model
 
 const (
 	TASK_PENDING = 0
-	TASK_SUCCESS = 1
+	TASK_SUCCESS = 2
+	TASK_RUNNING = 1
 	TASK_FAILED  = -1
 )
 

@@ -10,4 +10,5 @@ type Meta interface {
 	Exists(key string) (bool, error)
 	SetTTL(key string, value interface{}, ttl int) error
 	Query(n1sql string, params interface{}) (gocb.QueryResults, error)
+	BulkUpdate(values map[string]interface{}) error
 }

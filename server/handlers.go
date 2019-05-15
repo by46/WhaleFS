@@ -254,7 +254,7 @@ func (s *Server) checkTask(ctx echo.Context) error {
 		if err != nil {
 			return err
 		}
-	} else if task.Status == model.TASK_PENDING {
+	} else if task.Status == model.TASK_PENDING || task.Status == model.TASK_RUNNING {
 		err := ctx.String(http.StatusOK, "文件打包中......")
 		if err != nil {
 			return err
