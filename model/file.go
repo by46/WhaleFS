@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"io"
 	"net/textproto"
 	"time"
 
@@ -55,7 +54,7 @@ type FileContent struct {
 	Size     int64
 	Override bool
 	Headers  textproto.MIMEHeader
-	Content  io.Reader
+	Content  []byte
 }
 
 func (f *FileContent) IsImage() bool {

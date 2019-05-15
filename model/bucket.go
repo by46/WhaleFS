@@ -116,6 +116,7 @@ type BucketLimit struct {
 	MaxSize   *int64   `json:"max_size"`
 	Width     *int     `json:"width"`
 	Height    *int     `json:"height"`
+	Ratio     string   `json:"ratio"`
 	MimeTypes []string `json:"mime_types"`
 }
 
@@ -139,9 +140,9 @@ func (b *Bucket) Key() string {
 	return fmt.Sprintf("system.bucket.%s", strings.ToLower(b.Name))
 }
 
-func (b *Bucket) MaxAge() int {
+func (b *Bucket) MaxAge() *int {
 	// TODO(benjamin): 处理最大过期时间
-	return *b.Basis.Expires
+	return b.Basis.Expires
 }
 
 func (b *Bucket) getExtend(key string) string {

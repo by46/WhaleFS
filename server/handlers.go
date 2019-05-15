@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -37,10 +38,10 @@ func (s *Server) download(ctx echo.Context) error {
 	bucket := context.FileContext.Bucket
 	entity := context.FileContext.Meta
 
-	maxAge := bucket.MaxAge()
-	ctx.Response().Header().Add(utils.HeaderExpires, entity.HeaderExpires(maxAge))
-	ctx.Response().Header().Add(utils.HeaderCacheControl, entity.HeaderISOExpires(maxAge))
-
+	if maxAge := bucket.MaxAge(); maxAge != nil {
+		ctx.Response().Header().Add(utils.HeaderExpires, entity.HeaderExpires(*maxAge))
+		ctx.Response().Header().Add(utils.HeaderCacheControl, entity.HeaderISOExpires(*maxAge))
+	}
 	if !s.Config.Debug && s.freshCheck(ctx, entity) {
 		ctx.Response().WriteHeader(http.StatusNotModified)
 		return nil
@@ -122,7 +123,7 @@ func (s *Server) upload(ctx echo.Context) error {
 	}
 
 	file := params.File
-	entity, err := s.Storage.Upload(file.MimeType, file.Content)
+	entity, err := s.Storage.Upload(file.MimeType, bytes.NewBuffer(file.Content))
 	if err != nil {
 		return err
 	}
@@ -201,8 +202,25 @@ func (s *Server) validateFile(ctx echo.Context) error {
 			return common.New(common.CodeLimit)
 		}
 
-		if file.IsImage() {
+		if file.IsImage() && (limit.Width != nil || limit.Height != nil || limit.Ratio != nil) {
 			// TODO(benjamin): 检查图片的宽度和高度
+			reader := bytes.NewReader(file.Content)
+			config, err := utils.DecodeConfig(file.MimeType, reader)
+			if err != nil {
+				return err
+			}
+
+			if limit.Width != nil && *limit.Width != config.Width {
+				return common.New(common.CodeLimit)
+			}
+
+			if limit.Height != nil && *limit.Height != config.Height {
+				return common.New(common.CodeLimit)
+			}
+			ratio := utils.RatioEval(limit.Ratio)
+			if ratio != nil && utils.Float64Equal(*ratio, float64(config.Width)/float64(config.Height)) == false {
+				return common.New(common.CodeLimit)
+			}
 		}
 
 	}

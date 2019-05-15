@@ -1,7 +1,6 @@
 package model
 
 import (
-	"bytes"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
@@ -64,7 +63,7 @@ func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) (*
 	}
 	file := new(FileContent)
 	file.Headers = form.Header
-	file.Content = bytes.NewBuffer(buf)
+	file.Content = buf
 	file.MimeType = form.Header.Get(echo.HeaderContentType)
 	return file, nil
 }
@@ -75,7 +74,7 @@ func (self *FileContext) parseFileContentFromRemote(source string) (*FileContent
 		return nil, err
 	}
 	file := new(FileContent)
-	file.Content = bytes.NewBuffer(body)
+	file.Content = body
 	file.MimeType = headers.Get(echo.HeaderContentType)
 	return file, nil
 }
