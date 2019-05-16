@@ -20,17 +20,18 @@ import (
 )
 
 type Server struct {
-	Debug          bool
-	Config         *model.Config
-	Storage        common.Storage
-	Meta           common.Meta
-	BucketMeta     common.Meta
-	TaskMeta       common.Task
-	Logger         common.Logger
-	Version        string
-	app            *echo.Echo
-	buckets        *sync.Map
-	TaskBucketName string
+	Debug                 bool
+	Config                *model.Config
+	Storage               common.Storage
+	Meta                  common.Meta
+	BucketMeta            common.Meta
+	TaskMeta              common.Task
+	Logger                common.Logger
+	Version               string
+	app                   *echo.Echo
+	buckets               *sync.Map
+	TaskBucketName        string
+	TaskFileSizeThreshold int64
 }
 
 func BuildConfig() (*model.Config, error) {
@@ -102,16 +103,17 @@ func NewServer() *Server {
 	app := echo.New()
 
 	srv := &Server{
-		app:            app,
-		Config:         config,
-		Storage:        storage,
-		Meta:           meta,
-		BucketMeta:     bucketMeta,
-		Logger:         logger,
-		Version:        VERSION,
-		buckets:        &sync.Map{},
-		TaskBucketName: config.TaskFileBucketName,
-		TaskMeta:       taskMeta,
+		app:                   app,
+		Config:                config,
+		Storage:               storage,
+		Meta:                  meta,
+		BucketMeta:            bucketMeta,
+		Logger:                logger,
+		Version:               VERSION,
+		buckets:               &sync.Map{},
+		TaskBucketName:        config.TaskFileBucketName,
+		TaskMeta:              taskMeta,
+		TaskFileSizeThreshold: config.TaskFileSizeThreshold,
 	}
 	srv.install()
 	return srv

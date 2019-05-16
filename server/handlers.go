@@ -94,7 +94,7 @@ func (s *Server) tarDownload(ctx echo.Context) error {
 		totalSize = totalSize + entity.Size
 	}
 
-	if totalSize > 1024 {
+	if totalSize > s.TaskFileSizeThreshold {
 		hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, tarFileEntity.Name))
 		if err != nil {
 			return err
@@ -104,7 +104,11 @@ func (s *Server) tarDownload(ctx echo.Context) error {
 		if err != nil {
 			return err
 		}
-		ctx.Redirect(http.StatusMovedPermanently, "/tasks?key="+hashKey)
+
+		err = ctx.Redirect(http.StatusMovedPermanently, "/tasks?key="+hashKey)
+		if err != nil {
+			return err
+		}
 	}
 
 	response := ctx.Response()
@@ -260,7 +264,7 @@ func (s *Server) checkTask(ctx echo.Context) error {
 			return err
 		}
 	} else {
-		err := ctx.String(http.StatusInternalServerError, "文件打包失败"+task.ErrorMsg)
+		err := ctx.String(http.StatusInternalServerError, "文件打包失败:"+task.ErrorMsg)
 		if err != nil {
 			return err
 		}

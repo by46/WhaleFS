@@ -10,15 +10,16 @@ type StorageConfig struct {
 }
 
 type Config struct {
-	Host               string `default:":8080"`
-	Storage            *StorageConfig
-	Master             []string
-	Debug              bool `default:"false"`
-	Log                *LogConfig
-	Meta               string `default:"couchbase://scpodb01:8091/default"`
-	MetaPassword       string
-	BucketMeta         string `default:"couchbase://scpodb01:8091/buckets`
-	BucketMetaPassword string
-	TaskBucket         string
-	TaskFileBucketName string
+	Host                  string `default:":8080"`
+	Storage               *StorageConfig
+	Master                []string
+	Debug                 bool `default:"false"`
+	Log                   *LogConfig
+	Meta                  string `default:"couchbase://scpodb01:8091/default"`
+	MetaPassword          string
+	BucketMeta            string `default:"couchbase://scpodb01:8091/buckets`
+	BucketMetaPassword    string
+	TaskBucket            string
+	TaskFileBucketName    string
+	TaskFileSizeThreshold int64
 }
