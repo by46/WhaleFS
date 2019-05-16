@@ -155,7 +155,7 @@ func executeTask(cmd *cobra.Command, args []string) {
 	fmt.Printf("All tasks completed!\n")
 }
 
-func getFileEntity(metaClient common.Meta) func(hash string) (meta *model.FileMeta, e error) {
+func getFileEntity(metaClient common.Dao) func(hash string) (meta *model.FileMeta, e error) {
 	return func(hash string) (meta *model.FileMeta, e error) {
 		entity := &model.FileMeta{}
 		if err := metaClient.Get(hash, entity); err != nil {

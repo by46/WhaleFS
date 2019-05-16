@@ -8,9 +8,12 @@ import (
 )
 
 func Sha1(value string) (string, error) {
-	buf := bytes.NewBuffer([]byte(value))
+	return ContentSha1(bytes.NewReader([]byte(value)))
+}
+
+func ContentSha1(r io.Reader) (string, error) {
 	client := sha1.New()
-	if _, err := io.Copy(client, buf); err != nil {
+	if _, err := io.Copy(client, r); err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("%x", client.Sum(nil)), nil

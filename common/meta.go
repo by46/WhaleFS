@@ -4,7 +4,7 @@ import (
 	"gopkg.in/couchbase/gocb.v1"
 )
 
-type Meta interface {
+type Dao interface {
 	Get(key string, value interface{}) error
 	Set(key string, value interface{}) error
 	Exists(key string) (bool, error)

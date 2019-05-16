@@ -20,17 +20,18 @@ import (
 )
 
 type Server struct {
-	Debug                 bool
-	Config                *model.Config
-	Storage               common.Storage
-	Meta                  common.Meta
-	BucketMeta            common.Meta
-	TaskMeta              common.Task
-	Logger                common.Logger
-	Version               string
-	app                   *echo.Echo
-	buckets               *sync.Map
-	TaskBucketName        string
+	Debug          bool
+	Config         *model.Config
+	Storage        common.Storage
+	Meta           common.Dao
+	BucketMeta     common.Dao
+	ChunkDao       common.Dao
+	TaskMeta       common.Task
+	Logger         common.Logger
+	Version        string
+	app            *echo.Echo
+	buckets        *sync.Map
+	TaskBucketName string
 	TaskFileSizeThreshold int64
 }
 
@@ -77,11 +78,11 @@ func buildStorage(config *model.StorageConfig) common.Storage {
 	return api.NewStorageClient(config.Cluster)
 }
 
-func buildMeta(config *model.Config) common.Meta {
-	return api.NewMetaClient(config.Meta)
+func buildDao(connectionString string) common.Dao {
+	return api.NewMetaClient(connectionString)
 }
 
-func buildBucketMeta(config *model.Config) common.Meta {
+func buildBucketMeta(config *model.Config) common.Dao {
 	return api.NewMetaClient(config.BucketMeta)
 }
 
@@ -97,22 +98,24 @@ func NewServer() *Server {
 
 	logger := buildLogger(config.Log)
 	storage := buildStorage(config.Storage)
-	meta := buildMeta(config)
-	bucketMeta := buildBucketMeta(config)
+	meta := buildDao(config.Meta)
+	chuckDao := buildDao(config.ChunkMeta)
+	bucketMeta := buildDao(config.BucketMeta)
 	taskMeta := buildTaskMeta(config)
 	app := echo.New()
 
 	srv := &Server{
-		app:                   app,
-		Config:                config,
-		Storage:               storage,
-		Meta:                  meta,
-		BucketMeta:            bucketMeta,
-		Logger:                logger,
-		Version:               VERSION,
-		buckets:               &sync.Map{},
-		TaskBucketName:        config.TaskFileBucketName,
-		TaskMeta:              taskMeta,
+		app:            app,
+		Config:         config,
+		Storage:        storage,
+		Meta:           meta,
+		BucketMeta:     bucketMeta,
+		ChunkDao:       chuckDao,
+		Logger:         logger,
+		Version:        VERSION,
+		buckets:        &sync.Map{},
+		TaskBucketName: config.TaskFileBucketName,
+		TaskMeta:       taskMeta,
 		TaskFileSizeThreshold: config.TaskFileSizeThreshold,
 	}
 	srv.install()
@@ -149,7 +152,7 @@ func (s *Server) install() {
 	s.app.GET("/faq.htm", s.faq)
 	s.app.GET("/*", s.download)
 	s.app.HEAD("/*", s.head)
-	s.app.POST("/upload", s.upload)
+	s.app.POST("/*", s.upload)
 	s.app.POST("/tarDownload", s.tarDownload)
 	s.app.GET("/tools", s.tools)
 	s.app.GET("/favicon.ico", s.favicon)

@@ -7,7 +7,7 @@ import (
 )
 
 type taskClient struct {
-	common.Meta
+	common.Dao
 }
 
 func NewTaskClient(connectionString string) common.Task {

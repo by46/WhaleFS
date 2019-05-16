@@ -15,7 +15,7 @@ type metaClient struct {
 	*gocb.Bucket
 }
 
-func NewMetaClient(connectionString string) common.Meta {
+func NewMetaClient(connectionString string) common.Dao {
 	result, err := url.Parse(connectionString)
 	if err != nil {
 		panic(errors.Wrapf(err, "initialize meta client failed: %s", connectionString))

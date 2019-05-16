@@ -73,6 +73,8 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 				if err := fileParams.ParseFileContent(params); err != nil {
 					return err
 				}
+			} else if method == "put" {
+
 			}
 
 			context.FileContext = fileParams

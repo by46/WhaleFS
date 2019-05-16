@@ -89,6 +89,9 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 		if err != nil {
 			continue
 		}
+		if response.StatusCode != http.StatusOK {
+			continue
+		}
 		return response.Body, response.Header, nil
 	}
 	return nil, nil, fmt.Errorf("download file error for all location %v", entity.Locations)
@@ -117,6 +120,7 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 
 	buff := bytes.NewBuffer(nil)
 	writer := multipart.NewWriter(buff)
+	defer writer.Close()
 	h := make(textproto.MIMEHeader)
 	h.Set(echo.HeaderContentDisposition, `form-data; name="File"; filename="file.txt"`)
 	h.Set(echo.HeaderContentType, mimeType)
@@ -131,12 +135,15 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 	if size, err = io.Copy(partition, body); err != nil {
 		return nil, err
 	}
-	writer.Close()
 	response, err := c.Post(fid.VolumeUrl(), writer.FormDataContentType(), bytes.NewBuffer(buff.Bytes()))
+	if response != nil {
+		defer func() {
+			_ = response.Body.Close()
+		}()
+	}
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 	if response.StatusCode < http.StatusOK && response.StatusCode >= http.StatusBadRequest {
 		return nil, fmt.Errorf("upload content error, code %s", response.Status)
 	}

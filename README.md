@@ -45,10 +45,10 @@ system.bucket.benjamin
   "expires": 20,
   "extends":[{"key":"keepdate", "value":"21"}],
   "limit": {
-    "min_size": -1,
+    "min_size": null,
     "max_size": 102400,
-    "width": 10,
-    "height": 10,
+    "width": null,
+    "height": null,
     "mime_types": ["image/png", "image/jpeg", "image/png"]
   },
   "last_edit_date": 123143,
