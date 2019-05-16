@@ -20,8 +20,8 @@ type Scheduler struct {
 	Debug          bool
 	Config         *model.Config
 	Storage        common.Storage
-	Meta           common.Meta
-	BucketMeta     common.Meta
+	Meta           common.Dao
+	BucketMeta     common.Dao
 	TaskMeta       common.Task
 	Logger         common.Logger
 	Version        string
@@ -73,11 +73,11 @@ func buildStorage(config *model.StorageConfig) common.Storage {
 	return api.NewStorageClient(config.Cluster)
 }
 
-func buildMeta(config *model.Config) common.Meta {
+func buildMeta(config *model.Config) common.Dao {
 	return api.NewMetaClient(config.Meta)
 }
 
-func buildBucketMeta(config *model.Config) common.Meta {
+func buildBucketMeta(config *model.Config) common.Dao {
 	return api.NewMetaClient(config.BucketMeta)
 }
 
