@@ -2,10 +2,8 @@ package api
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -61,16 +59,11 @@ type VolumeEntity struct {
 
 type storageClient struct {
 	master []string
-	*http.Client
 }
 
 func NewStorageClient(masters []string) common.Storage {
-	client := &http.Client{
-		Timeout: time.Duration(30 * time.Second),
-	}
 	return &storageClient{
 		master: masters,
-		Client: client,
 	}
 }
 
@@ -85,14 +78,15 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 		return nil, nil, fmt.Errorf("lookup volume error %v", err)
 	}
 	for _, location := range entity.Locations {
-		response, err := c.Get(fmt.Sprintf("http://%s/%s", location.PublicUrl, fid))
+		url := fmt.Sprintf("http://%s/%s", location.PublicUrl, fid)
+		resp, err := utils.Get(url, nil)
 		if err != nil {
 			continue
 		}
-		if response.StatusCode != http.StatusOK {
+		if resp.StatusCode != http.StatusOK {
 			continue
 		}
-		return response.Body, response.Header, nil
+		return bytes.NewReader(resp.Content), resp.Header, nil
 	}
 	return nil, nil, fmt.Errorf("download file error for all location %v", entity.Locations)
 }
@@ -137,23 +131,17 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 	if err = writer.Close(); err != nil {
 		return nil, err
 	}
-	response, err := c.Post(fid.VolumeUrl(), writer.FormDataContentType(), bytes.NewBuffer(buff.Bytes()))
-	if response != nil {
-		defer func() {
-			_ = response.Body.Close()
-		}()
-	}
+	headers := make(http.Header)
+	headers.Set(echo.HeaderContentType, writer.FormDataContentType())
+
+	resp, err := utils.Post(fid.VolumeUrl(), headers, buff)
 	if err != nil {
 		return nil, err
 	}
-	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusBadRequest {
-		c, _ := ioutil.ReadAll(response.Body)
-		fmt.Printf("debugging err : %s", string(c))
-		return nil, fmt.Errorf("upload content error, code %s", response.Status)
-	}
+
 	entity := &model.FileMeta{
 		FID:          fid.FID,
-		ETag:         strings.Trim(response.Header.Get(utils.HeaderETag), `"`),
+		ETag:         strings.Trim(resp.Header.Get(utils.HeaderETag), `"`),
 		LastModified: time.Now().UTC().Unix(),
 		Size:         size + int64(preReadSize),
 		MimeType:     mimeType,
@@ -164,18 +152,12 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 func (c *storageClient) assign() (fid *FileID, err error) {
 	for _, master := range c.master {
 		url := fmt.Sprintf("http://%s/dir/assign", master)
-		response, err := c.Post(url, "", nil)
-		if err != nil {
-			continue
-		}
-		data, err := ioutil.ReadAll(response.Body)
-		response.Body.Close()
-
+		response, err := utils.Post(url, nil, nil)
 		if err != nil {
 			continue
 		}
 		fid := &FileID{}
-		if err := json.Unmarshal(data, fid); err != nil {
+		if err := response.Json(fid); err != nil {
 			continue
 		}
 		return fid, nil
@@ -186,18 +168,12 @@ func (c *storageClient) assign() (fid *FileID, err error) {
 func (c *storageClient) lookup(volumeId uint32) (*VolumeEntity, error) {
 	for _, host := range c.master {
 		url := fmt.Sprintf("http://%s/dir/lookup?volumeId=%d", host, volumeId)
-		response, err := c.Get(url)
+		response, err := utils.Get(url, nil)
 		if err != nil {
 			continue
 		}
-		data, err := ioutil.ReadAll(response.Body)
-		response.Body.Close()
-		if err != nil {
-			continue
-		}
-
 		entity := &VolumeEntity{}
-		if err := json.Unmarshal(data, entity); err != nil {
+		if err := response.Json(entity); err != nil {
 			continue
 		}
 		return entity, nil

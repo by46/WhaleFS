@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
-	url2 "net/url"
 	"time"
 )
 
@@ -12,6 +14,7 @@ const (
 	HeaderIfNoneMatch  = "If-None-Match"
 	HeaderExpires      = "Expires"
 	HeaderCacheControl = "Cache-Control"
+	ErrorResponseSize  = 512
 )
 
 var (
@@ -20,16 +23,46 @@ var (
 	}
 )
 
-func Get(url string) ([]byte, http.Header, error) {
-	u, err := url2.Parse(url)
-	if err != nil {
-		return nil, nil, err
-	}
-	req := &http.Request{
-		Method: "GET",
-		URL:    u,
+type Response struct {
+	*http.Response
+	Content []byte
+}
+
+func (r *Response) Json(v interface{}) error {
+	return json.Unmarshal(r.Content, v)
+}
+
+func (r *Response) Error() error {
+	if r.StatusCode >= http.StatusOK && r.StatusCode < http.StatusBadRequest {
+		return nil
 	}
 
+	return fmt.Errorf("status: %d, message: %s", r.StatusCode, string(r.Content[:ErrorResponseSize]))
+}
+
+func Get(url string, headers http.Header) (*Response, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	if headers != nil {
+		req.Header = HeaderCopy(req.Header, headers)
+	}
+	return do(req)
+}
+
+func Post(url string, headers http.Header, body io.Reader) (*Response, error) {
+	req, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		return nil, err
+	}
+	if headers != nil {
+		req.Header = HeaderCopy(req.Header, headers)
+	}
+	return do(req)
+}
+
+func do(req *http.Request) (*Response, error) {
 	resp, err := client.Do(req)
 	if resp != nil {
 		defer func() {
@@ -37,8 +70,26 @@ func Get(url string) ([]byte, http.Header, error) {
 		}()
 	}
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
-	return body, resp.Header, err
+	if err != nil {
+		return nil, err
+	}
+	response := &Response{
+		Response: resp,
+		Content:  body,
+	}
+	if err := response.Error(); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func HeaderCopy(dst, src http.Header) http.Header {
+	for key := range (src) {
+		value := src.Get(key)
+		dst.Set(key, value)
+	}
+	return dst
 }
