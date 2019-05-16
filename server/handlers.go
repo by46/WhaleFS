@@ -253,18 +253,14 @@ func (s *Server) checkTask(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
+
 	if task.Status == model.TASK_SUCCESS {
 		err := ctx.Redirect(http.StatusMovedPermanently, task.TarFileRawKey)
 		if err != nil {
 			return err
 		}
-	} else if task.Status == model.TASK_PENDING || task.Status == model.TASK_RUNNING {
-		err := ctx.String(http.StatusOK, "文件打包中......")
-		if err != nil {
-			return err
-		}
 	} else {
-		err := ctx.String(http.StatusInternalServerError, "文件打包失败:"+task.ErrorMsg)
+		err := ctx.JSON(http.StatusOK, task)
 		if err != nil {
 			return err
 		}
