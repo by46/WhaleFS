@@ -120,7 +120,6 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 
 	buff := bytes.NewBuffer(nil)
 	writer := multipart.NewWriter(buff)
-	defer writer.Close()
 	h := make(textproto.MIMEHeader)
 	h.Set(echo.HeaderContentDisposition, `form-data; name="File"; filename="file.txt"`)
 	h.Set(echo.HeaderContentType, mimeType)
@@ -135,6 +134,9 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 	if size, err = io.Copy(partition, body); err != nil {
 		return nil, err
 	}
+	if err = writer.Close(); err != nil {
+		return nil, err
+	}
 	response, err := c.Post(fid.VolumeUrl(), writer.FormDataContentType(), bytes.NewBuffer(buff.Bytes()))
 	if response != nil {
 		defer func() {
@@ -144,7 +146,9 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 	if err != nil {
 		return nil, err
 	}
-	if response.StatusCode < http.StatusOK && response.StatusCode >= http.StatusBadRequest {
+	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusBadRequest {
+		c, _ := ioutil.ReadAll(response.Body)
+		fmt.Printf("debugging err : %s", string(c))
 		return nil, fmt.Errorf("upload content error, code %s", response.Status)
 	}
 	entity := &model.FileMeta{
