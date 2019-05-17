@@ -178,7 +178,7 @@ func (b *Bucket) GetSize(name string) *ImageSize {
 		defer b.Unlock()
 		if b.sizesMapping == nil {
 			b.sizesMapping = make(map[string]*ImageSize, len(b.Sizes))
-			for _, size := range (b.Sizes) {
+			for _, size := range b.Sizes {
 				b.sizesMapping[size.Name] = size
 			}
 		}

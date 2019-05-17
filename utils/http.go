@@ -87,7 +87,7 @@ func do(req *http.Request) (*Response, error) {
 }
 
 func HeaderCopy(dst, src http.Header) http.Header {
-	for key := range (src) {
+	for key := range src {
 		value := src.Get(key)
 		dst.Set(key, value)
 	}
