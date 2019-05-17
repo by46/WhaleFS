@@ -15,6 +15,8 @@ type FileMeta struct {
 	LastModified int64  `json:"last_modified,omitempty"`
 	ETag         string `json:"etag,omitempty"`
 	Size         int64  `json:"size,omitempty"`
+	Width        int    `json:"width,omitempty"`
+	Height       int    `json:"height,omitempty"`
 	MimeType     string `json:"mime_type,omitempty"`
 	ThumbnailFID string `json:"thumbnail_fid,omitempty"`
 }
@@ -55,6 +57,8 @@ type FileContent struct {
 	Override bool
 	Headers  textproto.MIMEHeader
 	Content  []byte
+	Width    int
+	Height   int
 }
 
 func (f *FileContent) IsImage() bool {

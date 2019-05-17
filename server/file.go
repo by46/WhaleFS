@@ -33,12 +33,18 @@ func (s *Server) head(ctx echo.Context) error {
 func (s *Server) upload(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
 	params := context.FileContext
+	file := context.FileContext.File
+
+	if file.IsImage() {
+		reader := bytes.NewReader(file.Content)
+		if config, err := utils.DecodeConfig(file.MimeType, reader); err == nil {
+			file.Width, file.Height = config.Width, config.Height
+		}
+	}
 
 	if err := s.validateFile(ctx); err != nil {
 		return err
 	}
-
-	file := params.File
 
 	sha1, err := utils.ContentSha1(bytes.NewReader(file.Content))
 	if err != nil {
@@ -51,6 +57,8 @@ func (s *Server) upload(ctx echo.Context) error {
 		entity.MimeType = file.MimeType
 		entity.Size = file.Size
 		entity.LastModified = time.Now().UTC().Unix()
+		entity.Width = chunk.Width
+		entity.Height = chunk.Height
 	} else {
 		entity, err = s.Storage.Upload(file.MimeType, bytes.NewBuffer(file.Content))
 		if err != nil {
@@ -58,6 +66,10 @@ func (s *Server) upload(ctx echo.Context) error {
 		}
 		chunk.Fid = entity.FID
 		chunk.Etag = entity.ETag
+		if file.IsImage() {
+			chunk.Width, chunk.Height = file.Width, file.Height
+			entity.Width, entity.Height = file.Width, file.Height
+		}
 		if err = s.ChunkDao.Set(sha1, chunk); err != nil {
 			return err
 		}
@@ -165,22 +177,16 @@ func (s *Server) validateFile(ctx echo.Context) error {
 		}
 
 		if file.IsImage() && (limit.Width != nil || limit.Height != nil || limit.Ratio != "") {
-			reader := bytes.NewReader(file.Content)
-			config, err := utils.DecodeConfig(file.MimeType, reader)
-			if err != nil {
-				return nil
+			if limit.Width != nil && *limit.Width != file.Width {
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片宽度等于%d, 宽度必须等于%d", file.Width, *limit.Width))
 			}
 
-			if limit.Width != nil && *limit.Width != config.Width {
-				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片宽度等于%d, 宽度必须等于%d", config.Width, *limit.Width))
-			}
-
-			if limit.Height != nil && *limit.Height != config.Height {
-				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片高度等于%d, 高度必须等于%d", config.Height, *limit.Height))
+			if limit.Height != nil && *limit.Height != file.Height {
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片高度等于%d, 高度必须等于%d", file.Height, *limit.Height))
 			}
 			ratio := utils.RatioEval(limit.Ratio)
-			if ratio != nil && utils.Float64Equal(*ratio, float64(config.Width)/float64(config.Height)) == false {
-				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片宽高比等于%d:%d, 宽高比必须等于%d", config.Width, config.Height, limit.Ratio))
+			if ratio != nil && utils.Float64Equal(*ratio, float64(file.Width)/float64(file.Height)) == false {
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片宽高比等于%d:%d, 宽高比必须等于%d", file.Width, file.Height, limit.Ratio))
 			}
 		}
 	}
