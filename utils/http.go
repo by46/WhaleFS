@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -26,20 +25,35 @@ var (
 )
 
 type Response struct {
-	*http.Response
-	Content []byte
+	StatusCode int
+	Header     http.Header
+	response   *http.Response
+	Content    []byte
 }
 
-func (r *Response) Json(v interface{}) error {
-	return json.Unmarshal(r.Content, v)
+func (r *Response) Json(v interface{}) (err error) {
+	if r.Content == nil {
+		r.Content, err = ioutil.ReadAll(r.response.Body)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
+	return errors.WithStack(json.Unmarshal(r.Content, v))
 }
 
 func (r *Response) Error() error {
 	if r.StatusCode >= http.StatusOK && r.StatusCode < http.StatusBadRequest {
 		return nil
 	}
+	return errors.Errorf("status: %d, message: %s", r.StatusCode, string(r.Content[:ErrorResponseSize]))
+}
 
-	return fmt.Errorf("status: %d, message: %s", r.StatusCode, string(r.Content[:ErrorResponseSize]))
+func (r *Response) Read(p []byte) (n int, err error) {
+	return r.response.Body.Read(p)
+}
+
+func (r *Response) Close() error {
+	return r.response.Body.Close()
 }
 
 func Get(url string, headers http.Header) (*Response, error) {
@@ -79,13 +93,12 @@ func do(req *http.Request) (*Response, error) {
 		return nil, errors.WithStack(err)
 	}
 	response := &Response{
-		Response: resp,
-		Content:  body,
+		StatusCode: resp.StatusCode,
+		Header:     resp.Header,
+		response:   resp,
+		Content:    body,
 	}
-	if err := response.Error(); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return response, nil
+	return response, errors.WithStack(response.Error())
 }
 
 func headerCopy(dst, src http.Header) http.Header {

@@ -78,9 +78,18 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	responses := make([]*utils.Response, 0)
+	defer func() {
+		for _, resp := range responses {
+			_ = resp.Close()
+		}
+	}()
 	for _, location := range entity.Locations {
 		url := fmt.Sprintf("http://%s/%s", location.PublicUrl, fid)
 		resp, err := utils.Get(url, nil)
+		if resp != nil {
+			responses = append(responses, resp)
+		}
 		if err != nil {
 			continue
 		}
@@ -136,6 +145,11 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 	headers.Set(echo.HeaderContentType, writer.FormDataContentType())
 
 	resp, err := utils.Post(fid.String(), headers, buff)
+	if resp != nil {
+		defer func() {
+			_ = resp.Close()
+		}()
+	}
 	if err != nil {
 		return nil, errors.Wrapf(err, "上传文件块失败, 上传地址%s", fid.String())
 	}
@@ -151,9 +165,18 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 }
 
 func (c *storageClient) assign() (fid *FileID, err error) {
+	responses := make([]*utils.Response, 0)
+	defer func() {
+		for _, resp := range responses {
+			_ = resp.Close()
+		}
+	}()
 	for _, master := range c.master {
 		url := fmt.Sprintf("http://%s/dir/assign", master)
 		response, err := utils.Post(url, nil, nil)
+		if response != nil {
+			responses = append(responses, response)
+		}
 		if err != nil {
 			continue
 		}
@@ -167,9 +190,18 @@ func (c *storageClient) assign() (fid *FileID, err error) {
 }
 
 func (c *storageClient) lookup(volumeId uint32) (*VolumeEntity, error) {
+	responses := make([]*utils.Response, 0)
+	defer func() {
+		for _, resp := range responses {
+			_ = resp.Close()
+		}
+	}()
 	for _, host := range c.master {
 		url := fmt.Sprintf("http://%s/dir/lookup?volumeId=%d", host, volumeId)
 		response, err := utils.Get(url, nil)
+		if response != nil {
+			responses = append(responses, response)
+		}
 		if err != nil {
 			continue
 		}
@@ -178,7 +210,6 @@ func (c *storageClient) lookup(volumeId uint32) (*VolumeEntity, error) {
 			continue
 		}
 		return entity, nil
-
 	}
 	return nil, errors.Errorf("获取Volume(%d)失败", volumeId)
 }
