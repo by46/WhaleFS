@@ -5,8 +5,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
-
-	"github.com/by46/whalefs/common"
+	"github.com/pkg/errors"
 )
 
 func (s *Server) HTTPErrorHandler(err error, ctx echo.Context) {
@@ -14,28 +13,18 @@ func (s *Server) HTTPErrorHandler(err error, ctx echo.Context) {
 		code = http.StatusInternalServerError
 		msg  interface{}
 	)
-	switch err.(type) {
+
+	realError := errors.Cause(err)
+	switch realError.(type) {
 	case *echo.HTTPError:
-		he := err.(*echo.HTTPError)
+		he := realError.(*echo.HTTPError)
 		code = he.Code
 		msg = he.Message
 		if he.Internal != nil {
 			err = fmt.Errorf("%v, %v", err, he.Internal)
 		}
-	case *common.BusinessError:
-		e := err.(*common.BusinessError)
-		switch e.Code {
-		case common.CodeFileNotExists:
-			code = http.StatusNotFound
-		case common.CodeBucketNotExists:
-			code = http.StatusForbidden
-		case common.CodeForbidden:
-			code = http.StatusForbidden
-		default:
-			code = http.StatusInternalServerError
-		}
-		msg = http.StatusText(code)
 	default:
+		s.Logger.Errorf("%+v", err)
 		if s.Debug {
 			msg = err.Error()
 		}
@@ -53,10 +42,10 @@ func (s *Server) HTTPErrorHandler(err error, ctx echo.Context) {
 		} else {
 			err = ctx.JSON(code, msg)
 		}
-	}
 
-	if err != nil {
-		s.Logger.Error(err)
+		if err != nil {
+			s.Logger.Error(err)
+		}
 	}
 }
 

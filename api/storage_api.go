@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo"
+	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
@@ -39,7 +40,7 @@ type FileID struct {
 	Error     string `json:"error,omitempty"`
 }
 
-func (f *FileID) VolumeUrl() string {
+func (f *FileID) String() string {
 	return fmt.Sprintf("http://%s/%s", f.PublicUrl, f.FID)
 }
 
@@ -70,12 +71,12 @@ func NewStorageClient(masters []string) common.Storage {
 func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	volumeId, _, _, err := parseFileId(fid)
 	if err != nil {
-		return nil, nil, fmt.Errorf("parse file id error %v", err)
+		return nil, nil, errors.Wrapf(err, "文件ID%s格式错误, 无法解析", fid)
 	}
 
 	entity, err := c.lookup(volumeId)
 	if err != nil {
-		return nil, nil, fmt.Errorf("lookup volume error %v", err)
+		return nil, nil, err
 	}
 	for _, location := range entity.Locations {
 		url := fmt.Sprintf("http://%s/%s", location.PublicUrl, fid)
@@ -88,7 +89,7 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 		}
 		return bytes.NewReader(resp.Content), resp.Header, nil
 	}
-	return nil, nil, fmt.Errorf("download file error for all location %v", entity.Locations)
+	return nil, nil, errors.Errorf("所有可用节点%v都未能成功下载文件", entity.Locations)
 }
 
 func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta, error) {
@@ -107,7 +108,7 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 		defer MimeGuessBuffPool.Put(mimeBuff)
 		preReadSize, err = body.Read(mimeBuff)
 		if err != nil && err != io.EOF {
-			return nil, err
+			return nil, errors.Wrap(err, "网络流读取失败")
 		}
 		mimeType = http.DetectContentType(mimeBuff[:preReadSize])
 	}
@@ -121,22 +122,22 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 
 	if mimeBuff != nil {
 		if _, err = partition.Write(mimeBuff[:preReadSize]); err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "构造Form表单失败")
 		}
 	}
 
 	if size, err = io.Copy(partition, body); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "构造Form表单失败")
 	}
 	if err = writer.Close(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "构造Form表单失败")
 	}
 	headers := make(http.Header)
 	headers.Set(echo.HeaderContentType, writer.FormDataContentType())
 
-	resp, err := utils.Post(fid.VolumeUrl(), headers, buff)
+	resp, err := utils.Post(fid.String(), headers, buff)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "上传文件块失败, 上传地址%s", fid.String())
 	}
 
 	entity := &model.FileMeta{
@@ -162,7 +163,7 @@ func (c *storageClient) assign() (fid *FileID, err error) {
 		}
 		return fid, nil
 	}
-	return nil, fmt.Errorf("assign fid from %v failed", c.master)
+	return nil, errors.Errorf("分配文件ID失败, master节点: %v", c.master)
 }
 
 func (c *storageClient) lookup(volumeId uint32) (*VolumeEntity, error) {
@@ -179,7 +180,7 @@ func (c *storageClient) lookup(volumeId uint32) (*VolumeEntity, error) {
 		return entity, nil
 
 	}
-	return nil, fmt.Errorf("lookup volume info %v failed", c.master)
+	return nil, errors.Errorf("获取Volume(%d)失败", volumeId)
 }
 
 func parseFileId(id string) (volumeId uint32, fileId uint64, cookie uint32, err error) {

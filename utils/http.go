@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -43,7 +45,7 @@ func (r *Response) Error() error {
 func Get(url string, headers http.Header) (*Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	if headers != nil {
 		req.Header = HeaderCopy(req.Header, headers)
@@ -54,7 +56,7 @@ func Get(url string, headers http.Header) (*Response, error) {
 func Post(url string, headers http.Header, body io.Reader) (*Response, error) {
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	if headers != nil {
 		req.Header = HeaderCopy(req.Header, headers)
@@ -70,18 +72,18 @@ func do(req *http.Request) (*Response, error) {
 		}()
 	}
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	response := &Response{
 		Response: resp,
 		Content:  body,
 	}
 	if err := response.Error(); err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return response, nil
 }

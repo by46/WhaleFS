@@ -48,15 +48,15 @@ func NewMetaClient(connectionString string) common.Dao {
 
 func (m *metaClient) Get(key string, value interface{}) error {
 	_, err := m.Bucket.Get(key, &value)
-	if err != nil && err == gocb.ErrKeyNotFound {
-		return common.New(common.CodeFileNotExists)
-	}
-	return err
+	//if err != nil && err == gocb.ErrKeyNotFound {
+	//	return common.New(common.CodeFileNotExists)
+	//}
+	return errors.Wrapf(err, "获取数据失败, key: %s", key)
 }
 
 func (m *metaClient) Set(key string, value interface{}) error {
 	_, err := m.Bucket.Upsert(key, value, 0)
-	return err
+	return errors.Wrapf(err, "设置数据失败, key: %s", key)
 }
 
 func (m *metaClient) Exists(key string) (bool, error) {
@@ -66,7 +66,7 @@ func (m *metaClient) Exists(key string) (bool, error) {
 		if err == gocb.ErrKeyNotFound {
 			return false, nil
 		}
-		return false, err
+		return false, errors.Wrapf(err, "获取数据失败, key: %s", key)
 	}
 	return true, nil
 }

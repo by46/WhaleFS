@@ -1,12 +1,14 @@
 package middleware
 
 import (
+	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/pkg/errors"
 
-	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
 )
@@ -55,12 +57,16 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 			fileParams.Override = params.Override
 			bucketName := utils.PathSegment(key, 0)
 			if bucketName == "" {
-				return common.New(common.CodeBucketNotExists)
+				return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
 			}
 
 			bucket, err := config.Server.GetBucket(bucketName)
 			if err != nil {
-				return common.New(common.CodeBucketNotExists)
+				return &echo.HTTPError{
+					Code:     http.StatusBadRequest,
+					Message:  fmt.Sprintf("Bucket %s 不存在", bucketName),
+					Internal: errors.WithStack(err),
+				}
 			}
 			fileParams.Bucket = bucket
 

@@ -18,10 +18,32 @@ type BusinessError struct {
 	Internal   error
 }
 
+type businessError struct {
+	Code     int
+	Message  interface{}
+	Internal error
+}
+
+func (e *businessError) Error() string {
+	return fmt.Sprintf("Business error code: %s, Interval error: %v", e.Code, e.Internal)
+}
+
 func (e *BusinessError) Error() string {
-	return fmt.Sprintf("Business error code: %s, Interval error: %s", e.Code, e.Internal)
+	return fmt.Sprintf("Business error code: %s, Interval error: %v", e.Code, e.Internal)
 }
 
 func New(code string) *BusinessError {
 	return &BusinessError{Code: code}
+}
+
+func New2(code int, message interface{}, err error) error {
+	return &businessError{
+		Code:     code,
+		Message:  message,
+		Internal: err,
+	}
+}
+
+func ErrorJson(err error) []byte {
+	return nil
 }

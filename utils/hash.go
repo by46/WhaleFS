@@ -5,6 +5,8 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"io"
+
+	"github.com/pkg/errors"
 )
 
 func Sha1(value string) (string, error) {
@@ -14,7 +16,7 @@ func Sha1(value string) (string, error) {
 func ContentSha1(r io.Reader) (string, error) {
 	client := sha1.New()
 	if _, err := io.Copy(client, r); err != nil {
-		return "", err
+		return "", errors.WithStack(err)
 	}
 	return fmt.Sprintf("%x", client.Sum(nil)), nil
 }

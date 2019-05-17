@@ -8,6 +8,7 @@ import (
 
 	"github.com/disintegration/imaging"
 	"github.com/labstack/echo"
+	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/server/middleware"
 )
@@ -59,25 +60,22 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 		img = imaging.Thumbnail(img, size.Width, size.Height, imaging.Lanczos)
 	}
 
-	img, err = s.overlay(ctx, img)
-	if err != nil {
-		return nil, err
-	}
+	img = s.overlay(ctx, img)
 	return s.encode(ctx, img)
 }
 
-func (s *Server) overlay(ctx echo.Context, img image.Image) (image.Image, error) {
+func (s *Server) overlay(ctx echo.Context, img image.Image) image.Image {
 	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileContext.Bucket
 	overlay := bucket.GetOverlay("")
 	if overlay == nil {
-		return img, nil
+		return img
 	}
 
 	overlayImage, err := s.downloadOverlay(overlay.Image)
 	if err != nil {
 		// 如果获取水印出现错误, 就放弃添加水印, 返回原图
-		return img, nil
+		return img
 	}
 
 	// 针对水印进行缩放
@@ -86,25 +84,28 @@ func (s *Server) overlay(ctx echo.Context, img image.Image) (image.Image, error)
 	overlayImage = imaging.Resize(overlayImage, int(float64(width)*ratio), int(float64(height)*ratio), imaging.Lanczos)
 
 	pt := overlay.RealPosition(img, overlayImage)
-	img = imaging.Overlay(img, overlayImage, pt, overlay.Opacity)
-	return img, nil
+	return imaging.Overlay(img, overlayImage, pt, overlay.Opacity)
 }
 
 // 对图片进行预处理, 减少处理时间
 func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err error) {
+	// TODO(benjamin):
 	if img, err = imaging.Decode(r); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "图片解码失败")
 	}
 
-	return img, err
+	return
 }
 
-func (s *Server) downloadOverlay(fid string) (image.Image, error) {
+func (s *Server) downloadOverlay(fid string) (img image.Image, err error) {
 	content, _, err := s.Storage.Download(fid)
 	if err != nil {
-		return nil, err
+		return
 	}
-	return imaging.Decode(content)
+	if img, err = imaging.Decode(content); err != nil {
+		return nil, errors.Wrap(err, "图片编码失败")
+	}
+	return
 }
 
 func (s *Server) encode(ctx echo.Context, img image.Image) (io.Reader, error) {

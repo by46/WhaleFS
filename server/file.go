@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/labstack/echo"
+	"github.com/pkg/errors"
 
-	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
@@ -45,7 +45,6 @@ func (s *Server) upload(ctx echo.Context) error {
 		return err
 	}
 	chunk := new(model.Chunk)
-	// TODO(benjamin): 需要区分sha1对应的
 	entity := new(model.FileMeta)
 	if err := s.ChunkDao.Get(sha1, chunk); err == nil {
 		entity.FID = chunk.Fid
@@ -73,7 +72,7 @@ func (s *Server) upload(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, entity)
 }
 
-func (s *Server) download(ctx echo.Context) error {
+func (s *Server) download(ctx echo.Context) (err error) {
 	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileContext.Bucket
 	entity := context.FileContext.Meta
@@ -84,7 +83,7 @@ func (s *Server) download(ctx echo.Context) error {
 	}
 	if !s.Config.Debug && s.freshCheck(ctx, entity) {
 		ctx.Response().WriteHeader(http.StatusNotModified)
-		return nil
+		return
 	}
 
 	body, _, err := s.Storage.Download(entity.FID)
@@ -107,8 +106,10 @@ func (s *Server) download(ctx echo.Context) error {
 	if entity.Size >= GzipLimit && entity.IsPlain() && s.shouldGzip(ctx) {
 		return s.compress(ctx, body)
 	}
-	_, err = io.Copy(response, body)
-	return err
+	if _, err = io.Copy(response, body); err != nil {
+		return errors.WithStack(err)
+	}
+	return
 }
 
 func (s *Server) form(ctx echo.Context) (*multipart.FileHeader, error) {
@@ -130,7 +131,6 @@ func (s *Server) freshCheck(ctx echo.Context, entity *model.FileMeta) bool {
 	if since := headers.Get(echo.HeaderIfModifiedSince); since != "" {
 		sinceDate, err := utils.RFC822ToTime(since)
 		if err != nil {
-			s.Logger.Errorf("parse if-modified-since error %v", err)
 			return false
 		}
 		if entity.LastModifiedTime().After(sinceDate) == false {
@@ -157,30 +157,30 @@ func (s *Server) validateFile(ctx echo.Context) error {
 
 	if limit != nil {
 		if limit.MinSize != nil && file.Size < *limit.MinSize {
-			return common.New(common.CodeLimit)
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传文件大小等于%d, 不能小于下限阈值%d", file.Size, *limit.MinSize))
 		}
 
 		if limit.MaxSize != nil && file.Size > *limit.MaxSize {
-			return common.New(common.CodeLimit)
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传文件大小等于%d, 不能大于上限阈值%d", file.Size, *limit.MaxSize))
 		}
 
 		if file.IsImage() && (limit.Width != nil || limit.Height != nil || limit.Ratio != "") {
 			reader := bytes.NewReader(file.Content)
 			config, err := utils.DecodeConfig(file.MimeType, reader)
 			if err != nil {
-				return err
+				return nil
 			}
 
 			if limit.Width != nil && *limit.Width != config.Width {
-				return common.New(common.CodeLimit)
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片宽度等于%d, 宽度必须等于%d", config.Width, *limit.Width))
 			}
 
 			if limit.Height != nil && *limit.Height != config.Height {
-				return common.New(common.CodeLimit)
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片高度等于%d, 高度必须等于%d", config.Height, *limit.Height))
 			}
 			ratio := utils.RatioEval(limit.Ratio)
 			if ratio != nil && utils.Float64Equal(*ratio, float64(config.Width)/float64(config.Height)) == false {
-				return common.New(common.CodeLimit)
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片宽高比等于%d:%d, 宽高比必须等于%d", config.Width, config.Height, limit.Ratio))
 			}
 		}
 	}
@@ -188,9 +188,9 @@ func (s *Server) validateFile(ctx echo.Context) error {
 	hash := params.HashKey()
 	if !params.Override {
 		if exists, err := s.Meta.Exists(hash); err != nil {
-			return err
+			return errors.Wrap(err, "获取文件内容错误")
 		} else if exists {
-			return common.New(common.CodeForbidden)
+			return echo.NewHTTPError(http.StatusForbidden, "当前文件已经存在, 不允许覆盖")
 		}
 	}
 	return nil
