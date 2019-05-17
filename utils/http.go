@@ -48,7 +48,7 @@ func Get(url string, headers http.Header) (*Response, error) {
 		return nil, errors.WithStack(err)
 	}
 	if headers != nil {
-		req.Header = HeaderCopy(req.Header, headers)
+		req.Header = headerCopy(req.Header, headers)
 	}
 	return do(req)
 }
@@ -59,7 +59,7 @@ func Post(url string, headers http.Header, body io.Reader) (*Response, error) {
 		return nil, errors.WithStack(err)
 	}
 	if headers != nil {
-		req.Header = HeaderCopy(req.Header, headers)
+		req.Header = headerCopy(req.Header, headers)
 	}
 	return do(req)
 }
@@ -88,7 +88,7 @@ func do(req *http.Request) (*Response, error) {
 	return response, nil
 }
 
-func HeaderCopy(dst, src http.Header) http.Header {
+func headerCopy(dst, src http.Header) http.Header {
 	for key := range src {
 		value := src.Get(key)
 		dst.Set(key, value)
