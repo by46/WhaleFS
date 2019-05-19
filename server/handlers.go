@@ -37,12 +37,7 @@ func (s *Server) tarDownload(ctx echo.Context) error {
 
 	var totalSize int64
 	for _, item := range tarFileEntity.Items {
-		hashKey, err := utils.Sha1(item.RawKey)
-		if err != nil {
-			return err
-		}
-
-		entity, err := s.GetFileEntity(hashKey)
+		entity, err := s.GetFileEntity(item.RawKey)
 		if err != nil {
 			return err
 		}

@@ -1,22 +1,13 @@
 package server
 
 import (
-	"archive/tar"
+	"archive/zip"
 	"io"
 	"net/http"
-	"os"
-	"time"
 
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
 )
-
-type TarEntity struct {
-	Reader io.Reader
-	Size   int64
-	Target string
-	Err    error
-}
 
 func Package(
 	tarFileInfo *model.TarFileEntity,
@@ -24,26 +15,21 @@ func Package(
 	getEntityFunc func(hash string) (*model.FileMeta, error),
 	downloadFunc func(url string) (io.Reader, http.Header, error)) error {
 
-	tw := tar.NewWriter(w)
+	//tw := tar.NewWriter(w)
+	tw := zip.NewWriter(w)
 	defer func() { _ = tw.Close() }()
 
-	fileReaderChan := make(chan *TarEntity, len(tarFileInfo.Items))
+	fileReaderChan := make(chan *utils.PackageUnitEntity, len(tarFileInfo.Items))
 	defer close(fileReaderChan)
 
 	for _, item := range tarFileInfo.Items {
 		go func(item model.TarFileItem) {
-			tarEntity := &TarEntity{
+			tarEntity := &utils.PackageUnitEntity{
 				Target: item.Target,
 			}
 			defer func() { fileReaderChan <- tarEntity }()
 
-			hashKey, err := utils.Sha1(item.RawKey)
-			if err != nil {
-				tarEntity.Err = err
-				fileReaderChan <- tarEntity
-				return
-			}
-			entity, err := getEntityFunc(hashKey)
+			entity, err := getEntityFunc(item.RawKey)
 			if err != nil {
 				tarEntity.Err = err
 				fileReaderChan <- tarEntity
@@ -67,33 +53,11 @@ func Package(
 		if tarEntity.Err != nil {
 			return tarEntity.Err
 		}
-		err := BuildPackage(tw, tarEntity)
+		//err := utils.TarUnit(tw, tarEntity)
+		err := utils.ZipUnit(tw, tarEntity)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-func BuildPackage(tw *tar.Writer, tarEntity *TarEntity) error {
-	t := time.Now()
-	header := &tar.Header{
-		Name:       tarEntity.Target,
-		Mode:       0644,
-		ModTime:    t,
-		Uid:        os.Getuid(),
-		Gid:        os.Getgid(),
-		Typeflag:   tar.TypeReg,
-		AccessTime: t,
-		ChangeTime: t,
-	}
-	header.Size = tarEntity.Size
-
-	err := tw.WriteHeader(header)
-	if err != nil {
-		return err
-	}
-	_, err = io.Copy(tw, tarEntity.Reader)
-
-	return err
 }
