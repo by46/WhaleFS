@@ -138,6 +138,7 @@ func (s *Server) install() {
 				url == "/packagedownload" ||
 				url == "/pkgdownloadtool" ||
 				url == "/tasks" ||
+				url == "/metric" ||
 				url == "/favicon.ico"
 		},
 	}))
@@ -159,6 +160,7 @@ func (s *Server) install() {
 	s.app.GET("/pkgDownloadTool", s.pkgDownloadTool)
 	s.app.GET("/favicon.ico", s.favicon)
 	s.app.GET("/tasks", s.checkTask)
+	s.app.GET("/metric", s.metric)
 }
 
 func (s *Server) hashKey(uri string) (string, error) {

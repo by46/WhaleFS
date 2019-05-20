@@ -35,9 +35,10 @@ type Buckets struct {
 }
 
 type Basis struct {
-	Expires                  *int   `json:"expires"` // unit: second
-	PrepareThumbnail         string `json:"prepare_thumbnail"`
-	PrepareThumbnailMinWidth int    `json:"prepare_thumbnail_min_width"`
+	Expires          *int   `json:"expires"` // unit: second
+	PrepareThumbnail string `json:"prepare_thumbnail"`
+	// 触发进行图片预处理的最小宽度
+	PrepareThumbnailMinWidth int `json:"prepare_thumbnail_min_width"`
 }
 
 type ImageOverlayPosition struct {
@@ -70,7 +71,7 @@ func (o *ImageOverlay) Init() {
 		content := []byte(o.PositionString)
 		o.Position = new(ImageOverlayPosition)
 		if err := json.Unmarshal(content, o.Position); err != nil {
-			// TODO(benjamin): log error message
+			o.Position = nil
 		}
 	}
 }

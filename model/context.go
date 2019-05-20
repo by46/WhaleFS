@@ -64,17 +64,26 @@ func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) (*
 	file := new(FileContent)
 	file.Headers = form.Header
 	file.Content = buf
+	file.Size = int64(len(buf))
 	file.MimeType = form.Header.Get(echo.HeaderContentType)
 	return file, nil
 }
 
 func (self *FileContext) parseFileContentFromRemote(source string) (*FileContent, error) {
 	response, err := utils.Get(source, nil)
+	if response != nil {
+		defer func() {
+			_ = response.Close()
+		}()
+	}
 	if err != nil {
 		return nil, err
 	}
 	file := new(FileContent)
-	file.Content = response.Content
+	file.Content, err = ioutil.ReadAll(response)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 	file.Size = int64(len(response.Content))
 	file.MimeType = response.Header.Get(echo.HeaderContentType)
 	return file, nil

@@ -89,11 +89,40 @@ func (s *Server) overlay(ctx echo.Context, img image.Image) image.Image {
 
 // 对图片进行预处理, 减少处理时间
 func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err error) {
-	// TODO(benjamin):
+	context := ctx.(*middleware.ExtendContext)
+	bucket := context.FileContext.Bucket
+	meta := context.FileContext.Meta
+
+	if meta.ThumbnailFID != "" {
+		if reader, _, err := s.Storage.Download(meta.ThumbnailFID); err != nil {
+			s.Logger.Errorf("下载预处理图片失败 %+v", err)
+		} else if img, err := imaging.Decode(reader); err != nil {
+			s.Logger.Errorf("解析预处理图片失败 %+v", err)
+		} else {
+			return img, nil
+		}
+	}
+
 	if img, err = imaging.Decode(r); err != nil {
 		return nil, errors.Wrap(err, "图片解码失败")
 	}
 
+	if meta.Width > bucket.Basis.PrepareThumbnailMinWidth {
+		img = imaging.Resize(img, bucket.Basis.PrepareThumbnailMinWidth, 0, imaging.Lanczos)
+		prepareThumbnail, err := s.encode(ctx, img)
+		if err != nil {
+			s.Logger.Errorf("生成预处理图片失败 %+v", err)
+		} else {
+			if prepareThumbnailMeta, err := s.Storage.Upload(meta.MimeType, prepareThumbnail); err != nil {
+				s.Logger.Errorf("上传预处理图片失败 %+v", err)
+			} else {
+				meta.ThumbnailFID = prepareThumbnailMeta.FID
+				if err := s.Meta.Set(meta.RawKey, meta); err != nil {
+					s.Logger.Errorf("更新文件元数据失败 %+v", err)
+				}
+			}
+		}
+	}
 	return
 }
 
@@ -130,7 +159,7 @@ func (s *Server) encode(ctx echo.Context, img image.Image) (io.Reader, error) {
 		opts = append(opts, imaging.JPEGQuality(75))
 	}
 	if err := imaging.Encode(buff, img, fmt, opts...); err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	entity.Size = int64(buff.Len())
 	return buff, nil
