@@ -35,4 +35,15 @@ require (
 	gopkg.in/couchbaselabs/jsonx.v1 v1.0.0 // indirect
 )
 
-replace golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5 => github.com/golang/net v0.0.0-20190509222800-a4d6f7feada5
+replace (
+	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9 => github.com/golang/crypto v0.0.0-20181203042331-505ab145d0a9
+	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2 => github.com/golang/crypto v0.0.0-20190308221718-c2843e01d9a2
+	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81 => github.com/golang/image v0.0.0-20180708004352-c73c2afc3b81
+	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5 => github.com/golang/net v0.0.0-20190509222800-a4d6f7feada5
+	golang.org/x/sys v0.0.0-20180905080454-ebe1bf3edb33 => github.com/golang/sys v0.0.0-20180905080454-ebe1bf3edb33
+	golang.org/x/sys v0.0.0-20181205085412-a5c9d58dba9a => github.com/golang/sys v0.0.0-20181205085412-a5c9d58dba9a
+	golang.org/x/sys v0.0.0-20181217223516-dcdaa6325bcb => github.com/golang/sys v0.0.0-20181217223516-dcdaa6325bcb
+	golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223 => github.com/golang/sys v0.0.0-20190222072716-a9d3bda3a223
+	golang.org/x/text v0.3.0 => github.com/golang/text v0.3.0
+	golang.org/x/tools v0.0.0-20190328211700-ab21143f2384 => github.com/golang/tools v0.0.0-20190328211700-ab21143f2384
+)
