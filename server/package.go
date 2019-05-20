@@ -22,10 +22,6 @@ func Package(
 	getEntityFunc func(string) (*model.FileMeta, error),
 	downloadFunc func(string) (io.Reader, http.Header, error)) error {
 
-	if strings.TrimSpace(pkgFileInfo.Type) == "" {
-		pkgFileInfo.Type = Zip
-	}
-
 	var tw interface{}
 	if strings.ToLower(pkgFileInfo.Type) == Zip {
 		tw = zip.NewWriter(w)
@@ -64,12 +60,13 @@ func Package(
 		}(item)
 	}
 
+	errors := make([]error, 0)
 	for i := 0; i < len(pkgFileInfo.Items); i++ {
 		pkgUnitEntity := <-fileReaderChan
-		if pkgUnitEntity.Err != nil {
-			return pkgUnitEntity.Err
-		}
 		var err error
+		if pkgUnitEntity.Err != nil {
+			err = pkgUnitEntity.Err
+		}
 		if strings.ToLower(pkgFileInfo.Type) == Zip {
 			writer := tw.(*zip.Writer)
 			err = utils.ZipUnit(writer, pkgUnitEntity)
@@ -79,8 +76,10 @@ func Package(
 		}
 
 		if err != nil {
-			return err
+
+			errors = append(errors, err)
 		}
 	}
+	//todo: handler errors
 	return nil
 }
