@@ -7,12 +7,12 @@ const (
 	TASK_FAILED  = -1
 )
 
-type TarTask struct {
+type PackageTask struct {
 	Id            string         `json:"id"`
-	TarFileInfo   *TarFileEntity `json:"tar_file_info"`
+	PackageInfo   *PackageEntity `json:"package_info"`
 	Status        int8           `json:"status"`
 	Progress      int8           `json:"progress"`
-	TarFileRawKey string         `json:"tar_file_raw_key"`
+	PackageRawKey string         `json:"package_raw_key"`
 	ErrorMsg      string         `json:"error_msg"`
 	InDate        int64          `json:"in_date"`
 	EditDate      int64          `json:"edit_date"`

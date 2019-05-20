@@ -7,6 +7,6 @@ import (
 type Task interface {
 	Get(key string, value interface{}) error
 	Set(key string, value interface{}) error
-	QueryPendingTarTask(n1sql string) (gocb.QueryResults, error)
+	QueryPendingPkgTask(n1sql string) (gocb.QueryResults, error)
 	BulkUpdate(values map[string]interface{}) error
 }

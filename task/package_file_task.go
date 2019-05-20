@@ -36,7 +36,7 @@ func (s *Scheduler) RunPackageFileTask() {
 
 	logger.Info("Package files task running...")
 
-	tasks, err := taskClient.QueryPendingTarTask("SELECT id,edit_date,error_msg,in_date,status,tar_file_info,tar_file_raw_key FROM `tasks` WHERE status = 0 ORDER BY in_date LIMIT 5")
+	tasks, err := taskClient.QueryPendingPkgTask("SELECT id,edit_date,error_msg,in_date,status,package_info,package_raw_key FROM `tasks` WHERE status = 0 ORDER BY in_date LIMIT 5")
 	if err != nil {
 		logger.Errorf("Select tasks error: %v", err)
 		panic(err)
@@ -45,7 +45,7 @@ func (s *Scheduler) RunPackageFileTask() {
 	taskMap := make(map[string]interface{})
 
 	for {
-		tmpTask := new(model.TarTask)
+		tmpTask := new(model.PackageTask)
 		if tasks.Next(tmpTask) == false {
 			break
 		}
@@ -58,11 +58,11 @@ func (s *Scheduler) RunPackageFileTask() {
 		panic(err)
 	}
 
-	taskChan := make(chan *model.TarTask, len(taskMap))
+	taskChan := make(chan *model.PackageTask, len(taskMap))
 
 	for _, value := range taskMap {
-		tarTask := value.(*model.TarTask)
-		go func(task *model.TarTask) {
+		pkgTask := value.(*model.PackageTask)
+		go func(task *model.PackageTask) {
 			defer func() {
 				defer func() { taskChan <- task }()
 				task.Progress = 100
@@ -72,11 +72,11 @@ func (s *Scheduler) RunPackageFileTask() {
 				}
 			}()
 
-			tempFileName := TmpDir + task.TarFileInfo.Name
+			tempFileName := TmpDir + task.PackageInfo.Name
 
 			file, err := os.Create(tempFileName)
 			if err != nil {
-				errMsg := fmt.Sprintf("Create tar file failed. %s", err.Error())
+				errMsg := fmt.Sprintf("Create package file failed. %s", err.Error())
 				fillErrorTask(task, errMsg)
 				logger.Error(errMsg)
 				return
@@ -90,7 +90,7 @@ func (s *Scheduler) RunPackageFileTask() {
 				}
 			}()
 
-			err = server.Package(task.TarFileInfo, file, getFileEntity(metaClient), downloadFile(storageClient))
+			err = server.Package(task.PackageInfo, file, getFileEntity(metaClient), downloadFile(storageClient))
 			if err != nil {
 				errMsg := fmt.Sprintf("Package file failed. %s", err.Error())
 				fillErrorTask(task, errMsg)
@@ -101,7 +101,7 @@ func (s *Scheduler) RunPackageFileTask() {
 
 			err = file.Close()
 			if err != nil {
-				errMsg := fmt.Sprintf("Tar file close failed. %s", err.Error())
+				errMsg := fmt.Sprintf("Package file close failed. %s", err.Error())
 				fillErrorTask(task, errMsg)
 				logger.Error(errMsg)
 				return
@@ -109,7 +109,7 @@ func (s *Scheduler) RunPackageFileTask() {
 
 			open, err := os.Open(tempFileName)
 			if err != nil {
-				errMsg := fmt.Sprintf("Tar file open failed. %s", err.Error())
+				errMsg := fmt.Sprintf("Package file open failed. %s", err.Error())
 				fillErrorTask(task, errMsg)
 				logger.Error(errMsg)
 				return
@@ -118,16 +118,16 @@ func (s *Scheduler) RunPackageFileTask() {
 
 			entity, err := storageClient.Upload("application/tar", open)
 			if err != nil {
-				errMsg := fmt.Sprintf("Tar file upload failed. %s", err.Error())
+				errMsg := fmt.Sprintf("Package file upload failed. %s", err.Error())
 				fillErrorTask(task, errMsg)
 				logger.Error(errMsg)
 				return
 			}
 			updateProgress(task, taskClient, 99)
 
-			entity.RawKey = task.TarFileRawKey
+			entity.RawKey = task.PackageRawKey
 			if err := metaClient.Set(task.Id, entity); err != nil {
-				errMsg := fmt.Sprintf("Tar file save meta failed. %s", err.Error())
+				errMsg := fmt.Sprintf("Package file save meta failed. %s", err.Error())
 				fillErrorTask(task, errMsg)
 				logger.Error(errMsg)
 				return
@@ -135,12 +135,12 @@ func (s *Scheduler) RunPackageFileTask() {
 
 			task.Status = model.TASK_SUCCESS
 			task.EditDate = time.Now().Unix()
-		}(tarTask)
+		}(pkgTask)
 	}
 
 	for i := 0; i < len(taskMap); i++ {
 		completedTask := <-taskChan
-		logger.Infof("Task %s completed!\n", completedTask.TarFileInfo.Name)
+		logger.Infof("Task %s completed!\n", completedTask.PackageInfo.Name)
 	}
 
 	logger.Info("All tasks completed!\n")
@@ -162,7 +162,7 @@ func downloadFile(storageClient common.Storage) func(url string) (reader io.Read
 	}
 }
 
-func fillErrorTask(task *model.TarTask, errMsg string) {
+func fillErrorTask(task *model.PackageTask, errMsg string) {
 	task.ErrorMsg = errMsg
 	task.Status = model.TASK_FAILED
 	task.EditDate = time.Now().Unix()
@@ -179,8 +179,8 @@ func pathExists(path string) (bool, error) {
 	return false, err
 }
 
-func updateProgress(task *model.TarTask, taskClient common.Task, progress int8) {
-	tmpTask := new(model.TarTask)
+func updateProgress(task *model.PackageTask, taskClient common.Task, progress int8) {
+	tmpTask := new(model.PackageTask)
 	task.Progress = progress
 	err := taskClient.Set(task.Id, tmpTask)
 	if err != nil {

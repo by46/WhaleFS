@@ -20,18 +20,18 @@ import (
 )
 
 type Server struct {
-	Debug          bool
-	Config         *model.Config
-	Storage        common.Storage
-	Meta           common.Dao
-	BucketMeta     common.Dao
-	ChunkDao       common.Dao
-	TaskMeta       common.Task
-	Logger         common.Logger
-	Version        string
-	app            *echo.Echo
-	buckets        *sync.Map
-	TaskBucketName string
+	Debug                 bool
+	Config                *model.Config
+	Storage               common.Storage
+	Meta                  common.Dao
+	BucketMeta            common.Dao
+	ChunkDao              common.Dao
+	TaskMeta              common.Task
+	Logger                common.Logger
+	Version               string
+	app                   *echo.Echo
+	buckets               *sync.Map
+	TaskBucketName        string
 	TaskFileSizeThreshold int64
 }
 
@@ -105,17 +105,17 @@ func NewServer() *Server {
 	app := echo.New()
 
 	srv := &Server{
-		app:            app,
-		Config:         config,
-		Storage:        storage,
-		Meta:           meta,
-		BucketMeta:     bucketMeta,
-		ChunkDao:       chuckDao,
-		Logger:         logger,
-		Version:        VERSION,
-		buckets:        &sync.Map{},
-		TaskBucketName: config.TaskFileBucketName,
-		TaskMeta:       taskMeta,
+		app:                   app,
+		Config:                config,
+		Storage:               storage,
+		Meta:                  meta,
+		BucketMeta:            bucketMeta,
+		ChunkDao:              chuckDao,
+		Logger:                logger,
+		Version:               VERSION,
+		buckets:               &sync.Map{},
+		TaskBucketName:        config.TaskFileBucketName,
+		TaskMeta:              taskMeta,
 		TaskFileSizeThreshold: config.TaskFileSizeThreshold,
 	}
 	srv.install()
@@ -135,7 +135,7 @@ func (s *Server) install() {
 		Skipper: func(context echo.Context) bool {
 			url := strings.ToLower(context.Request().URL.Path)
 			return url == "/tools" ||
-				url == "/tardownload" ||
+				url == "/packageDownload" ||
 				url == "/tasks" ||
 				url == "/favicon.ico"
 		},
@@ -153,7 +153,7 @@ func (s *Server) install() {
 	s.app.GET("/*", s.download)
 	s.app.HEAD("/*", s.head)
 	s.app.POST("/*", s.upload)
-	s.app.POST("/tarDownload", s.tarDownload)
+	s.app.POST("/packageDownload", s.packageDownload)
 	s.app.GET("/tools", s.tools)
 	s.app.GET("/favicon.ico", s.favicon)
 	s.app.GET("/tasks", s.checkTask)

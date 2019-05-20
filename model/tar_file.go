@@ -1,11 +1,11 @@
 package model
 
-type TarFileEntity struct {
+type PackageEntity struct {
 	Name  string        `json:"name" form:"name"`
-	Items []TarFileItem `json:"items" form:"items"`
+	Items []PkgFileItem `json:"items" form:"items"`
 }
 
-type TarFileItem struct {
+type PkgFileItem struct {
 	RawKey string `json:"rawKey" form:"rawKey"`
 	Target string `json:"target" form:"target"`
 }

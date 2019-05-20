@@ -7,14 +7,14 @@ import (
 	"github.com/by46/whalefs/model"
 )
 
-func (s *Server) CreateTask(hashKey string, tarFileInfo *model.TarFileEntity) error {
-	task := &model.TarTask{
-		TarFileInfo:   tarFileInfo,
+func (s *Server) CreateTask(hashKey string, pkgFileInfo *model.PackageEntity) error {
+	task := &model.PackageTask{
+		PackageInfo:   pkgFileInfo,
 		InDate:        time.Now().Unix(),
 		EditDate:      time.Now().Unix(),
 		Status:        model.TASK_PENDING,
 		Id:            hashKey,
-		TarFileRawKey: fmt.Sprintf("/%s/%s", s.TaskBucketName, tarFileInfo.Name),
+		PackageRawKey: fmt.Sprintf("/%s/%s", s.TaskBucketName, pkgFileInfo.Name),
 	}
 
 	if err := s.TaskMeta.Set(hashKey, task); err != nil {

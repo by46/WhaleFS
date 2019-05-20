@@ -27,16 +27,16 @@ func (s *Server) tools(ctx echo.Context) error {
 	return s.error(http.StatusForbidden, fmt.Errorf("method not implements"))
 }
 
-func (s *Server) tarDownload(ctx echo.Context) error {
+func (s *Server) packageDownload(ctx echo.Context) error {
 	content := ctx.FormValue("content")
-	tarFileEntity := new(model.TarFileEntity)
-	err := json.Unmarshal([]byte(content), &tarFileEntity)
+	packageEntity := new(model.PackageEntity)
+	err := json.Unmarshal([]byte(content), &packageEntity)
 	if err != nil {
 		return err
 	}
 
 	var totalSize int64
-	for _, item := range tarFileEntity.Items {
+	for _, item := range packageEntity.Items {
 		entity, err := s.GetFileEntity(item.RawKey)
 		if err != nil {
 			return err
@@ -46,12 +46,12 @@ func (s *Server) tarDownload(ctx echo.Context) error {
 	}
 
 	if totalSize > s.TaskFileSizeThreshold {
-		hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, tarFileEntity.Name))
+		hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, packageEntity.Name))
 		if err != nil {
 			return err
 		}
 
-		err = s.CreateTask(hashKey, tarFileEntity)
+		err = s.CreateTask(hashKey, packageEntity)
 		if err != nil {
 			return err
 		}
@@ -64,9 +64,9 @@ func (s *Server) tarDownload(ctx echo.Context) error {
 
 	response := ctx.Response()
 	response.Header().Set(echo.HeaderContentType, "application/tar")
-	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", tarFileEntity.Name))
+	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", packageEntity.Name))
 
-	return Package(tarFileEntity, response, s.GetFileEntity, s.Storage.Download)
+	return Package(packageEntity, response, s.GetFileEntity, s.Storage.Download)
 }
 
 func (s *Server) checkTask(ctx echo.Context) error {
@@ -77,14 +77,14 @@ func (s *Server) checkTask(ctx echo.Context) error {
 			return err
 		}
 	}
-	var task = model.TarTask{}
+	var task = model.PackageTask{}
 	err := s.TaskMeta.Get(key, &task)
 	if err != nil {
 		return err
 	}
 
 	if task.Status == model.TASK_SUCCESS {
-		err := ctx.Redirect(http.StatusMovedPermanently, task.TarFileRawKey)
+		err := ctx.Redirect(http.StatusMovedPermanently, task.PackageRawKey)
 		if err != nil {
 			return err
 		}

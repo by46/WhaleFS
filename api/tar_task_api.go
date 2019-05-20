@@ -15,6 +15,6 @@ func NewTaskClient(connectionString string) common.Task {
 	return &taskClient{meta}
 }
 
-func (m *taskClient) QueryPendingTarTask(n1sql string) (gocb.QueryResults, error) {
+func (m *taskClient) QueryPendingPkgTask(n1sql string) (gocb.QueryResults, error) {
 	return m.Query(n1sql, nil)
 }
