@@ -27,6 +27,13 @@ func (s *Server) tools(ctx echo.Context) error {
 	return s.error(http.StatusForbidden, fmt.Errorf("method not implements"))
 }
 
+func (s *Server) pkgDownloadTool(ctx echo.Context) error {
+	if ctx.Request().Method == "GET" {
+		return ctx.File("templates/pkg-download-tool.html")
+	}
+	return s.error(http.StatusForbidden, fmt.Errorf("method not implements"))
+}
+
 func (s *Server) packageDownload(ctx echo.Context) error {
 	content := ctx.FormValue("content")
 	packageEntity := new(model.PackageEntity)
@@ -47,19 +54,9 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 
 	if totalSize > s.TaskFileSizeThreshold {
 		hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, packageEntity.Name))
-		if err != nil {
-			return err
-		}
-
 		err = s.CreateTask(hashKey, packageEntity)
-		if err != nil {
-			return err
-		}
-
 		err = ctx.Redirect(http.StatusMovedPermanently, "/tasks?key="+hashKey)
-		if err != nil {
-			return err
-		}
+		return err
 	}
 
 	response := ctx.Response()

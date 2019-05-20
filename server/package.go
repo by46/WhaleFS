@@ -1,12 +1,19 @@
 package server
 
 import (
+	"archive/tar"
 	"archive/zip"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
+)
+
+const (
+	Zip = "zip"
+	Tar = "tar"
 )
 
 func Package(
@@ -15,9 +22,18 @@ func Package(
 	getEntityFunc func(string) (*model.FileMeta, error),
 	downloadFunc func(string) (io.Reader, http.Header, error)) error {
 
-	//tw := tar.NewWriter(w)
-	tw := zip.NewWriter(w)
-	defer func() { _ = tw.Close() }()
+	if strings.TrimSpace(pkgFileInfo.Type) == "" {
+		pkgFileInfo.Type = Zip
+	}
+
+	var tw interface{}
+	if strings.ToLower(pkgFileInfo.Type) == Zip {
+		tw = zip.NewWriter(w)
+	} else {
+		tw = tar.NewWriter(w)
+	}
+
+	defer func() { _ = tw.(io.Closer).Close() }()
 
 	fileReaderChan := make(chan *utils.PackageUnitEntity, len(pkgFileInfo.Items))
 	defer close(fileReaderChan)
@@ -53,8 +69,15 @@ func Package(
 		if pkgUnitEntity.Err != nil {
 			return pkgUnitEntity.Err
 		}
-		//err := utils.TarUnit(tw, pkgUnitEntity)
-		err := utils.ZipUnit(tw, pkgUnitEntity)
+		var err error
+		if strings.ToLower(pkgFileInfo.Type) == Zip {
+			writer := tw.(*zip.Writer)
+			err = utils.ZipUnit(writer, pkgUnitEntity)
+		} else {
+			writer := tw.(*tar.Writer)
+			err = utils.TarUnit(writer, pkgUnitEntity)
+		}
+
 		if err != nil {
 			return err
 		}

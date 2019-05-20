@@ -135,7 +135,8 @@ func (s *Server) install() {
 		Skipper: func(context echo.Context) bool {
 			url := strings.ToLower(context.Request().URL.Path)
 			return url == "/tools" ||
-				url == "/packageDownload" ||
+				url == "/packagedownload" ||
+				url == "/pkgdownloadtool" ||
 				url == "/tasks" ||
 				url == "/favicon.ico"
 		},
@@ -155,6 +156,7 @@ func (s *Server) install() {
 	s.app.POST("/*", s.upload)
 	s.app.POST("/packageDownload", s.packageDownload)
 	s.app.GET("/tools", s.tools)
+	s.app.GET("/pkgDownloadTool", s.pkgDownloadTool)
 	s.app.GET("/favicon.ico", s.favicon)
 	s.app.GET("/tasks", s.checkTask)
 }
