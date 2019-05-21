@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"sync"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -16,6 +17,14 @@ import (
 
 const (
 	BufferSize = 4 * 1024 // 4M
+)
+
+var (
+	byteBufferPool = &sync.Pool{
+		New: func() interface{} {
+			return make([]byte, BufferSize)
+		},
+	}
 )
 
 type Client interface {
@@ -46,7 +55,8 @@ func (c *httpClient) Upload(ctx context.Context, options *Options) (*FileEntity,
 	h := make(textproto.MIMEHeader)
 	h.Set(echo.HeaderContentDisposition, fmt.Sprintf(`form-data; name="file"; filename="%s"`, options.FileName))
 	partition, _ := writer.CreatePart(h)
-	tmp := make([]byte, BufferSize)
+	tmp := byteBufferPool.Get().([]byte)
+	defer byteBufferPool.Put(tmp)
 	for {
 		n, err := options.Content.Read(tmp)
 		if err != nil {
