@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -59,7 +60,7 @@ func (c *httpClient) Upload(ctx context.Context, options *Options) (*FileEntity,
 	defer byteBufferPool.Put(tmp)
 	for {
 		n, err := options.Content.Read(tmp)
-		if err != nil {
+		if err != nil && err != io.EOF {
 			return nil, errors.Wrap(err, "读取文件内容失败")
 		}
 		_, err = partition.Write(tmp[:n])
