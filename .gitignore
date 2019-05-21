@@ -6,3 +6,4 @@ fs
 raft-*
 .DS_Store
 main
+dist
