@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/labstack/echo"
 
@@ -43,10 +42,6 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 		return err
 	}
 
-	if strings.TrimSpace(packageEntity.Type) == "" {
-		packageEntity.Type = Zip
-	}
-
 	var totalSize int64
 	for _, item := range packageEntity.Items {
 		entity, err := s.GetFileEntity(item.RawKey)
@@ -65,12 +60,16 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 	}
 
 	response := ctx.Response()
-	if strings.ToLower(packageEntity.Type) == Zip {
-		response.Header().Set(echo.HeaderContentType, "application/zip")
-	} else {
+
+	pkgType := utils.GetPkgType(packageEntity.Name, packageEntity.Type)
+
+	if pkgType == utils.Tar {
 		response.Header().Set(echo.HeaderContentType, "application/tar")
+	} else {
+		response.Header().Set(echo.HeaderContentType, "application/zip")
 	}
-	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", packageEntity.Name))
+
+	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", utils.GetPkgFileName(packageEntity.Name, pkgType)))
 
 	return Package(packageEntity, response, s.GetFileEntity, s.Storage.Download)
 }

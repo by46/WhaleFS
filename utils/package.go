@@ -5,7 +5,14 @@ import (
 	"archive/zip"
 	"io"
 	"os"
+	"path"
+	"strings"
 	"time"
+)
+
+const (
+	Zip = "zip"
+	Tar = "tar"
 )
 
 type PackageUnitEntity struct {
@@ -52,4 +59,23 @@ func ZipUnit(zw *zip.Writer, zipEntity *PackageUnitEntity) error {
 	}
 	_, err = io.Copy(writer, zipEntity.Reader)
 	return err
+}
+
+func GetPkgType(pkgFileName string, pkgFileType string) string {
+	pkgType := Zip
+	suffix := strings.TrimLeft(path.Ext(pkgFileName), ".")
+	if strings.ToLower(suffix) == Tar ||
+		(strings.ToLower(suffix) != Zip && strings.ToLower(pkgFileType) == Tar) {
+		pkgType = Tar
+	}
+	return pkgType
+}
+
+func GetPkgFileName(originName string, pkgType string) string {
+	suffix := strings.TrimLeft(path.Ext(originName), ".")
+
+	if suffix == "" || (strings.ToLower(suffix) != Zip && strings.ToLower(suffix) != Tar) {
+		return originName + "." + pkgType
+	}
+	return originName
 }
