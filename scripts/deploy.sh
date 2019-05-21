@@ -9,8 +9,15 @@ DEPLOY_DIR="/opt/framework"
 ENV=${PARAM_HOST_ARRAY[0]}
 HOST=${PARAM_HOST_ARRAY[1]}
 
+# golang build environment
+export HOME=/root
+export PATH=/opt/go1.12/bin/:$PATH
+
+make build
+
+
 function deploy_filer() {
-    RSYNC_APP_PARAM="--include=config/*** --include=main --exclude=*"
+    RSYNC_APP_PARAM="--include=dist/*** --exclude=*"
     APP_NAME="filer"
     APP_DIR="$DEPLOY_DIR/$APP_NAME"
     CURRENT_DIR=$APP_DIR/current
@@ -18,7 +25,7 @@ function deploy_filer() {
     # TODO(benjamin): build app
 
     echo "[1m[32mRsync: $APP_NAME[0m"
-    rsync -rpcv --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r --delete $RSYNC_APP_PARAM $HOST:$CURRENT_DIR
+    rsync -rpcv --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r --delete $RSYNC_APP_PARAM dist/ $HOST:$CURRENT_DIR
 }
 
 function deploy_task() {
