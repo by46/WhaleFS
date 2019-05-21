@@ -22,11 +22,16 @@ function deploy_filer() {
     CURRENT_DIR=$APP_DIR/current
 
     echo "[1m[32mRsync: $APP_NAME[0m"
-    rsync -rpcv --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r --delete dist/ $HOST:$CURRENT_DIR
+    rsync -rpcv --chmod=Du=rwx,Dgo=rx,Fu=rwx,Fgo=rx --delete dist/ $HOST:$CURRENT_DIR
 }
 
 function deploy_task() {
-    echo "TODO"
+    APP_NAME="task"
+    APP_DIR="$DEPLOY_DIR/$APP_NAME"
+    CURRENT_DIR=$APP_DIR/current
+
+    echo "[1m[32mRsync: $APP_NAME[0m"
+    rsync -rpcv --chmod=Du=rwx,Dgo=rx,Fu=rwx,Fgo=rx --delete dist/ $HOST:$CURRENT_DIR
 }
 if [[ "$TARGET" == *"filer"* ]]; then
   deploy_filer
