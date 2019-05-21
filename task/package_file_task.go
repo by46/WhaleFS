@@ -68,6 +68,12 @@ func (s *Scheduler) RunPackageFileTask() {
 		pkgTask := value.(*model.PackageTask)
 		go func(task *model.PackageTask) {
 			defer func() {
+				if err := recover(); err != nil {
+					logger.Errorf("Recover from: %v", err)
+				}
+			}()
+
+			defer func() {
 				defer func() { taskChan <- task }()
 				task.Progress = 100
 				err = taskClient.Set(task.Id, task)
@@ -124,7 +130,8 @@ func (s *Scheduler) RunPackageFileTask() {
 				Base: s.HttpClientBase,
 			})
 
-			ctx, _ := context.WithCancel(context.Background())
+			ctx, cancelFunc := context.WithCancel(context.Background())
+			defer cancelFunc()
 
 			fileEntity, err := uploadClient.Upload(ctx, &client.Options{
 				Bucket:     s.TaskBucketName,
