@@ -28,6 +28,7 @@ type Scheduler struct {
 	buckets        *sync.Map
 	TaskBucketName string
 	Cron           *cron.Cron
+	HttpClientBase string
 }
 
 func BuildConfig() (*model.Config, error) {
@@ -108,6 +109,7 @@ func NewScheduler() *Scheduler {
 		TaskBucketName: config.TaskFileBucketName,
 		TaskMeta:       taskMeta,
 		Cron:           cron,
+		HttpClientBase: config.HttpClientBase,
 	}
 	scheduler.install()
 	return scheduler
