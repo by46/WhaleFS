@@ -96,3 +96,26 @@ import:
 http://172.16.0.158:9090/graph
 
 ### golang 编程规范
+
+### 接口 大文件上传
+#### 初始化上传
+POST /benjamin/demo/hello.jpg?uploads
+
+{
+    "upload_id":"uuid1"
+}
+
+#### 上传chunk
+PUT /benjamin/demo/hello.jpg?uploadId=uuid1&partNumber=partNumber1
+
+<multipart-form>
+</multipart-form>
+
+#### 完成上传
+POST /benjamin/demo/hello.jpg?uploadId=uuid1
+
+[{
+  "part_number": "part number 1",
+  "etag": "etag1"   
+}]
+
