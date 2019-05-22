@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 
+	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/server/middleware"
 )
 
@@ -113,7 +114,10 @@ func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err er
 		if err != nil {
 			s.Logger.Errorf("生成预处理图片失败 %+v", err)
 		} else {
-			if prepareThumbnailMeta, err := s.Storage.Upload(meta.MimeType, prepareThumbnail); err != nil {
+			// TODO(benjamin): 把所有缩略图生成到临时collection中
+			option := &common.UploadOption{
+			}
+			if prepareThumbnailMeta, err := s.Storage.Upload(option, meta.MimeType, prepareThumbnail); err != nil {
 				s.Logger.Errorf("上传预处理图片失败 %+v", err)
 			} else {
 				meta.ThumbnailFID = prepareThumbnailMeta.FID

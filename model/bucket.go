@@ -35,6 +35,9 @@ type Buckets struct {
 }
 
 type Basis struct {
+	Collection       string `json:"collection"`
+	Replication      string `json:"replication"`
+	TTL              string `json:"ttl"`
 	Expires          *int   `json:"expires"` // unit: second
 	PrepareThumbnail string `json:"prepare_thumbnail"`
 	// 触发进行图片预处理的最小宽度

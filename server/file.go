@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 
+	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
@@ -34,6 +35,7 @@ func (s *Server) upload(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
 	params := context.FileContext
 	file := context.FileContext.File
+	bucket := context.FileContext.Bucket
 
 	if file.IsImage() {
 		reader := bytes.NewReader(file.Content)
@@ -60,7 +62,12 @@ func (s *Server) upload(ctx echo.Context) error {
 		entity.Width = chunk.Width
 		entity.Height = chunk.Height
 	} else {
-		entity, err = s.Storage.Upload(file.MimeType, bytes.NewBuffer(file.Content))
+		option := &common.UploadOption{
+			Collection:  bucket.Basis.Collection,
+			Replication: bucket.Basis.Replication,
+			TTL:         bucket.Basis.TTL,
+		}
+		entity, err = s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
 		if err != nil {
 			return err
 		}

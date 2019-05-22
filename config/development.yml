@@ -12,6 +12,8 @@ TempFileDir: ./tmp/
 Storage:
   Cluster:
     - 192.168.1.9:9333
+    - 192.168.1.9:9334
+    - 192.168.1.9:9335
 Log:
   Home: logs
   Level: debug

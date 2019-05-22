@@ -127,7 +127,9 @@ func executeTask(cmd *cobra.Command, args []string) {
 			}
 			updateProgress(task, taskClient, 50)
 
-			entity, err := storageClient.Upload("application/tar", open)
+			// TODO(benjamin):
+			option := &common.UploadOption{}
+			entity, err := storageClient.Upload(option, "application/tar", open)
 			if err != nil {
 				errMsg := fmt.Sprintf("Tar file upload failed. %s", err.Error())
 				fillErrorTask(task, errMsg)

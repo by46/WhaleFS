@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"strconv"
 	"strings"
 	"sync"
@@ -101,13 +102,13 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	return nil, nil, errors.Errorf("所有可用节点%v都未能成功下载文件", entity.Locations)
 }
 
-func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta, error) {
+func (c *storageClient) Upload(option *common.UploadOption, mimeType string, body io.Reader) (*model.FileMeta, error) {
 	var size int64
 	var preReadSize int
 	var err error
 	var mimeBuff []byte
 
-	fid, err := c.assign()
+	fid, err := c.assign(option)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +165,24 @@ func (c *storageClient) Upload(mimeType string, body io.Reader) (*model.FileMeta
 	return entity, nil
 }
 
-func (c *storageClient) assign() (fid *FileID, err error) {
+func (c *storageClient) assignUrl(master string, option *common.UploadOption) string {
+	query := make(url.Values)
+
+	if option.Collection != "" {
+		query.Set("collection", option.Collection)
+	}
+	if option.Replication != "" {
+		query.Set("replication", option.Replication)
+	}
+	u := &url.URL{
+		Scheme:   "http",
+		Host:     master,
+		Path:     "/dir/assign",
+		RawQuery: query.Encode(),
+	}
+	return u.String()
+}
+func (c *storageClient) assign(option *common.UploadOption, ) (fid *FileID, err error) {
 	responses := make([]*utils.Response, 0)
 	defer func() {
 		for _, resp := range responses {
@@ -172,7 +190,7 @@ func (c *storageClient) assign() (fid *FileID, err error) {
 		}
 	}()
 	for _, master := range c.master {
-		url := fmt.Sprintf("http://%s/dir/assign", master)
+		url := c.assignUrl(master, option)
 		response, err := utils.Post(url, nil, nil)
 		if response != nil {
 			responses = append(responses, response)
