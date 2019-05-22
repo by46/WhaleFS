@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/pkg/errors"
 
+	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
 )
@@ -72,7 +73,11 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 
 			if method == "get" || method == "head" {
 				fileParams.ParseImageSize(bucket)
-				if fileParams.Meta, err = config.Server.GetFileEntity(fileParams.HashKey()); err != nil {
+				fileParams.Meta, err = config.Server.GetFileEntity(fileParams.HashKey())
+				if err != nil {
+					if err == common.ErrKeyNotFound {
+						return echo.NewHTTPError(http.StatusNotFound)
+					}
 					return err
 				}
 			} else if method == "post" {

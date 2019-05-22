@@ -2,6 +2,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -12,20 +13,16 @@ const (
 	CodeLimit           = "Limit"
 )
 
+var (
+	ErrVolumeNotFound = errors.New("Volume not found")
+	ErrFileNotFound   = errors.New("File not found")
+	ErrKeyNotFound    = errors.New("Key not found")
+)
+
 type BusinessError struct {
 	Code       string
 	StatusCode string
 	Internal   error
-}
-
-type businessError struct {
-	Code     int
-	Message  interface{}
-	Internal error
-}
-
-func (e *businessError) Error() string {
-	return fmt.Sprintf("Business error code: %s, Interval error: %v", e.Code, e.Internal)
 }
 
 func (e *BusinessError) Error() string {
@@ -34,16 +31,4 @@ func (e *BusinessError) Error() string {
 
 func New(code string) *BusinessError {
 	return &BusinessError{Code: code}
-}
-
-func New2(code int, message interface{}, err error) error {
-	return &businessError{
-		Code:     code,
-		Message:  message,
-		Internal: err,
-	}
-}
-
-func ErrorJson(err error) []byte {
-	return nil
 }

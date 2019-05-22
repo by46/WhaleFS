@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/labstack/echo"
+	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
@@ -40,18 +40,19 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 	packageEntity := new(model.PackageEntity)
 	err := json.Unmarshal([]byte(content), &packageEntity)
 	if err != nil {
-		return err
+		return errors.WithStack(err)
 	}
 
-	if strings.TrimSpace(packageEntity.Type) == "" {
-		packageEntity.Type = Zip
+	err = packageEntity.Validate()
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	var totalSize int64
 	for _, item := range packageEntity.Items {
 		entity, err := s.GetFileEntity(item.RawKey)
 		if err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 
 		totalSize = totalSize + entity.Size
@@ -65,12 +66,16 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 	}
 
 	response := ctx.Response()
-	if strings.ToLower(packageEntity.Type) == Zip {
-		response.Header().Set(echo.HeaderContentType, "application/zip")
-	} else {
+
+	pkgType := packageEntity.GetPkgType()
+
+	if pkgType == utils.Tar {
 		response.Header().Set(echo.HeaderContentType, "application/tar")
+	} else {
+		response.Header().Set(echo.HeaderContentType, "application/zip")
 	}
-	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", packageEntity.Name))
+
+	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", packageEntity.GetPkgName()))
 
 	return Package(packageEntity, response, s.GetFileEntity, s.Storage.Download)
 }

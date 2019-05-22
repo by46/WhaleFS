@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 
+	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
@@ -30,10 +31,11 @@ func (s *Server) head(ctx echo.Context) error {
 	return nil
 }
 
-func (s *Server) upload(ctx echo.Context) error {
+func (s *Server) upload(ctx echo.Context) (err error) {
 	context := ctx.(*middleware.ExtendContext)
 	params := context.FileContext
 	file := context.FileContext.File
+	bucket := context.FileContext.Bucket
 
 	if file.IsImage() {
 		reader := bytes.NewReader(file.Content)
@@ -42,46 +44,79 @@ func (s *Server) upload(ctx echo.Context) error {
 		}
 	}
 
-	if err := s.validateFile(ctx); err != nil {
-		return err
+	if err = s.validateFile(ctx); err != nil {
+		return
 	}
-
-	sha1, err := utils.ContentSha1(bytes.NewReader(file.Content))
-	if err != nil {
-		return err
-	}
-	chunk := new(model.Chunk)
-	entity := new(model.FileMeta)
-	if err := s.ChunkDao.Get(sha1, chunk); err == nil {
-		entity.FID = chunk.Fid
-		entity.MimeType = file.MimeType
-		entity.Size = file.Size
-		entity.LastModified = time.Now().UTC().Unix()
-		entity.Width = chunk.Width
-		entity.Height = chunk.Height
-	} else {
-		entity, err = s.Storage.Upload(file.MimeType, bytes.NewBuffer(file.Content))
-		if err != nil {
-			return err
+	key, entity := s.buildMetaFromChunk(ctx)
+	if entity == nil {
+		option := &common.UploadOption{
+			Collection:  bucket.Basis.Collection,
+			Replication: bucket.Basis.Replication,
+			TTL:         bucket.Basis.TTL,
 		}
-		chunk.Fid = entity.FID
-		chunk.Etag = entity.ETag
+		entity, err = s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
+		if err != nil {
+			return
+		}
 		if file.IsImage() {
-			chunk.Width, chunk.Height = file.Width, file.Height
 			entity.Width, entity.Height = file.Width, file.Height
 		}
-		if err = s.ChunkDao.Set(sha1, chunk); err != nil {
-			return err
-		}
-
+		s.saveChunk(ctx, key, entity)
 	}
 
 	hash := params.HashKey()
 	entity.RawKey = params.Key
-	if err := s.Meta.Set(hash, entity); err != nil {
-		return err
+	if err = s.Meta.SetTTL(hash, entity, bucket.Basis.TTL.Expiry()); err != nil {
+		return
 	}
 	return ctx.JSON(http.StatusOK, entity)
+}
+
+func (s *Server) buildMetaFromChunk(ctx echo.Context) (string, *model.FileMeta) {
+	context := ctx.(*middleware.ExtendContext)
+	file := context.FileContext.File
+	bucket := context.FileContext.Bucket
+	entity := new(model.FileMeta)
+
+	if !bucket.Basis.TTL.Empty() {
+		return "", nil
+	}
+
+	sha1, err := utils.ContentSha1(bytes.NewReader(file.Content))
+	if err != nil {
+		s.Logger.Warnf("计算文件Sha1值失败 %v", err)
+		return "", nil
+	}
+	sha1 = fmt.Sprintf("%s:%s", bucket.Basis.Collection, sha1)
+	chunk := new(model.Chunk)
+	if err := s.ChunkDao.Get(sha1, chunk); err != nil {
+		return sha1, nil
+	}
+	entity.FID = chunk.Fid
+	entity.MimeType = file.MimeType
+	entity.Size = file.Size
+	entity.LastModified = time.Now().UTC().Unix()
+	entity.Width = chunk.Width
+	entity.Height = chunk.Height
+	entity.ETag = chunk.Etag
+	return sha1, entity
+}
+
+func (s *Server) saveChunk(ctx echo.Context, sha1 string, entity *model.FileMeta) {
+	context := ctx.(*middleware.ExtendContext)
+	bucket := context.FileContext.Bucket
+
+	if !bucket.Basis.TTL.Empty() {
+		return
+	}
+
+	chunk := new(model.Chunk)
+	chunk.Fid = entity.FID
+	chunk.Etag = entity.ETag
+	if entity.Height > 0 && entity.Width > 0 {
+		chunk.Width, chunk.Height = entity.Width, entity.Height
+	}
+	_ = s.ChunkDao.Set(sha1, chunk)
 }
 
 func (s *Server) download(ctx echo.Context) (err error) {
@@ -99,7 +134,10 @@ func (s *Server) download(ctx echo.Context) (err error) {
 	}
 
 	body, _, err := s.Storage.Download(entity.FID)
-	if err != nil {
+	if err != nil && err == common.ErrFileNotFound {
+		ctx.Response().WriteHeader(http.StatusNotFound)
+		return
+	} else if err != nil {
 		return err
 	}
 

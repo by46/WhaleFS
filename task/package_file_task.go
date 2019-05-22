@@ -1,29 +1,31 @@
 package task
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/by46/whalefs/utils"
+
+	"github.com/by46/whalefs/client"
+
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server"
 )
 
-const (
-	TmpDir = "./tmp/"
-)
-
 func (s *Scheduler) RunPackageFileTask() {
-	exist, err := pathExists(TmpDir)
+	tmpDir := s.TempFileDir
+	exist, err := pathExists(tmpDir)
 	if err != nil {
 		panic(fmt.Errorf("System error: %s\n", err))
 	}
 
 	if !exist {
-		err = os.Mkdir(TmpDir, os.ModePerm)
+		err = os.Mkdir(tmpDir, os.ModePerm)
 		if err != nil {
 			panic(fmt.Errorf("System error: %s\n", err))
 		}
@@ -64,6 +66,12 @@ func (s *Scheduler) RunPackageFileTask() {
 		pkgTask := value.(*model.PackageTask)
 		go func(task *model.PackageTask) {
 			defer func() {
+				if err := recover(); err != nil {
+					logger.Errorf("Recover from: %v", err)
+				}
+			}()
+
+			defer func() {
 				defer func() { taskChan <- task }()
 				task.Progress = 100
 				err = taskClient.Set(task.Id, task)
@@ -72,7 +80,7 @@ func (s *Scheduler) RunPackageFileTask() {
 				}
 			}()
 
-			tempFileName := TmpDir + task.PackageInfo.Name
+			tempFileName := utils.PathNormalize(tmpDir + "/" + task.PackageInfo.GetPkgName())
 
 			file, err := os.Create(tempFileName)
 			if err != nil {
@@ -107,7 +115,7 @@ func (s *Scheduler) RunPackageFileTask() {
 				return
 			}
 
-			open, err := os.Open(tempFileName)
+			openFile, err := os.Open(tempFileName)
 			if err != nil {
 				errMsg := fmt.Sprintf("Package file open failed. %s", err.Error())
 				fillErrorTask(task, errMsg)
@@ -116,7 +124,21 @@ func (s *Scheduler) RunPackageFileTask() {
 			}
 			updateProgress(task, taskClient, 50)
 
-			entity, err := storageClient.Upload("application/tar", open)
+			uploadClient := client.NewClient(&client.ClientOptions{
+				Base: s.HttpClientBase,
+			})
+
+			ctx, cancelFunc := context.WithCancel(context.Background())
+			defer cancelFunc()
+
+			fileEntity, err := uploadClient.Upload(ctx, &client.Options{
+				Bucket:     s.TaskBucketName,
+				FileName:   task.PackageInfo.Name,
+				Content:    openFile,
+				Override:   true,
+				MultiChunk: false,
+			})
+
 			if err != nil {
 				errMsg := fmt.Sprintf("Package file upload failed. %s", err.Error())
 				fillErrorTask(task, errMsg)
@@ -125,8 +147,8 @@ func (s *Scheduler) RunPackageFileTask() {
 			}
 			updateProgress(task, taskClient, 99)
 
-			entity.RawKey = task.PackageRawKey
-			if err := metaClient.Set(task.Id, entity); err != nil {
+			task.PackageRawKey = fileEntity.Key
+			if err := taskClient.Set(task.Id, task); err != nil {
 				errMsg := fmt.Sprintf("Package file save meta failed. %s", err.Error())
 				fillErrorTask(task, errMsg)
 				logger.Error(errMsg)
