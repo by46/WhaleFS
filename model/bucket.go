@@ -23,11 +23,38 @@ var (
 	PositionTopLeft     = &ImageOverlayPosition{new(int), new(int), nil, nil}
 	PositionBottomRight = &ImageOverlayPosition{nil, nil, new(int), new(int)}
 	PositionBottomLeft  = &ImageOverlayPosition{nil, new(int), new(int), nil}
+	UnitMapping         = map[string]uint64{
+		"m": 60,
+		"h": 60 * 60,
+		"d": 24 * 60 * 60,
+		"w": 7 * 24 * 60 * 60,
+		"M": 30 * 24 * 60 * 60,
+		"y": 365 * 24 * 60 * 60,
+	}
 )
 
 type ExtendItem struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
+}
+
+type TTL string
+
+func (t TTL) Expiry() uint32 {
+	value := string(t)
+	if value == "" {
+		return 0
+	}
+	l := len(value)
+	n, unit := value[:l-1], value[l-1:]
+	count, _ := strconv.ParseUint(n, 10, 4)
+	if second, exists := UnitMapping[unit]; exists {
+		return uint32(count * second)
+	}
+	return 0
+}
+func (t TTL) String() string {
+	return string(t)
 }
 
 type Buckets struct {
@@ -37,7 +64,7 @@ type Buckets struct {
 type Basis struct {
 	Collection       string `json:"collection"`
 	Replication      string `json:"replication"`
-	TTL              string `json:"ttl"`
+	TTL              TTL    `json:"ttl"`
 	Expires          *int   `json:"expires"` // unit: second
 	PrepareThumbnail string `json:"prepare_thumbnail"`
 	// 触发进行图片预处理的最小宽度

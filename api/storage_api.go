@@ -22,7 +22,8 @@ import (
 )
 
 const (
-	MimeSize = 512
+	MimeSize     = 512
+	QueryNameTTL = "ttl"
 )
 
 var (
@@ -75,9 +76,9 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 		return nil, nil, errors.Wrapf(err, "文件ID%s格式错误, 无法解析", fid)
 	}
 
-	entity, err := c.lookup(volumeId)
-	if err != nil {
-		return nil, nil, err
+	entity := c.lookup(volumeId)
+	if entity == nil {
+		return nil, nil, common.ErrFileNotFound
 	}
 	responses := make([]*utils.Response, 0)
 	defer func() {
@@ -99,7 +100,7 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 		}
 		return bytes.NewReader(resp.Content), resp.Header, nil
 	}
-	return nil, nil, errors.Errorf("所有可用节点%v都未能成功下载文件", entity.Locations)
+	return nil, nil, common.ErrFileNotFound
 }
 
 func (c *storageClient) Upload(option *common.UploadOption, mimeType string, body io.Reader) (*model.FileMeta, error) {
@@ -165,24 +166,27 @@ func (c *storageClient) Upload(option *common.UploadOption, mimeType string, bod
 	return entity, nil
 }
 
-func (c *storageClient) assignUrl(master string, option *common.UploadOption) string {
+func (c *storageClient) uploadUrl(option *common.UploadOption, fid FileID) string {
 	query := make(url.Values)
+	if option.TTL != "" {
+		query.Set(QueryNameTTL, option.TTL.String())
+	}
+	u, _ := url.Parse(fid.String())
+	u.RawQuery = query.Encode()
+	return u.String()
+}
 
-	if option.Collection != "" {
-		query.Set("collection", option.Collection)
-	}
-	if option.Replication != "" {
-		query.Set("replication", option.Replication)
-	}
+func (c *storageClient) assignUrl(master string, option *common.UploadOption) string {
 	u := &url.URL{
 		Scheme:   "http",
 		Host:     master,
 		Path:     "/dir/assign",
-		RawQuery: query.Encode(),
+		RawQuery: option.Encode(),
 	}
 	return u.String()
 }
-func (c *storageClient) assign(option *common.UploadOption, ) (fid *FileID, err error) {
+
+func (c *storageClient) assign(option *common.UploadOption) (fid *FileID, err error) {
 	responses := make([]*utils.Response, 0)
 	defer func() {
 		for _, resp := range responses {
@@ -207,7 +211,7 @@ func (c *storageClient) assign(option *common.UploadOption, ) (fid *FileID, err 
 	return nil, errors.Errorf("分配文件ID失败, master节点: %v", c.master)
 }
 
-func (c *storageClient) lookup(volumeId uint32) (*VolumeEntity, error) {
+func (c *storageClient) lookup(volumeId uint32) *VolumeEntity {
 	responses := make([]*utils.Response, 0)
 	defer func() {
 		for _, resp := range responses {
@@ -227,9 +231,9 @@ func (c *storageClient) lookup(volumeId uint32) (*VolumeEntity, error) {
 		if err := response.Json(entity); err != nil {
 			continue
 		}
-		return entity, nil
+		return entity
 	}
-	return nil, errors.Errorf("获取Volume(%d)失败", volumeId)
+	return nil
 }
 
 func parseFileId(id string) (volumeId uint32, fileId uint64, cookie uint32, err error) {

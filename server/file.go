@@ -52,6 +52,7 @@ func (s *Server) upload(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
+	sha1 = fmt.Sprintf("%s:%s", bucket.Basis.Collection, sha1)
 	chunk := new(model.Chunk)
 	entity := new(model.FileMeta)
 	if err := s.ChunkDao.Get(sha1, chunk); err == nil {
@@ -106,7 +107,10 @@ func (s *Server) download(ctx echo.Context) (err error) {
 	}
 
 	body, _, err := s.Storage.Download(entity.FID)
-	if err != nil {
+	if err != nil && err == common.ErrFileNotFound {
+		ctx.Response().WriteHeader(http.StatusNotFound)
+		return
+	} else if err != nil {
 		return err
 	}
 

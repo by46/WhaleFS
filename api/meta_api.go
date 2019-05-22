@@ -71,9 +71,9 @@ func (m *metaClient) Exists(key string) (bool, error) {
 	return true, nil
 }
 
-func (m *metaClient) SetTTL(key string, value interface{}, ttl int) error {
-	// TODO(benjamin)
-	return nil
+func (m *metaClient) SetTTL(key string, value interface{}, ttl uint32) error {
+	_, err := m.Bucket.Upsert(key, value, ttl)
+	return errors.Wrapf(err, "设置数据失败, key: %s", key)
 }
 
 func (m *metaClient) Query(n1sql string, params interface{}) (gocb.QueryResults, error) {
