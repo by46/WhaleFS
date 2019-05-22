@@ -16,6 +16,7 @@ const (
 var (
 	ErrVolumeNotFound = errors.New("Volume not found")
 	ErrFileNotFound   = errors.New("File not found")
+	ErrKeyNotFound    = errors.New("Key not found")
 )
 
 type BusinessError struct {

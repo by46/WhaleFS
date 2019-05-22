@@ -46,11 +46,11 @@ func NewMetaClient(connectionString string) common.Dao {
 	return &metaClient{bucket}
 }
 
-func (m *metaClient) Get(key string, value interface{}) error {
-	_, err := m.Bucket.Get(key, &value)
-	//if err != nil && err == gocb.ErrKeyNotFound {
-	//	return common.New(common.CodeFileNotExists)
-	//}
+func (m *metaClient) Get(key string, value interface{}) (err error) {
+	_, err = m.Bucket.Get(key, &value)
+	if err != nil && err == gocb.ErrKeyNotFound {
+		return common.ErrKeyNotFound
+	}
 	return errors.Wrapf(err, "获取数据失败, key: %s", key)
 }
 
