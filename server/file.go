@@ -31,7 +31,7 @@ func (s *Server) head(ctx echo.Context) error {
 	return nil
 }
 
-func (s *Server) upload(ctx echo.Context) error {
+func (s *Server) upload(ctx echo.Context) (err error) {
 	context := ctx.(*middleware.ExtendContext)
 	params := context.FileContext
 	file := context.FileContext.File
@@ -44,8 +44,8 @@ func (s *Server) upload(ctx echo.Context) error {
 		}
 	}
 
-	if err := s.validateFile(ctx); err != nil {
-		return err
+	if err = s.validateFile(ctx); err != nil {
+		return
 	}
 	key, entity := s.buildMetaFromChunk(ctx)
 	if entity == nil {
@@ -54,9 +54,9 @@ func (s *Server) upload(ctx echo.Context) error {
 			Replication: bucket.Basis.Replication,
 			TTL:         bucket.Basis.TTL,
 		}
-		entity, err := s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
+		entity, err = s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
 		if err != nil {
-			return err
+			return
 		}
 		if file.IsImage() {
 			entity.Width, entity.Height = file.Width, file.Height
@@ -66,8 +66,8 @@ func (s *Server) upload(ctx echo.Context) error {
 
 	hash := params.HashKey()
 	entity.RawKey = params.Key
-	if err := s.Meta.Set(hash, entity); err != nil {
-		return err
+	if err = s.Meta.SetTTL(hash, entity, bucket.Basis.TTL.Expiry()); err != nil {
+		return
 	}
 	return ctx.JSON(http.StatusOK, entity)
 }
