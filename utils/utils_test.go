@@ -20,8 +20,13 @@ type Bucket struct {
 }
 
 func TestUnmarshal(t *testing.T) {
-	content := []byte(`{"ttl":"5d"}`)
+	content := []byte(`{"ttl":""}`)
 	bucket := new(Bucket)
 	_ = json.Unmarshal(content, bucket)
 	fmt.Printf("%v %v", bucket.TTL, bucket.TTL.Expiry())
+	if bucket.TTL == "" {
+		fmt.Printf("hello\n")
+	} else {
+		fmt.Printf("hello1")
+	}
 }

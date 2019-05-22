@@ -40,6 +40,10 @@ type ExtendItem struct {
 
 type TTL string
 
+func (t TTL) Empty() bool {
+	return t == ""
+}
+
 func (t TTL) Expiry() uint32 {
 	value := string(t)
 	if value == "" {
@@ -53,6 +57,7 @@ func (t TTL) Expiry() uint32 {
 	}
 	return 0
 }
+
 func (t TTL) String() string {
 	return string(t)
 }
