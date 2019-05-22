@@ -24,4 +24,5 @@ type Config struct {
 	TaskFileBucketName    string
 	TaskFileSizeThreshold int64
 	HttpClientBase        string
+	TempFileDir           string
 }

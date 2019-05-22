@@ -16,7 +16,7 @@ func Package(
 	getEntityFunc func(string) (*model.FileMeta, error),
 	downloadFunc func(string) (io.Reader, http.Header, error)) error {
 
-	pkgType := utils.GetPkgType(pkgFileInfo.Name, pkgFileInfo.Type)
+	pkgType := pkgFileInfo.GetPkgType()
 
 	var tw interface{}
 	if pkgType == utils.Zip {
@@ -33,7 +33,7 @@ func Package(
 	for _, item := range pkgFileInfo.Items {
 		go func(item model.PkgFileItem) {
 			pkgUnitEntity := &utils.PackageUnitEntity{
-				Target: item.Target,
+				Target: item.GetTarget(),
 			}
 			defer func() { fileReaderChan <- pkgUnitEntity }()
 

@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/by46/whalefs/utils"
+
 	"github.com/by46/whalefs/client"
 
 	"github.com/by46/whalefs/common"
@@ -15,19 +17,15 @@ import (
 	"github.com/by46/whalefs/server"
 )
 
-const (
-	TmpDir    = "./tmp/"
-	ChunkSize = 1024 * 1024 * 16
-)
-
 func (s *Scheduler) RunPackageFileTask() {
-	exist, err := pathExists(TmpDir)
+	tmpDir := s.TempFileDir
+	exist, err := pathExists(tmpDir)
 	if err != nil {
 		panic(fmt.Errorf("System error: %s\n", err))
 	}
 
 	if !exist {
-		err = os.Mkdir(TmpDir, os.ModePerm)
+		err = os.Mkdir(tmpDir, os.ModePerm)
 		if err != nil {
 			panic(fmt.Errorf("System error: %s\n", err))
 		}
@@ -82,7 +80,7 @@ func (s *Scheduler) RunPackageFileTask() {
 				}
 			}()
 
-			tempFileName := TmpDir + task.PackageInfo.Name
+			tempFileName := utils.PathNormalize(tmpDir + "/" + task.PackageInfo.GetPkgName())
 
 			file, err := os.Create(tempFileName)
 			if err != nil {
