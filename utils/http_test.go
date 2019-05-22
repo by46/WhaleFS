@@ -2,6 +2,7 @@ package utils
 
 import (
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,4 +29,11 @@ func TestHeaderCopy(t *testing.T) {
 		"Content-Length": []string{"120"},
 	})
 	assert.EqualValues(t, expect, headerCopy(dst, src))
+}
+
+func TestQueryExists(t *testing.T) {
+	value := make(url.Values)
+	value.Set("uploads", "")
+	assert.True(t, QueryExists(value, "uploads"))
+	assert.False(t, QueryExists(nil, "uploads"))
 }

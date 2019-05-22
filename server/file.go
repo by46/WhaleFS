@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 
@@ -37,6 +38,12 @@ func (s *Server) upload(ctx echo.Context) (err error) {
 	file := context.FileContext.File
 	bucket := context.FileContext.Bucket
 
+	if params.Uploads {
+		return s.uploads(ctx)
+	}
+	if params.UploadId != "" {
+		return s.uploadPart(ctx)
+	}
 	if file.IsImage() {
 		reader := bytes.NewReader(file.Content)
 		if config, err := utils.DecodeConfig(file.MimeType, reader); err == nil {
@@ -70,6 +77,52 @@ func (s *Server) upload(ctx echo.Context) (err error) {
 		return
 	}
 	return ctx.JSON(http.StatusOK, entity)
+}
+
+// 生成multi-chunk上传任务
+func (s *Server) uploads(ctx echo.Context) (err error) {
+	context := ctx.(*middleware.ExtendContext)
+	bucket := context.FileContext.Bucket
+
+	uploadId := uuid.New().String()
+	uploads := &model.Uploads{
+		Bucket:   bucket.Name,
+		Key:      context.FileContext.Key,
+		UploadId: uploadId,
+	}
+	partMeta := &model.PartMeta{
+		Key:   context.FileContext.Key,
+		Parts: []*model.Part{},
+	}
+	key := fmt.Sprintf("chunks:%s", uploadId)
+	if err = s.Meta.SetTTL(key, partMeta, TTLChunk); err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, uploads)
+}
+
+func (s *Server) uploadPart(ctx echo.Context) (err error) {
+	context := ctx.(*middleware.ExtendContext)
+	bucket := context.FileContext.Bucket
+	file := context.FileContext.File
+
+	key, entity := s.buildMetaFromChunk(ctx)
+	if entity == nil {
+		option := &common.UploadOption{
+			Collection:  bucket.Basis.Collection,
+			Replication: bucket.Basis.Replication,
+			TTL:         bucket.Basis.TTL,
+		}
+		entity, err = s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
+		if err != nil {
+			return
+		}
+		s.saveChunk(ctx, key, entity)
+	}
+
+	key := fmt.Sprintf("chunks:%s", context.FileContext.UploadId)
+
+	return nil
 }
 
 func (s *Server) buildMetaFromChunk(ctx echo.Context) (string, *model.FileMeta) {

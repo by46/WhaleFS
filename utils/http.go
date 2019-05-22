@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/pkg/errors"
@@ -107,4 +108,10 @@ func headerCopy(dst, src http.Header) http.Header {
 		dst.Set(key, value)
 	}
 	return dst
+}
+
+func QueryExists(value url.Values, name string) (exists bool) {
+	v := map[string][]string(value)
+	_, exists = v[name]
+	return
 }

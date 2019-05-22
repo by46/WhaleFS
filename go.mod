@@ -6,7 +6,7 @@ require (
 	github.com/dgrijalva/jwt-go v0.0.0-20180921172315-3af4c746e1c2 // indirect
 	github.com/disintegration/imaging v1.6.0
 	github.com/golang/snappy v0.0.1 // indirect
-	github.com/google/uuid v1.1.1 // indirect
+	github.com/google/uuid v1.1.1
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/labstack/echo v3.3.10+incompatible

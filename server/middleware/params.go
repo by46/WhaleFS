@@ -56,6 +56,9 @@ func ParseFileParams(config ParseFileParamsConfig) echo.MiddlewareFunc {
 			key := utils.PathNormalize(params.Key)
 			fileParams.Key = key
 			fileParams.Override = params.Override
+			fileParams.Uploads = params.Uploads
+			fileParams.UploadId = params.UploadId
+			fileParams.PartNumber = params.PartNumber
 			bucketName := utils.PathSegment(key, 0)
 			if bucketName == "" {
 				return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")

@@ -22,6 +22,9 @@ type FileContext struct {
 	// 是否允许覆盖已存在文件
 	Override    bool
 	ExtractFile bool
+	Uploads     bool
+	UploadId    string
+	PartNumber  int32
 	Bucket      *Bucket
 	Meta        *FileMeta
 	File        *FileContent
@@ -43,7 +46,7 @@ func (self *FileContext) ParseImageSize(bucket *Bucket) {
 func (self *FileContext) ParseFileContent(params *Params) (err error) {
 	if params.Source != "" {
 		self.File, err = self.parseFileContentFromRemote(params.Source)
-	} else {
+	} else if params.Uploads == false {
 		self.File, err = self.parseFileContentFromForm(params.Content)
 	}
 	return
@@ -96,10 +99,13 @@ func (self *FileContext) HashKey() string {
 }
 
 type Params struct {
-	Key      string
-	Source   string
-	Override bool
-	Content  *multipart.FileHeader
+	Key        string
+	Source     string
+	Override   bool
+	Content    *multipart.FileHeader
+	Uploads    bool
+	UploadId   string
+	PartNumber int32
 }
 
 func (self *Params) FieldMap(r *http.Request) binding.FieldMap {
@@ -117,6 +123,15 @@ func (self *Params) FieldMap(r *http.Request) binding.FieldMap {
 		&self.Content: binding.Field{
 			Form: "file",
 		},
+		&self.Uploads: binding.Field{
+			Form: "uploads",
+		},
+		&self.UploadId: binding.Field{
+			Form: "uploadId",
+		},
+		&self.PartNumber: binding.Field{
+			Form: "partNumber",
+		},
 	}
 }
 
@@ -126,6 +141,13 @@ func Bind(ctx echo.Context) (*Params, error) {
 	method := strings.ToLower(ctx.Request().Method)
 	if method == "get" || method == "head" {
 		values := ctx.Request().URL.Query()
+		values.Set("key", ctx.Request().URL.Path)
+		ctx.Request().URL.RawQuery = values.Encode()
+	} else if method == "post" {
+		values := ctx.Request().URL.Query()
+		if utils.QueryExists(values, "uploads") {
+			values.Set("uploads", "true")
+		}
 		values.Set("key", ctx.Request().URL.Path)
 		ctx.Request().URL.RawQuery = values.Encode()
 	}
