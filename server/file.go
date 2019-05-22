@@ -98,6 +98,7 @@ func (s *Server) buildMetaFromChunk(ctx echo.Context) (string, *model.FileMeta) 
 	entity.LastModified = time.Now().UTC().Unix()
 	entity.Width = chunk.Width
 	entity.Height = chunk.Height
+	entity.ETag = chunk.Etag
 	return sha1, entity
 }
 
