@@ -7,3 +7,4 @@ raft-*
 .DS_Store
 main
 dist
+*.pprof
