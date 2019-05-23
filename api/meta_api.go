@@ -47,11 +47,22 @@ func NewMetaClient(connectionString string) common.Dao {
 }
 
 func (m *metaClient) Get(key string, value interface{}) (err error) {
-	_, err = m.Bucket.Get(key, &value)
-	if err != nil && err == gocb.ErrKeyNotFound {
+	if _, err = m.Bucket.Get(key, &value); err == nil {
+		return
+	} else if err == gocb.ErrKeyNotFound {
 		return common.ErrKeyNotFound
 	}
 	return errors.Wrapf(err, "获取数据失败, key: %s", key)
+}
+
+func (m *metaClient) GetWithCas(key string, value interface{}) (uint64, error) {
+	cas, err := m.Bucket.Get(key, &value)
+	if err == nil {
+		return uint64(cas), nil
+	} else if err == gocb.ErrKeyNotFound {
+		return 0, common.ErrFileNotFound
+	}
+	return 0, errors.Wrapf(err, "获取数据失败, key: %s", key)
 }
 
 func (m *metaClient) Set(key string, value interface{}) error {
@@ -91,4 +102,9 @@ func (m *metaClient) BulkUpdate(values map[string]interface{}) error {
 		ops = append(ops, &op)
 	}
 	return m.Bucket.Do(ops)
+}
+
+func (m *metaClient) SubListAppend(key, path string, value interface{}, cas uint64) (err error) {
+	_, err = m.Bucket.MutateIn(key, 0, 0).ArrayAppend(path, value, false).Execute()
+	return errors.WithStack(err)
 }
