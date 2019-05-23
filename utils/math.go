@@ -33,3 +33,8 @@ func RatioEval(ratio string) *float64 {
 	r := x / y
 	return &r
 }
+
+func ToInt32(value string) int32 {
+	n, _ := strconv.ParseInt(value, 10, 4)
+	return int32(n)
+}

@@ -18,6 +18,108 @@ import (
 	"github.com/by46/whalefs/utils"
 )
 
+func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error) {
+	fileContext := new(model.FileContext)
+
+	key := ctx.Request().URL.Path
+	contentType := ctx.Request().Header.Get(echo.HeaderContentType)
+	method := ctx.Request().Method
+	if strings.HasPrefix(contentType, echo.MIMEMultipartForm) {
+		// 解析表单数据, 主要是通过表单上传
+		params := new(model.FormParams)
+		if err := ctx.Bind(params); err != nil {
+			return nil, errors.WithStack(err)
+		}
+		// TODO(benjamin): 处理tmp file临时文件close问题
+		_, file, err := ctx.Request().FormFile("file")
+		if err != nil {
+			return nil, err
+		}
+		fileContext.Override = params.Override
+		if params.Key != "" {
+			key = params.Key
+		}
+		if err := fileContext.ParseFileContent(params.Source, file); err != nil {
+			return nil, err
+		}
+	} else if method == http.MethodPost {
+		// 解析multi-chunk参数
+		values := ctx.Request().URL.Query()
+		partNumber := values.Get("partNumber")
+		uploadId := values.Get("uploadId")
+		if utils.QueryExists(values, "uploads") {
+			// 初始化multi-chunk解析参数
+			fileContext.Uploads = true
+		} else if partNumber != "" && uploadId != "" {
+			// 解析单个chunk上传参数
+			fileContext.PartNumber = utils.ToInt32(partNumber)
+			fileContext.UploadId = uploadId
+		} else if uploadId != "" {
+			// 完成multi-chunk上传
+			fileContext.UploadId = uploadId
+		}
+	}
+
+	key = utils.PathNormalize(key)
+
+	bucketName := utils.PathSegment(key, 0)
+	if bucketName == "" {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
+	}
+
+	bucket, err := s.GetBucket(bucketName)
+	if err != nil {
+		return nil, &echo.HTTPError{
+			Code:     http.StatusBadRequest,
+			Message:  fmt.Sprintf("Bucket %s 不存在", bucketName),
+			Internal: errors.WithStack(err),
+		}
+	}
+	fileContext.Key = key
+	fileContext.Bucket = bucket
+	return fileContext, nil
+}
+
+func (s *Server) file(ctx echo.Context) (err error) {
+	fileContext, err := s.prepareFileContext(ctx)
+	if err != nil {
+		return err
+	}
+	context := &middleware.ExtendContext{ctx, fileContext}
+	bucket := fileContext.Bucket
+
+	method := ctx.Request().Method
+	switch method {
+	case http.MethodHead, http.MethodGet:
+		fileContext.ParseImageSize(bucket)
+		fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey())
+		if err != nil {
+			if err == common.ErrKeyNotFound {
+				return echo.NewHTTPError(http.StatusNotFound)
+			}
+			return err
+		}
+		if method == http.MethodHead {
+			return s.head(context)
+		}
+		return s.download(context)
+	case http.MethodPost:
+		if fileContext.Uploads {
+			return s.uploads(context)
+		}
+		if fileContext.UploadId != "" && fileContext.PartNumber != 0 {
+			return s.uploadPart(context)
+		}
+		if fileContext.UploadId != "" {
+			return s.uploadComplete(context)
+		}
+		return s.uploadFile(context)
+	case http.MethodPut:
+
+	}
+	return echo.ErrMethodNotAllowed
+}
+
 func (s *Server) head(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
 	entity := context.FileContext.Meta
@@ -29,24 +131,6 @@ func (s *Server) head(ctx echo.Context) error {
 	response.Header().Set(utils.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
 	response.WriteHeader(http.StatusNoContent)
 	return nil
-}
-
-func (s *Server) upload(ctx echo.Context) (err error) {
-	context := ctx.(*middleware.ExtendContext)
-	params := context.FileContext
-
-	if params.Uploads {
-		return s.uploads(ctx)
-	}
-	if params.UploadId != "" && params.PartNumber != 0 {
-		return s.uploadPart(ctx)
-	}
-	if params.UploadId != "" {
-		return s.uploadComplete(ctx)
-	}
-
-	return s.uploadFile(ctx)
-
 }
 
 func (s *Server) uploadFile(ctx echo.Context) (err error) {

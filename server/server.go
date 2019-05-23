@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,7 +16,6 @@ import (
 	"github.com/by46/whalefs/api"
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
-	middleware2 "github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
 )
 
@@ -128,20 +128,20 @@ func (s *Server) install() {
 
 	s.app.Use(middleware.Logger())
 
-	s.app.Use(middleware2.InjectContext())
+	//s.app.Use(middleware2.InjectContext())
 
-	s.app.Use(middleware2.ParseFileParams(middleware2.ParseFileParamsConfig{
-		Server: s,
-		Skipper: func(context echo.Context) bool {
-			url := strings.ToLower(context.Request().URL.Path)
-			return url == "/tools" ||
-				url == "/packagedownload" ||
-				url == "/pkgdownloadtool" ||
-				url == "/tasks" ||
-				url == "/metric" ||
-				url == "/favicon.ico"
-		},
-	}))
+	//s.app.Use(middleware2.ParseFileParams(middleware2.ParseFileParamsConfig{
+	//	Server: s,
+	//	Skipper: func(context echo.Context) bool {
+	//		url := strings.ToLower(context.Request().URL.Path)
+	//		return url == "/tools" ||
+	//			url == "/packagedownload" ||
+	//			url == "/pkgdownloadtool" ||
+	//			url == "/tasks" ||
+	//			url == "/metric" ||
+	//			url == "/favicon.ico"
+	//	},
+	//}))
 
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},
@@ -152,15 +152,18 @@ func (s *Server) install() {
 	}))
 
 	s.app.GET("/faq.htm", s.faq)
-	s.app.GET("/*", s.download)
-	s.app.HEAD("/*", s.head)
-	s.app.POST("/*", s.upload)
+	//s.app.GET("/*", s.download)
+	//s.app.HEAD("/*", s.head)
+	//s.app.POST("/*", s.upload)
 	s.app.POST("/packageDownload", s.packageDownload)
 	s.app.GET("/tools", s.tools)
 	s.app.GET("/pkgDownloadTool", s.pkgDownloadTool)
 	s.app.GET("/favicon.ico", s.favicon)
 	s.app.GET("/tasks", s.checkTask)
 	s.app.GET("/metric", s.metric)
+	s.app.POST("/demo", s.demo)
+	methods := []string{http.MethodHead, http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete}
+	s.app.Match(methods, "/*", s.file)
 }
 
 func (s *Server) hashKey(uri string) (string, error) {

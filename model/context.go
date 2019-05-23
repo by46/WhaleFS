@@ -3,11 +3,8 @@ package model
 import (
 	"io/ioutil"
 	"mime/multipart"
-	"net/http"
-	"strings"
 
 	"github.com/labstack/echo"
-	"github.com/mholt/binding"
 	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/utils"
@@ -43,36 +40,37 @@ func (self *FileContext) ParseImageSize(bucket *Bucket) {
 	}
 }
 
-func (self *FileContext) ParseFileContent(params *Params) (err error) {
-	if params.Source != "" {
-		self.File, err = self.parseFileContentFromRemote(params.Source)
-	} else if params.Uploads == false {
-		self.File, err = self.parseFileContentFromForm(params.Content)
+func (self *FileContext) ParseFileContent(url string, formFile *multipart.FileHeader) (err error) {
+	if url != "" {
+		err = self.parseFileContentFromRemote(url)
+	} else if formFile != nil {
+		err = self.parseFileContentFromForm(formFile)
 	}
 	return
 }
 
-func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) (*FileContent, error) {
+func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) error {
 	body, err := form.Open()
 	if err != nil {
-		return nil, err
+		return errors.WithStack(err)
 	}
 	defer func() {
 		_ = body.Close()
 	}()
 	buf, err := ioutil.ReadAll(body)
 	if err != nil {
-		return nil, err
+		return errors.WithStack(err)
 	}
 	file := new(FileContent)
 	file.Headers = form.Header
 	file.Content = buf
 	file.Size = int64(len(buf))
 	file.MimeType = form.Header.Get(echo.HeaderContentType)
-	return file, nil
+	self.File = file
+	return nil
 }
 
-func (self *FileContext) parseFileContentFromRemote(source string) (*FileContent, error) {
+func (self *FileContext) parseFileContentFromRemote(source string) ( error) {
 	response, err := utils.Get(source, nil)
 	if response != nil {
 		defer func() {
@@ -80,16 +78,17 @@ func (self *FileContext) parseFileContentFromRemote(source string) (*FileContent
 		}()
 	}
 	if err != nil {
-		return nil, err
+		return err
 	}
 	file := new(FileContent)
 	file.Content, err = ioutil.ReadAll(response)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 	file.Size = int64(len(response.Content))
 	file.MimeType = response.Header.Get(echo.HeaderContentType)
-	return file, nil
+	self.File = file
+	return nil
 }
 
 func (self *FileContext) HashKey() string {
@@ -98,63 +97,8 @@ func (self *FileContext) HashKey() string {
 	return self.Key
 }
 
-type Params struct {
-	Key        string
-	Source     string
-	Override   bool
-	Content    *multipart.FileHeader
-	Uploads    bool
-	UploadId   string
-	PartNumber int32
-}
-
-func (self *Params) FieldMap(r *http.Request) binding.FieldMap {
-	return binding.FieldMap{
-		&self.Key: binding.Field{
-			Form:     "key",
-			Required: true,
-		},
-		&self.Source: binding.Field{
-			Form: "source",
-		},
-		&self.Override: binding.Field{
-			Form: "override",
-		},
-		&self.Content: binding.Field{
-			Form: "file",
-		},
-		&self.Uploads: binding.Field{
-			Form: "uploads",
-		},
-		&self.UploadId: binding.Field{
-			Form: "uploadId",
-		},
-		&self.PartNumber: binding.Field{
-			Form: "partNumber",
-		},
-	}
-}
-
-func Bind(ctx echo.Context) (*Params, error) {
-	entity := new(Params)
-
-	method := strings.ToLower(ctx.Request().Method)
-	if method == "get" || method == "head" {
-		values := ctx.Request().URL.Query()
-		values.Set("key", ctx.Request().URL.Path)
-		ctx.Request().URL.RawQuery = values.Encode()
-	} else if method == "post" {
-		values := ctx.Request().URL.Query()
-		if utils.QueryExists(values, "uploads") {
-			values.Set("uploads", "true")
-		}
-		values.Set("key", ctx.Request().URL.Path)
-		ctx.Request().URL.RawQuery = values.Encode()
-	}
-
-	err := binding.Bind(ctx.Request(), entity)
-	if err != nil {
-		return nil, errors.Wrap(err, "")
-	}
-	return entity, nil
+type FormParams struct {
+	Key      string `json:"key" form:"key"`
+	Source   string `json:"source" form:"source"`
+	Override bool   `json:"override" form:"override"`
 }
