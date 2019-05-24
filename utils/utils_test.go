@@ -3,8 +3,11 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type TTL string
@@ -46,4 +49,8 @@ func TestJson(t *testing.T) {
 	ttls := make([]*Bucket, 0)
 	err := json.Unmarshal(content, &ttls)
 	fmt.Printf("%v %v", ttls[0].TTL, err)
+}
+
+func TestIoEOF(t *testing.T) {
+	assert.True(t, nil == io.EOF)
 }

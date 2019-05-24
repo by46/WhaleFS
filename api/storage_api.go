@@ -24,6 +24,7 @@ import (
 const (
 	MimeSize     = 512
 	QueryNameTTL = "ttl"
+	FIDSep       = "|"
 )
 
 var (
@@ -71,6 +72,9 @@ func NewStorageClient(masters []string) common.Storage {
 }
 
 func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
+	if strings.Contains(fid, "|") {
+		return c.downloadChunks(strings.Split(fid, FIDSep))
+	}
 	volumeId, _, _, err := parseFileId(fid)
 	if err != nil {
 		return nil, nil, errors.Wrapf(err, "文件ID%s格式错误, 无法解析", fid)
@@ -87,8 +91,8 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 		}
 	}()
 	for _, location := range entity.Locations {
-		url := fmt.Sprintf("http://%s/%s", location.PublicUrl, fid)
-		resp, err := utils.Get(url, nil)
+		u := fmt.Sprintf("http://%s/%s", location.PublicUrl, fid)
+		resp, err := utils.Get(u, nil)
 		if resp != nil {
 			responses = append(responses, resp)
 		}
@@ -166,6 +170,9 @@ func (c *storageClient) Upload(option *common.UploadOption, mimeType string, bod
 	return entity, nil
 }
 
+func (c *storageClient) downloadChunks(fids []string) (io.Reader, http.Header, error) {
+	return NewChunksReader(c, fids), nil, nil
+}
 func (c *storageClient) uploadUrl(option *common.UploadOption, fid FileID) string {
 	query := make(url.Values)
 	if option.TTL != "" {
@@ -219,8 +226,8 @@ func (c *storageClient) lookup(volumeId uint32) *VolumeEntity {
 		}
 	}()
 	for _, host := range c.master {
-		url := fmt.Sprintf("http://%s/dir/lookup?volumeId=%d", host, volumeId)
-		response, err := utils.Get(url, nil)
+		u := fmt.Sprintf("http://%s/dir/lookup?volumeId=%d", host, volumeId)
+		response, err := utils.Get(u, nil)
 		if response != nil {
 			responses = append(responses, response)
 		}
