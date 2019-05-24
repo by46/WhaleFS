@@ -18,7 +18,7 @@ func TestHttpClient_MultipartUpload(t *testing.T) {
 
 	entity, err := c.Upload(context.TODO(), &Options{
 		Bucket:     "benjamin",
-		FileName:   "client2.go",
+		FileName:   "client3.go",
 		Override:   true,
 		Content:    f,
 		MultiChunk: true,

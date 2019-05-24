@@ -89,8 +89,10 @@ func (c *httpClient) multiChunkUpload(ctx context.Context, options *Options) (*F
 			}
 		}
 	}()
-
-	resp, err := utils.Post(c.initMultiChunkUploadUrl(options.key()), nil, nil)
+	h := http.Header{
+		echo.HeaderContentType: []string{utils.MimeTypeByExtension(options.FileName)},
+	}
+	resp, err := utils.Post(c.initMultiChunkUploadUrl(options.key()), h, nil)
 	responses = append(responses, resp)
 	if err != nil {
 		return nil, errors.Wrap(err, "上传文件失败")
@@ -106,7 +108,8 @@ func (c *httpClient) multiChunkUpload(ctx context.Context, options *Options) (*F
 	for count == ChunkSize {
 		select {
 		case <-ctx.Done():
-		// TODO(benjamin): abort multi-chunk
+			// TODO(benjamin): abort multi-chunk
+			return nil, ErrAbort
 		default:
 			count, err = options.Content.Read(chunk)
 			if err != nil && err == io.EOF {

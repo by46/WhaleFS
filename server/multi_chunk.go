@@ -26,9 +26,14 @@ func (s *Server) uploads(ctx echo.Context) (err error) {
 		Key:      context.FileContext.Key,
 		UploadId: uploadId,
 	}
+	mimeType := ctx.Request().Header.Get(echo.HeaderContentType)
+	if mimeType == "" {
+		mimeType = echo.MIMEOctetStream
+	}
 	partMeta := &model.PartMeta{
-		Key:   context.FileContext.Key,
-		Parts: []*model.Part{},
+		Key:      context.FileContext.Key,
+		MimeType: mimeType,
+		Parts:    []*model.Part{},
 	}
 	key := fmt.Sprintf("chunks:%s", uploadId)
 	if err = s.Meta.SetTTL(key, partMeta, TTLChunk); err != nil {
@@ -122,5 +127,7 @@ func (s *Server) uploadComplete(ctx echo.Context) (err error) {
 
 //终止multi-chunk上传任务
 func (s *Server) uploadAbort(ctx echo.Context) (err error) {
-	return
+	context := ctx.(*middleware.ExtendContext)
+	chunkKey := fmt.Sprintf("chunks:%s", context.FileContext.UploadId)
+	return s.Meta.Delete(chunkKey, 0)
 }

@@ -115,6 +115,10 @@ func (s *Server) file(ctx echo.Context) (err error) {
 			return s.uploadComplete(context)
 		}
 		return s.uploadFile(context)
+	case http.MethodDelete:
+		if fileContext.UploadId != "" {
+			return s.uploadAbort(context)
+		}
 	case http.MethodPut:
 
 	}
@@ -132,6 +136,10 @@ func (s *Server) head(ctx echo.Context) error {
 	response.Header().Set(utils.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
 	response.WriteHeader(http.StatusNoContent)
 	return nil
+}
+
+func (s *Server) delete(ctx echo.Context) (err error) {
+	return http.ErrNotSupported
 }
 
 func (s *Server) uploadFile(ctx echo.Context) (err error) {
