@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -110,10 +111,8 @@ func (s *Server) uploadComplete(ctx echo.Context) (err error) {
 		meta.Size += serverPart.Size
 		meta.FIDs = append(meta.FIDs, serverPart.FID)
 	}
-	if len(meta.FIDs) == 1 {
-		meta.FID = meta.FIDs[0]
-		meta.FIDs = nil
-	}
+	meta.FID = strings.Join(meta.FIDs, FIDSep)
+	meta.FIDs = nil
 	if err = s.Meta.SetTTL(meta.RawKey, meta, bucket.Basis.TTL.Expiry()); err != nil {
 		return err
 	}

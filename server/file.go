@@ -236,12 +236,7 @@ func (s *Server) download(ctx echo.Context) (err error) {
 		return
 	}
 
-	fid := entity.FID
-	if entity.FIDs != nil {
-		fid = strings.Join(entity.FIDs, FIDSep)
-	}
-
-	body, _, err := s.Storage.Download(fid)
+	body, _, err := s.Storage.Download(entity.FID)
 	if err != nil && err == common.ErrFileNotFound {
 		ctx.Response().WriteHeader(http.StatusNotFound)
 		return
