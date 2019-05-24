@@ -3,6 +3,7 @@ package model
 import (
 	"io/ioutil"
 	"mime/multipart"
+	"net/textproto"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -38,6 +39,27 @@ func (self *FileContext) ParseImageSize(bucket *Bucket) {
 	if size != nil {
 		self.Key, self.Size = key, size
 	}
+}
+
+func (self *FileContext) ParseFileContentFromRequest(ctx echo.Context) (err error) {
+	body := ctx.Request().Body
+	if body != nil {
+		defer func() {
+			_ = body.Close()
+		}()
+	}
+	buf, err := ioutil.ReadAll(body)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	file := new(FileContent)
+	file.Headers = textproto.MIMEHeader(ctx.Request().Header)
+	file.Content = buf
+	file.Size = int64(len(buf))
+	file.MimeType = ctx.Request().Header.Get(echo.HeaderContentType)
+	self.File = file
+	return
 }
 
 func (self *FileContext) ParseFileContent(url string, formFile *multipart.FileHeader) (err error) {

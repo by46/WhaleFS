@@ -9,16 +9,17 @@ import (
 )
 
 type FileMeta struct {
-	RawKey       string `json:"raw_key,omitempty"`
-	Url          string `json:"url,omitempty"`
-	FID          string `json:"fid,omitempty"`
-	LastModified int64  `json:"last_modified,omitempty"`
-	ETag         string `json:"etag,omitempty"`
-	Size         int64  `json:"size,omitempty"`
-	Width        int    `json:"width,omitempty"`
-	Height       int    `json:"height,omitempty"`
-	MimeType     string `json:"mime_type,omitempty"`
-	ThumbnailFID string `json:"thumbnail_fid,omitempty"`
+	RawKey       string   `json:"raw_key,omitempty"`
+	Url          string   `json:"url,omitempty"`
+	FID          string   `json:"fid,omitempty"`
+	FIDs         []string `json:"fids,omitempty"`
+	LastModified int64    `json:"last_modified,omitempty"`
+	ETag         string   `json:"etag,omitempty"`
+	Size         int64    `json:"size,omitempty"`
+	Width        int      `json:"width,omitempty"`
+	Height       int      `json:"height,omitempty"`
+	MimeType     string   `json:"mime_type,omitempty"`
+	ThumbnailFID string   `json:"thumbnail_fid,omitempty"`
 }
 
 func (f *FileMeta) LastModifiedTime() time.Time {

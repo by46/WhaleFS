@@ -3,11 +3,13 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"sync"
 
 	"github.com/labstack/echo"
@@ -17,7 +19,8 @@ import (
 )
 
 const (
-	BufferSize = 4 * 1024 // 4M
+	BufferSize = 4 * 1024         // 4M
+	ChunkSize  = 16 * 1024 * 1024 // 16M
 )
 
 var (
@@ -26,7 +29,43 @@ var (
 			return make([]byte, BufferSize)
 		},
 	}
+	headers = http.Header{echo.HeaderContentType: []string{echo.MIMEApplicationJSON}}
 )
+
+type Uploads struct {
+	UploadId string `json:"uploadId"`
+}
+
+type Part struct {
+	PartNumber int32  `json:"partNumber"`
+	ETag       string `json:"ETag"`
+}
+
+type ChunkReader struct {
+	R      io.Reader // underlying reader
+	Size   int64     // chunk size
+	remain int64
+}
+
+func NewChunkReader(r io.Reader, size int64) *ChunkReader {
+	return &ChunkReader{
+		R:      r,
+		Size:   size,
+		remain: size,
+	}
+}
+
+func (c *ChunkReader) Read(p []byte) (n int, err error) {
+	if c.remain <= 0 {
+		return 0, io.EOF
+	}
+	if int64(len(p)) > c.Size {
+		p = p[0:c.Size]
+	}
+	n, err = c.R.Read(p)
+	c.remain -= int64(n)
+	return
+}
 
 type Client interface {
 	// 上传小文件
@@ -41,8 +80,70 @@ func NewClient(options *ClientOptions) Client {
 	return &httpClient{base: options.Base}
 }
 
-// TODO(benjamin): 完善
-func (c *httpClient) Upload(ctx context.Context, options *Options) (*FileEntity, error) {
+func (c *httpClient) mutliChunkUpload(ctx context.Context, options *Options) (*FileEntity, error) {
+	responses := make([]*utils.Response, 1)
+	defer func() {
+		for _, response := range responses {
+			if response != nil {
+				_ = response.Close()
+			}
+		}
+	}()
+
+	resp, err := utils.Post(c.initMultiChunkUploadUrl(options.key()), nil, nil)
+	responses = append(responses, resp)
+	if err != nil {
+		return nil, errors.Wrap(err, "上传文件失败")
+	}
+	uploads := new(Uploads)
+	if err := resp.Json(uploads); err != nil {
+		return nil, errors.Wrap(err, "初始化Multi-Chunk上传失败")
+	}
+	parts := make([]*Part, 0)
+	partNumber := int32(1)
+	count := ChunkSize
+	chunk := make([]byte, ChunkSize)
+	for count == ChunkSize {
+		select {
+		case <-ctx.Done():
+		// TODO(benjamin): abort multi-chunk
+		default:
+			count, err = options.Content.Read(chunk)
+			if err != nil && err == io.EOF {
+				break
+			} else if err != nil {
+				return nil, errors.WithStack(err)
+			}
+			u := c.chunkUploadUrl(options.key(), uploads.UploadId, partNumber)
+			resp, err := utils.Post(u, nil, bytes.NewReader(chunk[:count]))
+			responses = append(responses, resp)
+			if err != nil {
+				return nil, errors.Wrap(err, "上传文件失败")
+			}
+			part := new(Part)
+			if err := resp.Json(part); err != nil {
+				return nil, errors.Wrap(err, "上传文件失败")
+			}
+			parts = append(parts, part)
+			partNumber += 1
+		}
+	}
+	u := c.completeUploadUrl(options.key(), uploads.UploadId)
+	content := bytes.NewBuffer(nil)
+	if err = json.NewEncoder(content).Encode(parts); err != nil {
+		return nil, errors.Wrap(err, "上传文件失败")
+	}
+	resp, err = utils.Post(u, headers, content)
+	responses = append(responses, resp)
+	if err != nil {
+		return nil, errors.Wrap(err, "上传文件失败")
+	}
+	entity := new(FileEntity)
+	err = resp.Json(entity)
+	return entity, errors.WithStack(err)
+}
+
+func (c *httpClient) singleUpload(ctx context.Context, options *Options) (*FileEntity, error) {
 	buff := bytes.NewBuffer(nil)
 	writer := multipart.NewWriter(buff)
 
@@ -92,6 +193,41 @@ func (c *httpClient) Upload(ctx context.Context, options *Options) (*FileEntity,
 	return entity, errors.WithStack(err)
 }
 
+// TODO(benjamin): 完善
+func (c *httpClient) Upload(ctx context.Context, options *Options) (*FileEntity, error) {
+	if options.MultiChunk {
+		return c.mutliChunkUpload(ctx, options)
+	}
+	return c.singleUpload(ctx, options)
+}
+
 func (c *httpClient) uploadUrl() string {
 	return c.base
+}
+func (c *httpClient) initMultiChunkUploadUrl(filename string) string {
+	query := make(url.Values)
+	query.Set("uploads", "")
+	u, _ := url.Parse(c.base)
+	u.Path = filename
+	u.RawQuery = query.Encode()
+	return u.String()
+}
+
+func (c *httpClient) chunkUploadUrl(filename, uploadId string, partNumber int32) string {
+	query := make(url.Values)
+	query.Set("uploadId", uploadId)
+	query.Set("partNumber", fmt.Sprintf("%v", partNumber))
+	u, _ := url.Parse(c.base)
+	u.Path = filename
+	u.RawQuery = query.Encode()
+	return u.String()
+}
+
+func (c *httpClient) completeUploadUrl(filename, uploadId string) string {
+	query := make(url.Values)
+	query.Set("uploadId", uploadId)
+	u, _ := url.Parse(c.base)
+	u.Path = filename
+	u.RawQuery = query.Encode()
+	return u.String()
 }

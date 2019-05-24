@@ -87,6 +87,15 @@ func (m *metaClient) SetTTL(key string, value interface{}, ttl uint32) error {
 	return errors.Wrapf(err, "设置数据失败, key: %s", key)
 }
 
+// TODO(benjamin): 优化couchbase操作, 处理cas不匹配的情况
+func (m *metaClient) Delete(key string, cas uint64) (err error) {
+	_, err = m.Bucket.Remove(key, gocb.Cas(cas))
+	if err == gocb.ErrKeyNotFound {
+		return common.ErrFileNotFound
+	}
+	return
+}
+
 func (m *metaClient) Query(n1sql string, params interface{}) (gocb.QueryResults, error) {
 	query := gocb.NewN1qlQuery(n1sql)
 	return m.ExecuteN1qlQuery(query, params)

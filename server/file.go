@@ -54,6 +54,7 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 			// 解析单个chunk上传参数
 			fileContext.PartNumber = utils.ToInt32(partNumber)
 			fileContext.UploadId = uploadId
+			_ = fileContext.ParseFileContentFromRequest(ctx)
 		} else if uploadId != "" {
 			// 完成multi-chunk上传
 			fileContext.UploadId = uploadId

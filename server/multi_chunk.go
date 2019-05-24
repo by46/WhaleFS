@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo"
@@ -32,6 +33,7 @@ func (s *Server) uploads(ctx echo.Context) (err error) {
 	if err = s.Meta.SetTTL(key, partMeta, TTLChunk); err != nil {
 		return err
 	}
+	s.Logger.Info("multi-chunk upload : %s", key)
 	return ctx.JSON(http.StatusOK, uploads)
 }
 
@@ -55,17 +57,68 @@ func (s *Server) uploadPart(ctx echo.Context) (err error) {
 		s.saveChunk(ctx, key, entity)
 	}
 
-	_ = fmt.Sprintf("chunks:%s", context.FileContext.UploadId)
+	chunkKey := fmt.Sprintf("chunks:%s", context.FileContext.UploadId)
 
 	part := &model.Part{
-		ETag: key,
+		PartNumber: context.FileContext.PartNumber,
+		FID:        entity.FID,
+		Size:       entity.Size,
 	}
-	return s.Meta.SubListAppend(key, "parts", part, 0)
+	if err = s.Meta.SubListAppend(chunkKey, "parts", part, 0); err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, part)
 }
 
 // 完成multi-chunk上传任务
 func (s *Server) uploadComplete(ctx echo.Context) (err error) {
-	return nil
+	context := ctx.(*middleware.ExtendContext)
+	bucket := context.FileContext.Bucket
+	var cas uint64
+
+	parts := make([]*model.Part, 0)
+	if err = ctx.Bind(&parts); err != nil {
+		return err
+	}
+
+	uploadId := context.FileContext.UploadId
+	key := fmt.Sprintf("chunks:%s", uploadId)
+
+	partMeta := new(model.PartMeta)
+
+	if cas, err = s.Meta.GetWithCas(key, partMeta); err != nil {
+		return err
+	}
+
+	mapping := make(map[int32]*model.Part)
+
+	for _, part := range partMeta.Parts {
+		mapping[part.PartNumber] = part
+	}
+
+	meta := &model.FileMeta{
+		RawKey:       partMeta.Key,
+		MimeType:     partMeta.MimeType,
+		LastModified: time.Now().UTC().Unix(),
+	}
+	for _, part := range parts {
+		serverPart, exists := mapping[part.PartNumber]
+		if !exists {
+			ctx.Response().WriteHeader(http.StatusBadRequest)
+			return nil
+		}
+		meta.Size += serverPart.Size
+		meta.FIDs = append(meta.FIDs, serverPart.FID)
+	}
+	if len(meta.FIDs) == 1 {
+		meta.FID = meta.FIDs[0]
+		meta.FIDs = nil
+	}
+	if err = s.Meta.SetTTL(meta.RawKey, meta, bucket.Basis.TTL.Expiry()); err != nil {
+		return err
+	}
+	_ = s.Meta.Delete(key, cas)
+	return ctx.JSON(http.StatusOK, meta)
 }
 
 //终止multi-chunk上传任务

@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 )
 
@@ -29,4 +30,20 @@ func TestUnmarshal(t *testing.T) {
 	} else {
 		fmt.Printf("hello1")
 	}
+}
+
+func TestFile(t *testing.T) {
+	f, _ := os.Open("path.go")
+	buf := make([]byte, 1024)
+	n, err := f.Read(buf)
+	fmt.Printf("n= %v, err = %v", n, err)
+	n, err = f.Read(buf)
+	fmt.Printf("n= %v, err = %v", n, err)
+}
+
+func TestJson(t *testing.T) {
+	content := []byte(`[{"ttl":"5d"}]`)
+	ttls := make([]*Bucket, 0)
+	err := json.Unmarshal(content, &ttls)
+	fmt.Printf("%v %v", ttls[0].TTL, err)
 }
