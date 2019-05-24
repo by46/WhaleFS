@@ -80,7 +80,7 @@ func NewClient(options *ClientOptions) Client {
 	return &httpClient{base: options.Base}
 }
 
-func (c *httpClient) mutliChunkUpload(ctx context.Context, options *Options) (*FileEntity, error) {
+func (c *httpClient) multiChunkUpload(ctx context.Context, options *Options) (*FileEntity, error) {
 	responses := make([]*utils.Response, 1)
 	defer func() {
 		for _, response := range responses {
@@ -196,7 +196,7 @@ func (c *httpClient) singleUpload(ctx context.Context, options *Options) (*FileE
 // TODO(benjamin): 完善
 func (c *httpClient) Upload(ctx context.Context, options *Options) (*FileEntity, error) {
 	if options.MultiChunk {
-		return c.mutliChunkUpload(ctx, options)
+		return c.multiChunkUpload(ctx, options)
 	}
 	return c.singleUpload(ctx, options)
 }
