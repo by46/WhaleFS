@@ -160,7 +160,7 @@ func (s *Server) install() {
 	s.app.GET("/pkgDownloadTool", s.pkgDownloadTool)
 	s.app.GET("/favicon.ico", s.favicon)
 	s.app.GET("/tasks", s.checkTask)
-	s.app.GET("/metric", s.metric)
+	s.app.GET("/metrics", s.metric)
 	s.app.POST("/demo", s.demo)
 	methods := []string{http.MethodHead, http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete}
 	s.app.Match(methods, "/*", s.file)
