@@ -81,7 +81,7 @@ func NewClient(options *ClientOptions) Client {
 }
 
 func (c *httpClient) multiChunkUpload(ctx context.Context, options *Options) (*FileEntity, error) {
-	responses := make([]*utils.Response, 1)
+	responses := make([]*utils.Response, 0)
 	defer func() {
 		for _, response := range responses {
 			if response != nil {
