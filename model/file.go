@@ -87,6 +87,5 @@ func (f *FileContent) IsImage() bool {
 // 上传接口返回的api
 type FileEntity struct {
 	Key        string `json:"key"`
-	ObjectName string `json:"objectName"`
 	Size       int64  `json:"size"`
 }
