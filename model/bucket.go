@@ -67,6 +67,7 @@ type Buckets struct {
 }
 
 type Basis struct {
+	Alias            string `json:"alias"`
 	Collection       string `json:"collection"`
 	Replication      string `json:"replication"`
 	TTL              TTL    `json:"ttl"`

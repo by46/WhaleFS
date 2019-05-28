@@ -114,6 +114,7 @@ func (s *Server) uploadComplete(ctx echo.Context) (err error) {
 		MimeType:     partMeta.MimeType,
 		LastModified: time.Now().UTC().Unix(),
 	}
+	ids := make([]string, 0)
 	for _, part := range parts {
 		serverPart, exists := mapping[part.PartNumber]
 		if !exists {
@@ -121,15 +122,14 @@ func (s *Server) uploadComplete(ctx echo.Context) (err error) {
 			return nil
 		}
 		meta.Size += serverPart.Size
-		meta.FIDs = append(meta.FIDs, serverPart.FID)
+		ids = append(ids, serverPart.FID)
 	}
-	meta.FID = strings.Join(meta.FIDs, FIDSep)
-	meta.FIDs = nil
+	meta.FID = strings.Join(ids, FIDSep)
 	if err = s.Meta.SetTTL(meta.RawKey, meta, bucket.Basis.TTL.Expiry()); err != nil {
 		return err
 	}
 	_ = s.Meta.Delete(key, cas)
-	return ctx.JSON(http.StatusOK, meta)
+	return ctx.JSON(http.StatusOK, meta.AsEntity(context.FileContext.BucketName, bucket.Name))
 }
 
 //终止multi-chunk上传任务

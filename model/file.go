@@ -3,23 +3,28 @@ package model
 import (
 	"fmt"
 	"net/textproto"
+	"strings"
 	"time"
 
 	"github.com/by46/whalefs/utils"
 )
 
+const (
+	ProductBucketName = "pdt"
+)
+
+// 用于存储在数据库中的文件元数据信息
 type FileMeta struct {
-	RawKey       string   `json:"raw_key,omitempty"`
-	Url          string   `json:"url,omitempty"`
-	FID          string   `json:"fid,omitempty"`
-	FIDs         []string `json:"fids,omitempty"`
-	LastModified int64    `json:"last_modified,omitempty"`
-	ETag         string   `json:"etag,omitempty"`
-	Size         int64    `json:"size,omitempty"`
-	Width        int      `json:"width,omitempty"`
-	Height       int      `json:"height,omitempty"`
-	MimeType     string   `json:"mime_type,omitempty"`
-	ThumbnailFID string   `json:"thumbnail_fid,omitempty"`
+	RawKey       string `json:"raw_key,omitempty"`
+	Url          string `json:"url,omitempty"`
+	FID          string `json:"fid,omitempty"`
+	LastModified int64  `json:"last_modified,omitempty"`
+	ETag         string `json:"etag,omitempty"`
+	Size         int64  `json:"size,omitempty"`
+	Width        int    `json:"width,omitempty"`
+	Height       int    `json:"height,omitempty"`
+	MimeType     string `json:"mime_type,omitempty"`
+	ThumbnailFID string `json:"thumbnail_fid,omitempty"`
 }
 
 func (f *FileMeta) LastModifiedTime() time.Time {
@@ -52,6 +57,19 @@ func (f *FileMeta) IsImage() bool {
 	return utils.IsImage(f.MimeType)
 }
 
+func (f *FileMeta) AsEntity(bucketName, aliasBucketName string) *FileEntity {
+	_, objectName := utils.PathRemoveSegment(f.RawKey, 0)
+	key := fmt.Sprintf("%s%s", bucketName, objectName)
+	if ProductBucketName == aliasBucketName {
+		key = strings.TrimLeft(objectName, Separator)
+	}
+	return &FileEntity{
+		Key:  key,
+		Size: f.Size,
+	}
+}
+
+// 用于记录上传文件内容
 type FileContent struct {
 	MimeType string
 	Size     int64
@@ -64,4 +82,11 @@ type FileContent struct {
 
 func (f *FileContent) IsImage() bool {
 	return utils.IsImage(f.MimeType)
+}
+
+// 上传接口返回的api
+type FileEntity struct {
+	Key        string `json:"key"`
+	ObjectName string `json:"objectName"`
+	Size       int64  `json:"size"`
 }

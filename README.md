@@ -37,6 +37,7 @@ system.bucket.benjamin
   "name": "benjamin",
   "memo":"mo bucket",
   "basis": {
+    "alias": "pdt",
     "collection": "",
     "replication": "100",
     "expires": 20,
@@ -106,6 +107,49 @@ system.bucket.package
   ]
 }
 ```
+
+system.bucket.product
+
+```json
+{
+  "name": "product",
+  "memo":"mo bucket",
+  "basis": {
+    "alias": "pdt",
+    "collection": "",
+    "replication": "100",
+    "expires": 20,
+    "prepare_thumbnail_min_width": 1024,
+    "prepare_thumbnail": ""
+  },
+  "expires": 20,
+  "extends":[{"key":"keepdate", "value":"21"}],
+  "limit": {
+    "min_size": null,
+    "max_size": 102400,
+    "width": null,
+    "height": null,
+    "mime_types": ["image/png", "image/jpeg", "image/png"]
+  },
+  "last_edit_date": 123143,
+  "last_edit_user":"by46",
+  "overlays": [
+    {"name": "demo1", "default": true, "position": "TopLeft", "image": "7,15154f3ef7", "opacity":  0.8},
+    {"name": "demo2", "default": false, "position": "TopRight", "image": "7,15154f3ef7", "opacity":  0.8},
+    {"name": "demo3", "default": false, "position": "BottomLeft", "image": "7,15154f3ef7", "opacity":  0.8},
+    {"name": "demo4", "default": false, "position": "BottomRight", "image": "7,15154f3ef7", "opacity":  0.8},
+    {"name": "demo5", "default": false, "position": "{\"top\":null, \"right\":0,\"bottom\":0, \"left\":0}", "image": "7,15154f3ef7", "opacity":  0.8}
+  ],
+  "sizes": [
+      {"name": "p200", "width":200, "height": 150, "mode": "stretch"},
+      {"name": "p60", "width":60, "height": 45, "mode": "fit"},
+      {"name": "p160", "width":160, "height": 120, "mode": "thumbnail"}
+  ]
+}
+
+```
+
+
 
 ```
 package: github.com/by46/whalefs

@@ -18,6 +18,7 @@ const (
 type FileContext struct {
 	Key         string
 	ObjectName  string // 去掉Bucket之后的Key路径
+	BucketName  string
 	UploadId    string
 	Override    bool // 是否允许覆盖已存在文件
 	ExtractFile bool

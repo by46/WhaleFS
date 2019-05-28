@@ -66,7 +66,7 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 
 	key = utils.PathNormalize(key)
 
-	bucketName := utils.PathSegment(key, 0)
+	bucketName, objectName := utils.PathRemoveSegment(key, 0)
 	if bucketName == "" {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
 	}
@@ -79,10 +79,23 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 			Internal: errors.WithStack(err),
 		}
 	}
+	if bucket.Basis != nil && bucket.Basis.Alias != "" {
+		aliasBucket, err := s.GetBucket(bucket.Basis.Alias)
+		if err != nil {
+			return nil, &echo.HTTPError{
+				Code:     http.StatusBadRequest,
+				Message:  fmt.Sprintf("Bucket %s 的别名 %s 不存在", bucketName, bucket.Basis.Alias),
+				Internal: errors.WithStack(err),
+			}
+		}
+		bucket = aliasBucket
+		key = fmt.Sprintf("/%s%s", aliasBucket.Name, objectName)
+	}
 	fileContext.Key = key
 	if len(key) > len(bucketName)+2 {
 		fileContext.ObjectName = key[len(bucketName)+2:]
 	}
+	fileContext.BucketName = bucketName
 	fileContext.Bucket = bucket
 	return fileContext, nil
 }
@@ -191,7 +204,7 @@ func (s *Server) uploadFile(ctx echo.Context) (err error) {
 	if err = s.Meta.SetTTL(hash, entity, bucket.Basis.TTL.Expiry()); err != nil {
 		return
 	}
-	return ctx.JSON(http.StatusOK, entity)
+	return ctx.JSON(http.StatusOK, entity.AsEntity(fileContext.BucketName, bucket.Name))
 }
 
 func (s *Server) buildMetaFromChunk(ctx echo.Context) (string, *model.FileMeta) {
