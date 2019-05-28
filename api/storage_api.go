@@ -173,6 +173,7 @@ func (c *storageClient) Upload(option *common.UploadOption, mimeType string, bod
 func (c *storageClient) downloadChunks(fids []string) (io.Reader, http.Header, error) {
 	return NewChunksReader(c, fids), nil, nil
 }
+
 func (c *storageClient) uploadUrl(option *common.UploadOption, fid FileID) string {
 	query := make(url.Values)
 	if option.TTL != "" {

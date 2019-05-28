@@ -30,6 +30,9 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 		if err := ctx.Bind(params); err != nil {
 			return nil, errors.WithStack(err)
 		}
+		if params.Source != "" {
+			params.Source = utils.UrlDecode(params.Source)
+		}
 		// TODO(benjamin): 处理tmp file临时文件close问题
 		_, file, err := ctx.Request().FormFile("file")
 		if err != nil && err != http.ErrMissingFile {
