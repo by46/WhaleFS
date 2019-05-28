@@ -2,7 +2,7 @@
 
 REPO_DIR=$WORKSPACE
 TARGET="$target"
-ENV=${PARAM_HOST_ARRAY[0]}
+ENV=$1
 
 # golang build environment
 export HOME=/root

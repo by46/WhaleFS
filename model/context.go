@@ -103,7 +103,10 @@ func (self *FileContext) parseFileContentFromRemote(source string) error {
 		return err
 	}
 	file := new(FileContent)
-	file.Content = response.Content
+	file.Content, err = response.ReadAll()
+	if err != nil {
+		return errors.WithStack(err)
+	}
 	file.Size = int64(len(file.Content))
 	file.MimeType = response.Header.Get(echo.HeaderContentType)
 	self.File = file

@@ -84,25 +84,25 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	if entity == nil {
 		return nil, nil, common.ErrFileNotFound
 	}
-	responses := make([]*utils.Response, 0)
-	defer func() {
-		for _, resp := range responses {
-			_ = resp.Close()
-		}
-	}()
+	//responses := make([]*utils.Response, 0)
+	//defer func() {
+	//	for _, resp := range responses {
+	//		_ = resp.Close()
+	//	}
+	//}()
 	for _, location := range entity.Locations {
 		u := fmt.Sprintf("http://%s/%s", location.PublicUrl, fid)
 		resp, err := utils.Get(u, nil)
-		if resp != nil {
-			responses = append(responses, resp)
-		}
+		//if resp != nil {
+		//	responses = append(responses, resp)
+		//}
 		if err != nil {
 			continue
 		}
 		if resp.StatusCode != http.StatusOK {
 			continue
 		}
-		return bytes.NewReader(resp.Content), resp.Header, nil
+		return resp, resp.Header, nil
 	}
 	return nil, nil, common.ErrFileNotFound
 }

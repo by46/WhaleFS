@@ -28,13 +28,13 @@ var (
 type Response struct {
 	StatusCode int
 	Header     http.Header
-	response   *http.Response
+	body       io.ReadCloser
 	Content    []byte
 }
 
 func (r *Response) Json(v interface{}) (err error) {
 	if r.Content == nil {
-		r.Content, err = ioutil.ReadAll(r.response.Body)
+		r.Content, err = ioutil.ReadAll(r.body)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -50,11 +50,15 @@ func (r *Response) Error() error {
 }
 
 func (r *Response) Read(p []byte) (n int, err error) {
-	return r.response.Body.Read(p)
+	return r.body.Read(p)
 }
 
 func (r *Response) Close() error {
-	return r.response.Body.Close()
+	return r.body.Close()
+}
+
+func (r *Response) ReadAll() ([]byte, error) {
+	return ioutil.ReadAll(r)
 }
 
 func Get(url string, headers http.Header) (*Response, error) {
@@ -81,23 +85,26 @@ func Post(url string, headers http.Header, body io.Reader) (*Response, error) {
 
 func do(req *http.Request) (*Response, error) {
 	resp, err := client.Do(req)
-	if resp != nil {
-		defer func() {
+	//if resp != nil {
+	//	defer func() {
+	//		_ = resp.Body.Close()
+	//	}()
+	//}
+	if err != nil {
+		if resp != nil {
 			_ = resp.Body.Close()
-		}()
-	}
-	if err != nil {
+		}
 		return nil, errors.WithStack(err)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
+	//body, err := ioutil.ReadAll(resp.Body)
+	//if err != nil {
+	//	return nil, errors.WithStack(err)
+	//}
 	response := &Response{
 		StatusCode: resp.StatusCode,
 		Header:     resp.Header,
-		response:   resp,
-		Content:    body,
+		body:       resp.Body,
+		//Content:    body,
 	}
 	return response, errors.WithStack(response.Error())
 }
