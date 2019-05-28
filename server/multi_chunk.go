@@ -13,22 +13,29 @@ import (
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
+	"github.com/by46/whalefs/utils"
 )
 
 // 生成multi-chunk上传任务
 func (s *Server) uploads(ctx echo.Context) (err error) {
 	context := ctx.(*middleware.ExtendContext)
+	fileContext := context.FileContext
 	bucket := context.FileContext.Bucket
 
 	uploadId := uuid.New().String()
+	mimeType := ctx.Request().Header.Get(echo.HeaderContentType)
+	if mimeType == "" {
+		mimeType = echo.MIMEOctetStream
+	}
 	uploads := &model.Uploads{
 		Bucket:   bucket.Name,
 		Key:      context.FileContext.Key,
 		UploadId: uploadId,
 	}
-	mimeType := ctx.Request().Header.Get(echo.HeaderContentType)
-	if mimeType == "" {
-		mimeType = echo.MIMEOctetStream
+	if fileContext.ObjectName == "" {
+		fileContext.ObjectName = utils.RandomName(mimeType)
+		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.Name, fileContext.ObjectName)
+		uploads.Key = fileContext.Key
 	}
 	partMeta := &model.PartMeta{
 		Key:      context.FileContext.Key,
