@@ -32,7 +32,7 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 		}
 		// TODO(benjamin): 处理tmp file临时文件close问题
 		_, file, err := ctx.Request().FormFile("file")
-		if err != nil {
+		if err != nil && err != http.ErrMissingFile {
 			return nil, err
 		}
 		fileContext.Override = params.Override
