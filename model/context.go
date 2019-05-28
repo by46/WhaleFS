@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/textproto"
-	"net/url"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -94,11 +93,7 @@ func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) er
 }
 
 func (self *FileContext) parseFileContentFromRemote(source string) error {
-	parsedUrl, err := url.Parse(source)
-	if err != nil {
-		return err
-	}
-	response, err := utils.Get(parsedUrl.Path, nil)
+	response, err := utils.Get(source, nil)
 	if response != nil {
 		defer func() {
 			_ = response.Close()
@@ -109,7 +104,7 @@ func (self *FileContext) parseFileContentFromRemote(source string) error {
 	}
 	file := new(FileContent)
 	file.Content = response.Content
-	file.Size = int64(len(response.Content))
+	file.Size = int64(len(file.Content))
 	file.MimeType = response.Header.Get(echo.HeaderContentType)
 	self.File = file
 	return nil

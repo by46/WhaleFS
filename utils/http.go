@@ -81,6 +81,15 @@ func Post(url string, headers http.Header, body io.Reader) (*Response, error) {
 
 func do(req *http.Request) (*Response, error) {
 	resp, err := client.Do(req)
+	if resp != nil {
+		defer func() {
+			_ = resp.Body.Close()
+		}()
+	}
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -88,6 +97,7 @@ func do(req *http.Request) (*Response, error) {
 		StatusCode: resp.StatusCode,
 		Header:     resp.Header,
 		response:   resp,
+		Content:    body,
 	}
 	return response, errors.WithStack(response.Error())
 }
