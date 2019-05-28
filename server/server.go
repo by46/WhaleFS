@@ -150,11 +150,15 @@ func (s *Server) install() {
 		AllowHeaders:  []string{"X-Request-Id"},
 		MaxAge:        60 * 30,
 	}))
+	methods := []string{
+		http.MethodHead,
+		http.MethodGet,
+		http.MethodPost,
+		http.MethodPut,
+		http.MethodDelete,
+	}
 
 	s.app.GET("/faq.htm", s.faq)
-	//s.app.GET("/*", s.download)
-	//s.app.HEAD("/*", s.head)
-	//s.app.POST("/*", s.upload)
 	s.app.POST("/packageDownload", s.packageDownload)
 	s.app.GET("/tools", s.tools)
 	s.app.GET("/pkgDownloadTool", s.pkgDownloadTool)
@@ -162,7 +166,6 @@ func (s *Server) install() {
 	s.app.GET("/tasks", s.checkTask)
 	s.app.GET("/metrics", s.metric)
 	s.app.POST("/demo", s.demo)
-	methods := []string{http.MethodHead, http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete}
 	s.app.Match(methods, "/*", s.file)
 }
 

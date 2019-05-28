@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 
@@ -24,5 +23,5 @@ func TestHttpClient_MultipartUpload(t *testing.T) {
 		MultiChunk: true,
 	})
 	assert.Nil(t, err)
-	fmt.Printf("%v", entity)
+	assert.Equal(t, "/benjamin/client3.go", entity.Key)
 }

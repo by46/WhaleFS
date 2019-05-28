@@ -16,12 +16,12 @@ const (
 )
 
 type FileContext struct {
-	Key string
-	// 是否允许覆盖已存在文件
-	Override    bool
+	Key         string
+	ObjectName  string // 去掉Bucket之后的Key路径
+	UploadId    string
+	Override    bool // 是否允许覆盖已存在文件
 	ExtractFile bool
 	Uploads     bool
-	UploadId    string
 	PartNumber  int32
 	Bucket      *Bucket
 	Meta        *FileMeta

@@ -80,6 +80,9 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 		}
 	}
 	fileContext.Key = key
+	if len(key) > len(bucketName)+2 {
+		fileContext.ObjectName = key[len(bucketName)+2:]
+	}
 	fileContext.Bucket = bucket
 	return fileContext, nil
 }
@@ -147,9 +150,14 @@ func (s *Server) delete(ctx echo.Context) (err error) {
 
 func (s *Server) uploadFile(ctx echo.Context) (err error) {
 	context := ctx.(*middleware.ExtendContext)
-	params := context.FileContext
+	fileContext := context.FileContext
 	file := context.FileContext.File
 	bucket := context.FileContext.Bucket
+
+	if fileContext.ObjectName == "" {
+		fileContext.ObjectName = utils.RandomName(file.MimeType)
+		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.Name, fileContext.ObjectName)
+	}
 
 	if file.IsImage() {
 		reader := bytes.NewReader(file.Content)
@@ -178,8 +186,8 @@ func (s *Server) uploadFile(ctx echo.Context) (err error) {
 		s.saveChunk(ctx, key, entity)
 	}
 
-	hash := params.HashKey()
-	entity.RawKey = params.Key
+	hash := fileContext.HashKey()
+	entity.RawKey = fileContext.Key
 	if err = s.Meta.SetTTL(hash, entity, bucket.Basis.TTL.Expiry()); err != nil {
 		return
 	}
@@ -338,7 +346,7 @@ func (s *Server) validateFile(ctx echo.Context) error {
 			}
 			ratio := utils.RatioEval(limit.Ratio)
 			if ratio != nil && utils.Float64Equal(*ratio, float64(file.Width)/float64(file.Height)) == false {
-				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片宽高比等于%d:%d, 宽高比必须等于%d", file.Width, file.Height, limit.Ratio))
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片宽高比等于%d:%d, 宽高比必须等于%s", file.Width, file.Height, limit.Ratio))
 			}
 		}
 	}

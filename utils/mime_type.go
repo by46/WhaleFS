@@ -5,6 +5,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo"
 )
 
@@ -12,23 +13,23 @@ func init() {
 	_ = mime.AddExtensionType(".go", "text/plain; charset=utf-8")
 }
 
-func IsImage(mime string) bool {
-	if mime == "" {
+func IsImage(mimeType string) bool {
+	if mimeType == "" {
 		return false
 	}
-	mime = strings.ToLower(mime)
-	return strings.HasPrefix(mime, "image/")
+	mimeType = strings.ToLower(mimeType)
+	return strings.HasPrefix(mimeType, "image/")
 }
 
-func IsPlain(mime string) bool {
-	if mime == "" {
+func IsPlain(mimeType string) bool {
+	if mimeType == "" {
 		return false
 	}
-	mime = strings.ToLower(mime)
-	if strings.HasPrefix(mime, "text/") {
+	mimeType = strings.ToLower(mimeType)
+	if strings.HasPrefix(mimeType, "text/") {
 		return true
 	}
-	switch mime {
+	switch mimeType {
 	case "application/javascript", "application/x-javascript":
 		return true
 	default:
@@ -42,4 +43,13 @@ func MimeTypeByExtension(filename string) string {
 		return echo.MIMEOctetStream
 	}
 	return t
+}
+
+func RandomName(mimeType string) string {
+	name := uuid.New().String()
+	extensions, _ := mime.ExtensionsByType(mimeType)
+	if extensions != nil {
+		name = name + extensions[0]
+	}
+	return name
 }
