@@ -14,4 +14,5 @@ type Dao interface {
 	Query(n1sql string, params interface{}) (gocb.QueryResults, error)
 	BulkUpdate(values map[string]interface{}) error
 	SubListAppend(key, path string, value interface{}, cas uint64) error
+	SubSet(key, path string, value interface{}, cas uint64) error
 }

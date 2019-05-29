@@ -107,7 +107,7 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	return nil, nil, common.ErrFileNotFound
 }
 
-func (c *storageClient) Upload(option *common.UploadOption, mimeType string, body io.Reader) (*model.FileMeta, error) {
+func (c *storageClient) Upload(option *common.UploadOption, mimeType string, body io.Reader) (*model.Needle, error) {
 	var size int64
 	var preReadSize int
 	var err error
@@ -131,6 +131,7 @@ func (c *storageClient) Upload(option *common.UploadOption, mimeType string, bod
 	buff := bytes.NewBuffer(nil)
 	writer := multipart.NewWriter(buff)
 	h := make(textproto.MIMEHeader)
+	// TODO(benjamin): 需要优化, 添加文件名
 	h.Set(echo.HeaderContentDisposition, `form-data; name="File"; filename="file.txt"`)
 	h.Set(echo.HeaderContentType, mimeType)
 	partition, _ := writer.CreatePart(h)
@@ -160,14 +161,14 @@ func (c *storageClient) Upload(option *common.UploadOption, mimeType string, bod
 		return nil, errors.Wrapf(err, "上传文件块失败, 上传地址%s", fid.String())
 	}
 
-	entity := &model.FileMeta{
+	needle := &model.Needle{
 		FID:          fid.FID,
 		ETag:         strings.Trim(resp.Header.Get(utils.HeaderETag), `"`),
 		LastModified: time.Now().UTC().Unix(),
 		Size:         size + int64(preReadSize),
-		MimeType:     mimeType,
+		Mime:         mimeType,
 	}
-	return entity, nil
+	return needle, nil
 }
 
 func (c *storageClient) downloadChunks(fids []string) (io.Reader, http.Header, error) {

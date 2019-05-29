@@ -189,10 +189,11 @@ func (s *Server) uploadFile(ctx echo.Context) (err error) {
 			Replication: bucket.Basis.Replication,
 			TTL:         bucket.Basis.TTL,
 		}
-		entity, err = s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
+		needle, err := s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
 		if err != nil {
-			return
+			return err
 		}
+		entity = needle.AsFileMeta()
 		if file.IsImage() {
 			entity.Width, entity.Height = file.Width, file.Height
 		}

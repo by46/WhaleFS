@@ -46,7 +46,10 @@ func (r *Response) Error() error {
 	if r.StatusCode >= http.StatusOK && r.StatusCode < http.StatusBadRequest {
 		return nil
 	}
-	return errors.Errorf("status: %d, message: %s", r.StatusCode, string(r.Content[:ErrorResponseSize]))
+	buf := make([]byte, ErrorResponseSize)
+	n, _ := r.body.Read(buf)
+
+	return errors.Errorf("status: %d, message: %s", r.StatusCode, string(buf[:n]))
 }
 
 func (r *Response) Read(p []byte) (n int, err error) {

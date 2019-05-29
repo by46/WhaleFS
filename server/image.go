@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/color"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 )
 
@@ -39,7 +41,11 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 
 	img, err := s.prepare(ctx, r)
 	if err != nil {
+		// TODO(benjamin): 如果有错误产生, 就返回原图, 尽量避免错误产生
 		return nil, err
+	}
+	if thumbnail := s.downloadThumbnail(ctx); thumbnail != nil {
+		return thumbnail, nil
 	}
 
 	switch size.Mode {
@@ -62,7 +68,11 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 	}
 
 	img = s.overlay(ctx, img)
-	return s.encode(ctx, img)
+	buff, err := s.encode(ctx, img)
+	if err == nil {
+		s.uploadThumbnail(ctx, bytes.NewReader(buff.Bytes()))
+	}
+	return buff, err
 }
 
 func (s *Server) overlay(ctx echo.Context, img image.Image) image.Image {
@@ -130,6 +140,8 @@ func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err er
 	return
 }
 
+// 下载overlay的图片
+// TODO(benjamin): 需要优化, 可以在加载bucket的时候, 就加载overlay文件内容
 func (s *Server) downloadOverlay(fid string) (img image.Image, err error) {
 	content, _, err := s.Storage.Download(fid)
 	if err != nil {
@@ -141,7 +153,52 @@ func (s *Server) downloadOverlay(fid string) (img image.Image, err error) {
 	return
 }
 
-func (s *Server) encode(ctx echo.Context, img image.Image) (io.Reader, error) {
+func (s *Server) downloadThumbnail(ctx echo.Context) io.Reader {
+	context := ctx.(*middleware.ExtendContext)
+	size := context.FileContext.Size
+	meta := context.FileContext.Meta
+
+	if thumbnailMeta, exists := meta.Thumbnails[size.Name]; exists {
+		r, _, err := s.Storage.Download(thumbnailMeta.FID)
+		if err != nil {
+			s.Logger.Warnf("下载预处理图片失败: %v", err)
+			return nil
+		}
+		meta.Size = thumbnailMeta.Size
+		return r
+	}
+	return nil
+}
+
+// 上传生成好的缩略图到tmp collection
+func (s *Server) uploadThumbnail(ctx echo.Context, r io.Reader) {
+	context := ctx.(*middleware.ExtendContext)
+	meta := context.FileContext.Meta
+	size := context.FileContext.Size
+
+	option := &common.UploadOption{
+		Collection:  BucketTmp,
+		Replication: "000",
+	}
+	needle, err := s.Storage.Upload(option, meta.MimeType, r)
+	if err != nil {
+		s.Logger.Warnf("上传缩略图失败原图:%s,错误:%v", meta.RawKey, err)
+		return
+	}
+	thumbnailMeta := &model.ThumbnailMeta{
+		FID:  needle.FID,
+		ETag: needle.ETag,
+		Size: needle.Size,
+	}
+	// TODO(benjamin): save meta
+	if err := s.Meta.SubSet(meta.RawKey, fmt.Sprintf("thumbnails.%s", size.Name), thumbnailMeta, 0); err != nil {
+		s.Logger.Warnf("更新缩略图失败 %s, %v", meta.RawKey, err)
+	} else {
+		meta.Thumbnails[size.Name] = thumbnailMeta
+	}
+}
+
+func (s *Server) encode(ctx echo.Context, img image.Image) (*bytes.Buffer, error) {
 	context := ctx.(*middleware.ExtendContext)
 	entity := context.FileContext.Meta
 
