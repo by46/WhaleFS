@@ -44,10 +44,6 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 		// TODO(benjamin): 如果有错误产生, 就返回原图, 尽量避免错误产生
 		return nil, err
 	}
-	if thumbnail := s.downloadThumbnail(ctx); thumbnail != nil {
-		return thumbnail, nil
-	}
-
 	switch size.Mode {
 	case ModeFit:
 		newImg := imaging.Fit(img, size.Width, size.Height, imaging.Lanczos)
@@ -157,6 +153,10 @@ func (s *Server) downloadThumbnail(ctx echo.Context) io.Reader {
 	context := ctx.(*middleware.ExtendContext)
 	size := context.FileContext.Size
 	meta := context.FileContext.Meta
+
+	if size == nil {
+		return nil
+	}
 
 	if thumbnailMeta, exists := meta.Thumbnails[size.Name]; exists {
 		r, _, err := s.Storage.Download(thumbnailMeta.FID)

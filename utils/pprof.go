@@ -1,10 +1,12 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"runtime"
 	"runtime/pprof"
+	"time"
 )
 
 func SetupProfiling(cpuProfile, memProfile string) {
@@ -32,4 +34,8 @@ func SetupProfiling(cpuProfile, memProfile string) {
 			_ = pprof.WriteHeapProfile(f)
 		})
 	}
+}
+
+func Time() {
+	fmt.Printf("time: %d\n", time.Now().UnixNano()/1000000)
 }

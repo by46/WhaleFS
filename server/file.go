@@ -268,17 +268,12 @@ func (s *Server) download(ctx echo.Context) (err error) {
 		ctx.Response().WriteHeader(http.StatusNotModified)
 		return
 	}
-
-	body, _, err := s.Storage.Download(entity.FID)
-	if err != nil && err == common.ErrFileNotFound {
-		ctx.Response().WriteHeader(http.StatusNotFound)
-		return
-	} else if err != nil {
-		return err
-	}
-
-	body, err = s.thumbnail(ctx, body)
+	body, err := s.downloadFile(ctx)
 	if err != nil {
+		if err == common.ErrFileNotFound {
+			ctx.Response().WriteHeader(http.StatusNotFound)
+			return nil
+		}
 		return err
 	}
 
@@ -296,6 +291,22 @@ func (s *Server) download(ctx echo.Context) (err error) {
 		return errors.WithStack(err)
 	}
 	return
+}
+
+func (s *Server) downloadFile(ctx echo.Context) (io.Reader, error) {
+	context := ctx.(*middleware.ExtendContext)
+	entity := context.FileContext.Meta
+
+	// 下载缩略图
+	if thumbnail := s.downloadThumbnail(ctx); thumbnail != nil {
+		return thumbnail, nil
+	}
+
+	body, _, err := s.Storage.Download(entity.FID)
+	if err != nil {
+		return nil, err
+	}
+	return s.thumbnail(ctx, body)
 }
 
 func (s *Server) form(ctx echo.Context) (*multipart.FileHeader, error) {

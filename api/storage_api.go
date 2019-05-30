@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -34,6 +35,10 @@ var (
 		},
 	}
 )
+
+func init() {
+	rand.Seed(time.Now().Unix())
+}
 
 type FileID struct {
 	Count     int    `json:"count,omitempty"`
@@ -84,18 +89,9 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	if entity == nil {
 		return nil, nil, common.ErrFileNotFound
 	}
-	//responses := make([]*utils.Response, 0)
-	//defer func() {
-	//	for _, resp := range responses {
-	//		_ = resp.Close()
-	//	}
-	//}()
 	for _, location := range entity.Locations {
 		u := fmt.Sprintf("http://%s/%s", location.PublicUrl, fid)
 		resp, err := utils.Get(u, nil)
-		//if resp != nil {
-		//	responses = append(responses, resp)
-		//}
 		if err != nil {
 			continue
 		}
@@ -239,6 +235,15 @@ func (c *storageClient) lookup(volumeId uint32) *VolumeEntity {
 		entity := &VolumeEntity{}
 		if err := response.Json(entity); err != nil {
 			continue
+		}
+		if entity.Locations != nil {
+			locations := make([]*LocationEntity, 0)
+			for len(entity.Locations) > 0 {
+				i := rand.Int() % len(entity.Locations)
+				locations = append(locations, entity.Locations[i])
+				entity.Locations = append(entity.Locations[:i], entity.Locations[i+1:]...)
+			}
+			entity.Locations = locations
 		}
 		return entity
 	}
