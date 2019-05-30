@@ -13,18 +13,28 @@ const (
 	ProductBucketName = "pdt"
 )
 
+// 用于存储缩略图信息
+type ThumbnailMeta struct {
+	FID  string `json:"fid,omitempty"`
+	ETag string `json:"etag,omitempty"`
+	Size int64  `json:"size,omitempty"`
+}
+
+type Thumbnails map[string]*ThumbnailMeta
+
 // 用于存储在数据库中的文件元数据信息
 type FileMeta struct {
-	RawKey       string `json:"raw_key,omitempty"`
-	Url          string `json:"url,omitempty"`
-	FID          string `json:"fid,omitempty"`
-	LastModified int64  `json:"last_modified,omitempty"`
-	ETag         string `json:"etag,omitempty"`
-	Size         int64  `json:"size,omitempty"`
-	Width        int    `json:"width,omitempty"`
-	Height       int    `json:"height,omitempty"`
-	MimeType     string `json:"mime_type,omitempty"`
-	ThumbnailFID string `json:"thumbnail_fid,omitempty"`
+	RawKey       string     `json:"raw_key,omitempty"`
+	Url          string     `json:"url,omitempty"`
+	FID          string     `json:"fid,omitempty"`
+	MimeType     string     `json:"mime_type,omitempty"`
+	ThumbnailFID string     `json:"thumbnail_fid,omitempty"`
+	ETag         string     `json:"etag,omitempty"`
+	LastModified int64      `json:"last_modified,omitempty"`
+	Size         int64      `json:"size,omitempty"`
+	Width        int        `json:"width,omitempty"`
+	Height       int        `json:"height,omitempty"`
+	Thumbnails   Thumbnails `json:"thumbnails,omitempty"`
 }
 
 func (f *FileMeta) LastModifiedTime() time.Time {
@@ -86,6 +96,6 @@ func (f *FileContent) IsImage() bool {
 
 // 上传接口返回的api
 type FileEntity struct {
-	Key        string `json:"key"`
-	Size       int64  `json:"size"`
+	Key  string `json:"key"`
+	Size int64  `json:"size"`
 }

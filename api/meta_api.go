@@ -117,3 +117,8 @@ func (m *metaClient) SubListAppend(key, path string, value interface{}, cas uint
 	_, err = m.Bucket.MutateIn(key, 0, 0).ArrayAppend(path, value, false).Execute()
 	return errors.WithStack(err)
 }
+
+func (m *metaClient) SubSet(key, path string, value interface{}, cas uint64) (err error) {
+	_, err = m.Bucket.MutateIn(key, 0, 0).Upsert(path, value, true).Execute()
+	return errors.WithStack(err)
+}

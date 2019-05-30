@@ -63,10 +63,11 @@ func (s *Server) uploadPart(ctx echo.Context) (err error) {
 			Replication: bucket.Basis.Replication,
 			TTL:         bucket.Basis.TTL,
 		}
-		entity, err = s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
+		needle, err := s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
 		if err != nil {
-			return
+			return err
 		}
+		entity = needle.AsFileMeta()
 		s.saveChunk(ctx, key, entity)
 	}
 

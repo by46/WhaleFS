@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -34,6 +35,10 @@ var (
 		},
 	}
 )
+
+func init() {
+	rand.Seed(time.Now().Unix())
+}
 
 type FileID struct {
 	Count     int    `json:"count,omitempty"`
@@ -84,18 +89,9 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	if entity == nil {
 		return nil, nil, common.ErrFileNotFound
 	}
-	//responses := make([]*utils.Response, 0)
-	//defer func() {
-	//	for _, resp := range responses {
-	//		_ = resp.Close()
-	//	}
-	//}()
 	for _, location := range entity.Locations {
 		u := fmt.Sprintf("http://%s/%s", location.PublicUrl, fid)
 		resp, err := utils.Get(u, nil)
-		//if resp != nil {
-		//	responses = append(responses, resp)
-		//}
 		if err != nil {
 			continue
 		}
@@ -107,7 +103,7 @@ func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
 	return nil, nil, common.ErrFileNotFound
 }
 
-func (c *storageClient) Upload(option *common.UploadOption, mimeType string, body io.Reader) (*model.FileMeta, error) {
+func (c *storageClient) Upload(option *common.UploadOption, mimeType string, body io.Reader) (*model.Needle, error) {
 	var size int64
 	var preReadSize int
 	var err error
@@ -131,6 +127,7 @@ func (c *storageClient) Upload(option *common.UploadOption, mimeType string, bod
 	buff := bytes.NewBuffer(nil)
 	writer := multipart.NewWriter(buff)
 	h := make(textproto.MIMEHeader)
+	// TODO(benjamin): 需要优化, 添加文件名
 	h.Set(echo.HeaderContentDisposition, `form-data; name="File"; filename="file.txt"`)
 	h.Set(echo.HeaderContentType, mimeType)
 	partition, _ := writer.CreatePart(h)
@@ -160,14 +157,14 @@ func (c *storageClient) Upload(option *common.UploadOption, mimeType string, bod
 		return nil, errors.Wrapf(err, "上传文件块失败, 上传地址%s", fid.String())
 	}
 
-	entity := &model.FileMeta{
+	needle := &model.Needle{
 		FID:          fid.FID,
 		ETag:         strings.Trim(resp.Header.Get(utils.HeaderETag), `"`),
 		LastModified: time.Now().UTC().Unix(),
 		Size:         size + int64(preReadSize),
-		MimeType:     mimeType,
+		Mime:         mimeType,
 	}
-	return entity, nil
+	return needle, nil
 }
 
 func (c *storageClient) downloadChunks(fids []string) (io.Reader, http.Header, error) {
@@ -238,6 +235,15 @@ func (c *storageClient) lookup(volumeId uint32) *VolumeEntity {
 		entity := &VolumeEntity{}
 		if err := response.Json(entity); err != nil {
 			continue
+		}
+		if entity.Locations != nil {
+			locations := make([]*LocationEntity, 0)
+			for len(entity.Locations) > 0 {
+				i := rand.Int() % len(entity.Locations)
+				locations = append(locations, entity.Locations[i])
+				entity.Locations = append(entity.Locations[:i], entity.Locations[i+1:]...)
+			}
+			entity.Locations = locations
 		}
 		return entity
 	}
