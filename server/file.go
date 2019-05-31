@@ -374,6 +374,8 @@ func (s *Server) validateFile(ctx echo.Context) error {
 				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("当前上传图片宽高比等于%d:%d, 宽高比必须等于%s", file.Width, file.Height, limit.Ratio))
 			}
 		}
+
+		// TODO(benjamin):检查文件类型限制
 	}
 
 	hash := params.HashKey()

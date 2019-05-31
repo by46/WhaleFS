@@ -202,3 +202,6 @@ POST /benjamin/demo/hello.jpg?uploadId=uuid1
   "etag": "etag1"   
 }]
 
+
+
+whalefs.exe migrate --location="D:\application\ImageServer\mro_item" --target="192.168.1.9:8089"

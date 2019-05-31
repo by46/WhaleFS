@@ -8,3 +8,4 @@ raft-*
 main
 dist
 *.pprof
+cache.db

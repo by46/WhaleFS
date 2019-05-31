@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/textproto"
 	"net/url"
+	"strings"
 	"sync"
 
 	"github.com/labstack/echo"
@@ -77,6 +78,10 @@ type httpClient struct {
 }
 
 func NewClient(options *ClientOptions) Client {
+	options.Base = strings.ToLower(options.Base)
+	if strings.HasPrefix(options.Base, "http://") == false {
+		options.Base = fmt.Sprintf("http://%s", options.Base)
+	}
 	return &httpClient{base: options.Base}
 }
 

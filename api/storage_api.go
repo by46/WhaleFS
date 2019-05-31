@@ -199,8 +199,8 @@ func (c *storageClient) assign(option *common.UploadOption) (fid *FileID, err er
 		}
 	}()
 	for _, master := range c.master {
-		url := c.assignUrl(master, option)
-		response, err := utils.Post(url, nil, nil)
+		u := c.assignUrl(master, option)
+		response, err := utils.Post(u, nil, nil)
 		if response != nil {
 			responses = append(responses, response)
 		}

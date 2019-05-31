@@ -1,0 +1,33 @@
+{
+  "system.bucket.mro_item": {
+    "name": "benjamin",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  }
+}

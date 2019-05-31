@@ -2,6 +2,7 @@
 package utils
 
 import (
+	"os"
 	"strings"
 )
 
@@ -33,4 +34,20 @@ func PathNormalize(path string) string {
 	segments := strings.Split(path, Separator)
 	segments = Filter(segments, func(s string) bool { return s != "" })
 	return Separator + strings.Join(segments, Separator)
+}
+
+func DirExists(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
+}
+
+func FileExists(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !info.IsDir()
 }
