@@ -17,7 +17,6 @@ type PackageUnitEntity struct {
 	Reader io.Reader
 	Size   int64
 	Target string
-	Err    error
 }
 
 func TarUnit(tw *tar.Writer, tarEntity *PackageUnitEntity) error {

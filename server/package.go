@@ -27,42 +27,24 @@ func Package(
 
 	defer func() { _ = tw.(io.Closer).Close() }()
 
-	fileReaderChan := make(chan *utils.PackageUnitEntity, len(pkgFileInfo.Items))
-	defer close(fileReaderChan)
-
 	for _, item := range pkgFileInfo.Items {
-		go func(item model.PkgFileItem) {
-			pkgUnitEntity := &utils.PackageUnitEntity{
-				Target: item.GetTarget(),
-			}
-			defer func() { fileReaderChan <- pkgUnitEntity }()
 
-			entity, err := getEntityFunc(item.RawKey)
-			if err != nil {
-				pkgUnitEntity.Err = err
-				fileReaderChan <- pkgUnitEntity
-				return
-			}
-
-			body, _, err := downloadFunc(entity.FID)
-			if err != nil {
-				pkgUnitEntity.Err = err
-				fileReaderChan <- pkgUnitEntity
-				return
-			}
-
-			pkgUnitEntity.Size = entity.Size
-			pkgUnitEntity.Reader = body
-		}(item)
-	}
-
-	errors := make([]error, 0)
-	for i := 0; i < len(pkgFileInfo.Items); i++ {
-		pkgUnitEntity := <-fileReaderChan
-		var err error
-		if pkgUnitEntity.Err != nil {
-			err = pkgUnitEntity.Err
+		entity, err := getEntityFunc(item.RawKey)
+		if err != nil {
+			return err
 		}
+
+		body, _, err := downloadFunc(entity.FID)
+		if err != nil {
+			return err
+		}
+
+		pkgUnitEntity := &utils.PackageUnitEntity{
+			Target: item.GetTarget(),
+			Size:   entity.Size,
+			Reader: body,
+		}
+
 		if pkgType == utils.Zip {
 			writer := tw.(*zip.Writer)
 			err = utils.ZipUnit(writer, pkgUnitEntity)
@@ -70,11 +52,6 @@ func Package(
 			writer := tw.(*tar.Writer)
 			err = utils.TarUnit(writer, pkgUnitEntity)
 		}
-
-		if err != nil {
-			errors = append(errors, err)
-		}
 	}
-	//todo: handler errors
 	return nil
 }
