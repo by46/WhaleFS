@@ -8,8 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/by46/whalefs/utils"
-
 	"github.com/by46/whalefs/client"
 
 	"github.com/by46/whalefs/common"
@@ -80,7 +78,7 @@ func (s *Scheduler) RunPackageFileTask() {
 				}
 			}()
 
-			tempFileName := utils.PathNormalize(tmpDir + "/" + task.PackageInfo.GetPkgName())
+			tempFileName := tmpDir + "/" + task.PackageInfo.GetPkgName()
 
 			file, err := os.Create(tempFileName)
 			if err != nil {
@@ -136,7 +134,7 @@ func (s *Scheduler) RunPackageFileTask() {
 				FileName:   task.PackageInfo.Name,
 				Content:    openFile,
 				Override:   true,
-				MultiChunk: false,
+				MultiChunk: true,
 			})
 
 			if err != nil {
@@ -202,9 +200,8 @@ func pathExists(path string) (bool, error) {
 }
 
 func updateProgress(task *model.PackageTask, taskClient common.Task, progress int8) {
-	tmpTask := new(model.PackageTask)
 	task.Progress = progress
-	err := taskClient.Set(task.Id, tmpTask)
+	err := taskClient.Set(task.Id, task)
 	if err != nil {
 		fmt.Printf("Update progress failed!\n")
 	}

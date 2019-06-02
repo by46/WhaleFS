@@ -18,13 +18,14 @@ func (o *Options) key() string {
 }
 func (o *Options) getOverride() string {
 	if o.Override {
-		return "1";
+		return "1"
 	}
 	return "0"
 }
 
 type FileEntity struct {
-	Key string `json:"raw_key"`
+	Key  string `json:"key"`
+	Size int64  `json:"size"`
 }
 
 type ClientOptions struct {
