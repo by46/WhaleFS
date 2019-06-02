@@ -71,11 +71,27 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
 	}
 
-	bucket, err := s.GetBucket(bucketName)
+	bucket, err := s.getBucketByName(bucketName)
+	if err != nil {
+		return nil, err
+	}
+	key = fmt.Sprintf("/%s%s", bucket.Name, objectName)
+	fileContext.Key = key
+	if len(key) > len(bucketName)+2 {
+		fileContext.ObjectName = key[len(bucketName)+2:]
+	}
+	fileContext.BucketName = bucketName
+	fileContext.Bucket = bucket
+	return fileContext, nil
+}
+
+// 获取Bucket信息, 处理别名的逻辑
+func (s *Server) getBucketByName(name string) (*model.Bucket, error) {
+	bucket, err := s.GetBucket(name)
 	if err != nil {
 		return nil, &echo.HTTPError{
 			Code:     http.StatusBadRequest,
-			Message:  fmt.Sprintf("Bucket %s 不存在", bucketName),
+			Message:  fmt.Sprintf("Bucket %s 不存在", name),
 			Internal: errors.WithStack(err),
 		}
 	}
@@ -84,20 +100,13 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 		if err != nil {
 			return nil, &echo.HTTPError{
 				Code:     http.StatusBadRequest,
-				Message:  fmt.Sprintf("Bucket %s 的别名 %s 不存在", bucketName, bucket.Basis.Alias),
+				Message:  fmt.Sprintf("Bucket %s 的别名 %s 不存在", name, bucket.Basis.Alias),
 				Internal: errors.WithStack(err),
 			}
 		}
 		bucket = aliasBucket
-		key = fmt.Sprintf("/%s%s", aliasBucket.Name, objectName)
 	}
-	fileContext.Key = key
-	if len(key) > len(bucketName)+2 {
-		fileContext.ObjectName = key[len(bucketName)+2:]
-	}
-	fileContext.BucketName = bucketName
-	fileContext.Bucket = bucket
-	return fileContext, nil
+	return bucket, nil
 }
 
 func (s *Server) file(ctx echo.Context) (err error) {
@@ -168,7 +177,7 @@ func (s *Server) uploadFile(ctx echo.Context) (err error) {
 	bucket := context.FileContext.Bucket
 
 	if fileContext.ObjectName == "" {
-		fileContext.ObjectName = utils.RandomName(file.MimeType)
+		fileContext.ObjectName = utils.RandomName(file.Extension)
 		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.Name, fileContext.ObjectName)
 	}
 
@@ -387,4 +396,39 @@ func (s *Server) validateFile(ctx echo.Context) error {
 		}
 	}
 	return nil
+}
+
+func (s *Server) legacyUploadFile(ctx echo.Context) error {
+	bucketName := ctx.QueryParam("appName")
+	if bucketName == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
+	}
+	bucket, err := s.getBucketByName(bucketName)
+	if err != nil {
+		return err
+	}
+	fileContext := &model.FileContext{
+		Bucket:     bucket,
+		BucketName: bucketName,
+	}
+	form, err := ctx.MultipartForm()
+	if err != nil || form.File == nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "没有文件内容")
+	}
+	var file *multipart.FileHeader
+	for _, value := range form.File {
+		if len(value) > 0 {
+			file = value[0]
+			break
+		}
+	}
+	if file == nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "没有文件内容")
+	}
+	if err := fileContext.ParseFileContent("", file); err != nil {
+		return err
+	}
+	context := &middleware.ExtendContext{ctx, fileContext}
+
+	return s.uploadFile(context)
 }

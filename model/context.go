@@ -3,7 +3,9 @@ package model
 import (
 	"io/ioutil"
 	"mime/multipart"
+	"net/http"
 	"net/textproto"
+	"path/filepath"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -88,7 +90,8 @@ func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) er
 	file.Headers = form.Header
 	file.Content = buf
 	file.Size = int64(len(buf))
-	file.MimeType = form.Header.Get(echo.HeaderContentType)
+	file.MimeType = http.DetectContentType(buf)
+	file.Extension = filepath.Ext(form.Filename)
 	self.File = file
 	return nil
 }
@@ -110,6 +113,7 @@ func (self *FileContext) parseFileContentFromRemote(source string) error {
 	}
 	file.Size = int64(len(file.Content))
 	file.MimeType = response.Header.Get(echo.HeaderContentType)
+	// TODO(benjamin): detect resource extension
 	self.File = file
 	return nil
 }

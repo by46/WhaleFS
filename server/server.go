@@ -59,10 +59,6 @@ func buildDao(connectionString string) common.Dao {
 	return api.NewMetaClient(connectionString)
 }
 
-func buildBucketMeta(config *model.Config) common.Dao {
-	return api.NewMetaClient(config.BucketMeta)
-}
-
 func buildTaskMeta(config *model.Config) common.Task {
 	return api.NewTaskClient(config.TaskBucket)
 }
@@ -143,6 +139,7 @@ func (s *Server) install() {
 	s.app.GET("/tasks", s.checkTask)
 	s.app.GET("/metrics", s.metric)
 	s.app.POST("/demo", s.demo)
+	s.app.POST("/UploadHandler.ashx", s.legacyUploadFile)
 	s.app.Match(methods, "/*", s.file)
 }
 

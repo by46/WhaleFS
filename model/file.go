@@ -74,20 +74,24 @@ func (f *FileMeta) AsEntity(bucketName, aliasBucketName string) *FileEntity {
 		key = strings.TrimLeft(objectName, Separator)
 	}
 	return &FileEntity{
-		Key:  key,
-		Size: f.Size,
+		Key:     key,
+		Url:     key,
+		Message: "上传成功",
+		State:   "SUCCESS",
+		Size:    f.Size,
 	}
 }
 
 // 用于记录上传文件内容
 type FileContent struct {
-	MimeType string
-	Size     int64
-	Override bool
-	Headers  textproto.MIMEHeader
-	Content  []byte
-	Width    int
-	Height   int
+	MimeType  string
+	Size      int64
+	Override  bool
+	Headers   textproto.MIMEHeader
+	Content   []byte
+	Width     int
+	Height    int
+	Extension string
 }
 
 func (f *FileContent) IsImage() bool {
@@ -96,6 +100,9 @@ func (f *FileContent) IsImage() bool {
 
 // 上传接口返回的api
 type FileEntity struct {
-	Key  string `json:"key"`
-	Size int64  `json:"size"`
+	Key     string `json:"key"`
+	Url     string `json:"url"`
+	Message string `json:"message"`
+	State   string `json:"state"`
+	Size    int64  `json:"size"`
 }
