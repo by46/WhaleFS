@@ -14,7 +14,7 @@ func Package(
 	pkgFileInfo *model.PackageEntity,
 	w io.Writer,
 	getEntityFunc func(string) (*model.FileMeta, error),
-	downloadFunc func(string) (io.Reader, http.Header, error)) error {
+	downloadFunc func(string) (io.ReadCloser, http.Header, error)) error {
 
 	pkgType := pkgFileInfo.GetPkgType()
 

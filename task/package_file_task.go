@@ -178,8 +178,8 @@ func getFileEntity(metaClient common.Dao) func(hash string) (meta *model.FileMet
 	}
 }
 
-func downloadFile(storageClient common.Storage) func(url string) (reader io.Reader, headers http.Header, e error) {
-	return func(url string) (reader io.Reader, headers http.Header, e error) {
+func downloadFile(storageClient common.Storage) func(url string) (reader io.ReadCloser, headers http.Header, e error) {
+	return func(url string) (reader io.ReadCloser, headers http.Header, e error) {
 		return storageClient.Download(url)
 	}
 }

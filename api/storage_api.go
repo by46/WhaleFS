@@ -76,7 +76,7 @@ func NewStorageClient(masters []string) common.Storage {
 	}
 }
 
-func (c *storageClient) Download(fid string) (io.Reader, http.Header, error) {
+func (c *storageClient) Download(fid string) (io.ReadCloser, http.Header, error) {
 	if strings.Contains(fid, "|") {
 		return c.downloadChunks(strings.Split(fid, FIDSep))
 	}
@@ -167,7 +167,7 @@ func (c *storageClient) Upload(option *common.UploadOption, mimeType string, bod
 	return needle, nil
 }
 
-func (c *storageClient) downloadChunks(fids []string) (io.Reader, http.Header, error) {
+func (c *storageClient) downloadChunks(fids []string) (io.ReadCloser, http.Header, error) {
 	return NewChunksReader(c, fids), nil, nil
 }
 

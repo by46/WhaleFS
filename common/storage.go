@@ -36,6 +36,6 @@ func (o *UploadOption) Encode() string {
 }
 
 type Storage interface {
-	Download(fid string) (io.Reader, http.Header, error)
+	Download(fid string) (io.ReadCloser, http.Header, error)
 	Upload(option *UploadOption, mimeType string, body io.Reader) (needle *model.Needle, err error)
 }

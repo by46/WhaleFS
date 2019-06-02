@@ -9,10 +9,10 @@ import (
 type ChunksReader struct {
 	storage common.Storage
 	fids    []string
-	reader  io.Reader
+	reader  io.ReadCloser
 }
 
-func NewChunksReader(storage common.Storage, fids []string) io.Reader {
+func NewChunksReader(storage common.Storage, fids []string) io.ReadCloser {
 	return &ChunksReader{
 		storage: storage,
 		fids:    fids,
@@ -29,6 +29,7 @@ func (r *ChunksReader) Read(p []byte) (n int, err error) {
 		}
 		n, err = r.reader.Read(p)
 		if err == io.EOF {
+			_ = r.reader.Close()
 			r.reader = nil
 			r.fids = r.fids[1:]
 		}
@@ -41,4 +42,11 @@ func (r *ChunksReader) Read(p []byte) (n int, err error) {
 		}
 	}
 	return 0, io.EOF
+}
+
+func (r *ChunksReader) Close() error {
+	if r.reader != nil {
+		return r.reader.Close()
+	}
+	return nil
 }
