@@ -1,9 +1,133 @@
 {
   "system.bucket.mro_item": {
-    "name": "benjamin",
+    "name": "mro_item",
     "memo": "mo bucket",
     "basis": {
-      "collection": "",
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mro_basis": {
+    "name": "mro_basis",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mro_order": {
+    "name": "mro_order",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mro_account": {
+    "name": "mro_account",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.pdt": {
+    "name": "pdt",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "product",
       "replication": "100",
       "expires": 20,
       "prepare_thumbnail_min_width": 1024,

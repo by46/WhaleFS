@@ -177,7 +177,7 @@ func (s *Server) uploadThumbnail(ctx echo.Context, r io.Reader) {
 	size := context.FileContext.Size
 
 	option := &common.UploadOption{
-		Collection:  BucketTmp,
+		Collection:  CollectionNameTmp,
 		Replication: "000",
 	}
 	needle, err := s.Storage.Upload(option, meta.MimeType, r)

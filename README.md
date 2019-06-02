@@ -204,4 +204,4 @@ POST /benjamin/demo/hello.jpg?uploadId=uuid1
 
 
 
-whalefs.exe migrate --location="D:\application\ImageServer\mro_item" --target="192.168.1.9:8089"
+whalefs.exe migrate --location="D:\application\ImageServer" --target="192.168.1.9:8089" --includes="mro_basis,mro_order,mro_account,pdt"
