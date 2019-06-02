@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	"github.com/by46/whalefs/api"
@@ -53,27 +51,6 @@ func BuildConfig() (*model.Config, error) {
 	return srvConfig, nil
 }
 
-func buildLogger(config *model.LogConfig) common.Logger {
-	logger := logrus.New()
-	level, err := logrus.ParseLevel(config.Level)
-	if err != nil {
-		level = logrus.ErrorLevel
-	}
-	logger.SetLevel(level)
-	if err := os.MkdirAll(config.Home, os.ModePerm); err != nil {
-		fmt.Printf("Create Log Directory %s error: %v", config.Home, err)
-		os.Exit(-1)
-	}
-	logFilePath := filepath.Join(config.Home, "error.log")
-	output, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
-	if err != nil {
-		fmt.Printf("Open Log file (%s) err: %v", logFilePath, err)
-		os.Exit(-1)
-	}
-	logger.Out = output
-	return logger
-}
-
 func buildStorage(config *model.StorageConfig) common.Storage {
 	return api.NewStorageClient(config.Cluster)
 }
@@ -96,7 +73,7 @@ func NewServer() *Server {
 		panic(fmt.Errorf("Load config fatal: %s\n", err))
 	}
 
-	logger := buildLogger(config.Log)
+	logger := utils.BuildLogger(config.Log.Home, config.Log.Level)
 	storage := buildStorage(config.Storage)
 	meta := buildDao(config.Meta)
 	chuckDao := buildDao(config.ChunkMeta)
