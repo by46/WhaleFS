@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"path/filepath"
 
 	"github.com/labstack/echo"
@@ -92,6 +93,9 @@ func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) er
 	file.Size = int64(len(buf))
 	file.MimeType = http.DetectContentType(buf)
 	file.Extension = filepath.Ext(form.Filename)
+	if file.Extension == "" {
+		file.Extension = utils.ExtensionByMimeType(file.MimeType)
+	}
 	self.File = file
 	return nil
 }
@@ -112,8 +116,12 @@ func (self *FileContext) parseFileContentFromRemote(source string) error {
 		return errors.WithStack(err)
 	}
 	file.Size = int64(len(file.Content))
-	file.MimeType = response.Header.Get(echo.HeaderContentType)
-	// TODO(benjamin): detect resource extension
+	file.MimeType = http.DetectContentType(file.Content)
+	u, _ := url.Parse(source)
+	file.Extension = filepath.Ext(u.Path)
+	if file.Extension == "" {
+		file.Extension = utils.ExtensionByMimeType(file.MimeType)
+	}
 	self.File = file
 	return nil
 }

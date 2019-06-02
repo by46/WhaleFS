@@ -31,3 +31,8 @@ func TestRandomName(t *testing.T) {
 	assert.True(t, strings.HasSuffix(RandomName("image/png"), ".png"))
 	assert.True(t, strings.HasSuffix(RandomName("application/json"), ".json"))
 }
+
+func TestExtensionByMimeType(t *testing.T) {
+	assert.Equal(t, ".jpg", ExtensionByMimeType("image/jpeg"))
+	assert.Equal(t, "", ExtensionByMimeType("image/unknown"))
+}

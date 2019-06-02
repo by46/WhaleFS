@@ -45,6 +45,14 @@ func MimeTypeByExtension(filename string) string {
 	return t
 }
 
+func ExtensionByMimeType(mimeType string) string {
+	extension, err := mime.ExtensionsByType(mimeType)
+	if err != nil || len(extension) == 0 {
+		return ""
+	}
+	return extension[0]
+}
+
 func RandomName(extension string) string {
 	name := uuid.New().String()
 	if extension != "" {
