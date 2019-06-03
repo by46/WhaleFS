@@ -62,6 +62,8 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 			// 完成multi-chunk上传
 			fileContext.UploadId = uploadId
 		}
+	} else if method == http.MethodHead || method == http.MethodGet {
+		fileContext.AttachmentName = ctx.QueryParam("attachmentName")
 	}
 
 	key = utils.PathNormalize(key)
@@ -171,6 +173,13 @@ func (s *Server) delete(ctx echo.Context) (err error) {
 }
 
 func (s *Server) uploadFile(ctx echo.Context) (err error) {
+	entity, err := s.uploadFileInternal(ctx)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, entity)
+}
+func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity, err error) {
 	context := ctx.(*middleware.ExtendContext)
 	fileContext := context.FileContext
 	file := context.FileContext.File
@@ -191,8 +200,8 @@ func (s *Server) uploadFile(ctx echo.Context) (err error) {
 	if err = s.validateFile(ctx); err != nil {
 		return
 	}
-	key, entity := s.buildMetaFromChunk(ctx)
-	if entity == nil {
+	key, meta := s.buildMetaFromChunk(ctx)
+	if meta == nil {
 		option := &common.UploadOption{
 			Collection:  bucket.Basis.Collection,
 			Replication: bucket.Basis.Replication,
@@ -200,21 +209,21 @@ func (s *Server) uploadFile(ctx echo.Context) (err error) {
 		}
 		needle, err := s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
 		if err != nil {
-			return err
+			return nil, err
 		}
-		entity = needle.AsFileMeta()
+		meta = needle.AsFileMeta()
 		if file.IsImage() {
-			entity.Width, entity.Height = file.Width, file.Height
+			meta.Width, meta.Height = file.Width, file.Height
 		}
-		s.saveChunk(ctx, key, entity)
+		s.saveChunk(ctx, key, meta)
 	}
 
 	hash := fileContext.HashKey()
-	entity.RawKey = fileContext.Key
-	if err = s.Meta.SetTTL(hash, entity, bucket.Basis.TTL.Expiry()); err != nil {
+	meta.RawKey = fileContext.Key
+	if err = s.Meta.SetTTL(hash, meta, bucket.Basis.TTL.Expiry()); err != nil {
 		return
 	}
-	return ctx.JSON(http.StatusOK, entity.AsEntity(fileContext.BucketName, bucket.Name))
+	return meta.AsEntity(fileContext.BucketName, bucket.Name, file.FileName), nil
 }
 
 func (s *Server) buildMetaFromChunk(ctx echo.Context) (string, *model.FileMeta) {

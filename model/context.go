@@ -94,6 +94,7 @@ func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) er
 	file.Size = int64(len(buf))
 	file.MimeType = http.DetectContentType(buf)
 	file.Extension = filepath.Ext(form.Filename)
+	file.FileName = form.Filename
 	if file.Extension == "" {
 		file.Extension = utils.ExtensionByMimeType(file.MimeType)
 	}

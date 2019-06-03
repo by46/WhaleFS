@@ -38,12 +38,12 @@
  22. 支持linux 文件系统原生挂载
 
 
-1. ApiUploadHandler.ashx
+1. ApiUploadHandler.ashx - done
 2. BatchMergePdfHandler.ashx
-3. DownloadHandler.ashx
+3. DownloadHandler.ashx - done
 4. DownloadSaveServerHandler.ashx - done
-5. SliceUploadHandler.ashx
-6. UploadHandler.ashx
+5. SliceUploadHandler.ashx 
+6. UploadHandler.ashx - done
 7. 错误提示多语言
 8. 水印支持文字
 

@@ -35,3 +35,10 @@ func TestPathRemoveSegment(t *testing.T) {
 	assert.Equal(t, "/benjamin/level1/level/hello.jpg", actualResult)
 	assert.Equal(t, "", actualRemoved)
 }
+
+func TestNameWithoutExtension(t *testing.T) {
+	assert.Equal(t, "name", NameWithoutExtension("name"))
+	assert.Equal(t, "name", NameWithoutExtension("name.txt"))
+	assert.Equal(t, "name.tar", NameWithoutExtension("name.tar.gz"))
+	assert.Equal(t, "中国", NameWithoutExtension("中国.txt"))
+}

@@ -3,6 +3,7 @@ package utils
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -50,4 +51,13 @@ func FileExists(path string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func NameWithoutExtension(name string) string {
+	name = filepath.Base(name)
+	ext := filepath.Ext(name)
+	if ext != "" {
+		name = name[:len(name)-len(ext)]
+	}
+	return name
 }

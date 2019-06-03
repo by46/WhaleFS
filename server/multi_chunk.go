@@ -130,7 +130,7 @@ func (s *Server) uploadComplete(ctx echo.Context) (err error) {
 		return err
 	}
 	_ = s.Meta.Delete(key, cas)
-	return ctx.JSON(http.StatusOK, meta.AsEntity(context.FileContext.BucketName, bucket.Name))
+	return ctx.JSON(http.StatusOK, meta.AsEntity(context.FileContext.BucketName, bucket.Name, ""))
 }
 
 //终止multi-chunk上传任务

@@ -67,23 +67,25 @@ func (f *FileMeta) IsImage() bool {
 	return utils.IsImage(f.MimeType)
 }
 
-func (f *FileMeta) AsEntity(bucketName, aliasBucketName string) *FileEntity {
+func (f *FileMeta) AsEntity(bucketName, aliasBucketName, fileName string) *FileEntity {
 	_, objectName := utils.PathRemoveSegment(f.RawKey, 0)
 	key := fmt.Sprintf("%s%s", bucketName, objectName)
 	if ProductBucketName == aliasBucketName {
 		key = strings.TrimLeft(objectName, Separator)
 	}
 	return &FileEntity{
-		Key:     key,
-		Url:     key,
-		Message: "上传成功",
-		State:   "SUCCESS",
-		Size:    f.Size,
+		Key:      key,
+		Url:      key,
+		Original: fileName,
+		Message:  "上传成功",
+		State:    "SUCCESS",
+		Size:     f.Size,
 	}
 }
 
 // 用于记录上传文件内容
 type FileContent struct {
+	FileName  string
 	MimeType  string
 	Size      int64
 	Override  bool
@@ -100,9 +102,11 @@ func (f *FileContent) IsImage() bool {
 
 // 上传接口返回的api
 type FileEntity struct {
-	Key     string `json:"key"`
-	Url     string `json:"url"`
-	Message string `json:"message"`
-	State   string `json:"state"`
-	Size    int64  `json:"size"`
+	Key      string `json:"key"`
+	Url      string `json:"url"`
+	Title    string `json:"title"`
+	Message  string `json:"message"`
+	State    string `json:"state"`
+	Original string `json:"original"`
+	Size     int64  `json:"size"`
 }
