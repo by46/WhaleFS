@@ -2,6 +2,7 @@
 package server
 
 import (
+	"fmt"
 	"mime/multipart"
 	"net/http"
 
@@ -78,7 +79,7 @@ func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 	//shouldMark := utils.ToBool(ctx.QueryParam("Mark"))
 
 	if utils.IsRemote(key) {
-		return s.legacyUploadByRemote(ctx)
+		return s.legacyDownloadFileByRemote(ctx)
 	}
 	bucket, key, size := s.parseBucketAndFileKey(key)
 
@@ -103,5 +104,20 @@ func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 	return s.download(context)
 }
 func (s *Server) legacyDownloadFileByRemote(ctx echo.Context) error {
-	return nil
+	source := ctx.QueryParam("FilePath")
+	fileContext := &model.FileContext{
+		AttachmentName: ctx.QueryParam("FileName"),
+	}
+	if err := fileContext.ParseFileContent(source, nil); err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "文件不存在")
+	}
+	file := fileContext.File
+	ctx.Response().Header().Set(echo.HeaderContentType, file.MimeType)
+	ctx.Response().Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", file.Size))
+
+	if fileContext.AttachmentName != "" {
+		ctx.Response().Header().Set(echo.HeaderContentDisposition, utils.Name2Disposition(ctx.Request().UserAgent(), fileContext.AttachmentName))
+	}
+	_, err := ctx.Response().Write(file.Content)
+	return err
 }
