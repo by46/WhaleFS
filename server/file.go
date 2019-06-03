@@ -291,6 +291,9 @@ func (s *Server) download(ctx echo.Context) (err error) {
 	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))
 	response.Header().Set(echo.HeaderLastModified, utils.TimestampToRFC822(entity.LastModified))
 	response.Header().Set(utils.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
+	if context.FileContext.AttachmentName != "" {
+		response.Header().Set(echo.HeaderContentDisposition, utils.Name2Disposition(ctx.Request().UserAgent(), context.FileContext.AttachmentName))
+	}
 
 	// support gzip
 	if entity.Size >= GzipLimit && entity.IsPlain() && s.shouldGzip(ctx) {
@@ -396,39 +399,4 @@ func (s *Server) validateFile(ctx echo.Context) error {
 		}
 	}
 	return nil
-}
-
-func (s *Server) legacyUploadFile(ctx echo.Context) error {
-	bucketName := ctx.QueryParam("appName")
-	if bucketName == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
-	}
-	bucket, err := s.getBucketByName(bucketName)
-	if err != nil {
-		return err
-	}
-	fileContext := &model.FileContext{
-		Bucket:     bucket,
-		BucketName: bucketName,
-	}
-	form, err := ctx.MultipartForm()
-	if err != nil || form.File == nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "没有文件内容")
-	}
-	var file *multipart.FileHeader
-	for _, value := range form.File {
-		if len(value) > 0 {
-			file = value[0]
-			break
-		}
-	}
-	if file == nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "没有文件内容")
-	}
-	if err := fileContext.ParseFileContent("", file); err != nil {
-		return err
-	}
-	context := &middleware.ExtendContext{ctx, fileContext}
-
-	return s.uploadFile(context)
 }

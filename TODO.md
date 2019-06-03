@@ -38,6 +38,15 @@
  22. 支持linux 文件系统原生挂载
 
 
+1. ApiUploadHandler.ashx
+2. BatchMergePdfHandler.ashx
+3. DownloadHandler.ashx
+4. DownloadSaveServerHandler.ashx - done
+5. SliceUploadHandler.ashx
+6. UploadHandler.ashx
+7. 错误提示多语言
+8. 水印支持文字
+
 目前根据facebook的一篇针对小文件优化的文件系统的论文, 找了一个golang的开源实现, 在此基础上进行开发, https://github.com/chrislusf/seaweedfs
 
 ### 打包下载

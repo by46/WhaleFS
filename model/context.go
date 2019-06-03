@@ -19,18 +19,19 @@ const (
 )
 
 type FileContext struct {
-	Key         string
-	ObjectName  string // 去掉Bucket之后的Key路径
-	BucketName  string
-	UploadId    string
-	Override    bool // 是否允许覆盖已存在文件
-	ExtractFile bool
-	Uploads     bool
-	PartNumber  int32
-	Bucket      *Bucket
-	Meta        *FileMeta
-	File        *FileContent
-	Size        *ImageSize
+	Key            string
+	ObjectName     string // 去掉Bucket之后的Key路径
+	BucketName     string
+	AttachmentName string // 用于浏览器中保存时的别名
+	UploadId       string
+	Override       bool // 是否允许覆盖已存在文件
+	ExtractFile    bool
+	Uploads        bool
+	PartNumber     int32
+	Bucket         *Bucket
+	Meta           *FileMeta
+	File           *FileContent
+	Size           *ImageSize
 }
 
 // parse image size from path, used to resize picture

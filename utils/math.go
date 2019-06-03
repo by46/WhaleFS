@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	Fraction = 0.000001
+	Fraction    = 0.000001
+	LiteralTrue = "true"
 )
 
 func Float64Equal(x, y float64) bool {
@@ -37,4 +38,9 @@ func RatioEval(ratio string) *float64 {
 func ToInt32(value string) int32 {
 	n, _ := strconv.ParseInt(value, 10, 4)
 	return int32(n)
+}
+
+func ToBool(value string) bool {
+	value = strings.ToLower(value)
+	return value == LiteralTrue
 }

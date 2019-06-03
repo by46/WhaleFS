@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"fmt"
+	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -31,4 +34,16 @@ func RFC822ToTime(value string) (time.Time, error) {
 func TimestampToRFC822(second int64) string {
 	dt := time.Unix(second, 0).UTC()
 	return TimeToRFC822(dt)
+}
+
+func Name2Disposition(userAgent, name string) string {
+	if IsBrowserSafari(userAgent) {
+		name = url.PathEscape(name)
+		return fmt.Sprintf("attachment;filename=\"%s\";filename*=utf-8''%s", name, name)
+	} else if IsBrowserIE(userAgent) {
+		name = strings.ReplaceAll(name, "+", "%20")
+		return fmt.Sprintf("attachment;filename=\"%s\"", name)
+	} else {
+		return fmt.Sprintf("attachment;filename=\"%s\"", name)
+	}
 }

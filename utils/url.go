@@ -2,6 +2,7 @@ package utils
 
 import (
 	"net/url"
+	"strings"
 )
 
 func UrlDecode(u string) string {
@@ -10,4 +11,9 @@ func UrlDecode(u string) string {
 		return n
 	}
 	return u
+}
+
+func IsRemote(u string) bool {
+	u = strings.ToLower(u)
+	return strings.HasPrefix("http://", u) || strings.HasPrefix("https://", u) || strings.HasPrefix("ftp://", u)
 }
