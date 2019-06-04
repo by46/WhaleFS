@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/by46/whalefs/common"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -52,6 +53,9 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 	for _, item := range packageEntity.Items {
 		entity, err := s.GetFileEntity(item.RawKey)
 		if err != nil {
+			if err == common.ErrKeyNotFound {
+				return echo.NewHTTPError(http.StatusNotFound)
+			}
 			return errors.WithStack(err)
 		}
 

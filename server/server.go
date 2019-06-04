@@ -140,6 +140,7 @@ func (s *Server) install() {
 	s.app.GET("/metrics", s.metric)
 	s.app.POST("/demo", s.demo)
 	s.app.POST("/UploadHandler.ashx", s.legacyUploadFile)
+	s.app.POST("/BatchDownloadHandler.ashx", s.legacyBatchDownload)
 	s.app.Match(methods, "/DownloadSaveServerHandler.ashx", s.legacyUploadByRemote)
 	s.app.GET("/DownloadHandler.ashx", s.legacyDownloadFile)
 	s.app.Match(methods, "/ApiUploadHandler.ashx", s.legacyApiUpload)

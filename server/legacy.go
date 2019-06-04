@@ -30,10 +30,17 @@ type DownloadZipFile struct {
 	IsLimit     bool              `json:"islimit"`
 }
 
+type ReturnData struct {
+	Status  int8   `json:"status"`
+	Message string `json:"message"`
+	Url     string `json:"url"`
+	Path    string `json:"path"`
+}
+
 const (
-	ResultCodeSuccess    = "1000";
-	ResultCodeFailed     = "1001";
-	ResultMessageSuccess = "调用成功";
+	ResultCodeSuccess    = "1000"
+	ResultCodeFailed     = "1001"
+	ResultMessageSuccess = "调用成功"
 	ResultMessageFailed  = "调用失败"
 )
 
@@ -145,7 +152,8 @@ func (s *Server) legacyDownloadFileByRemote(ctx echo.Context) error {
 func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	downloadZipFile := new(DownloadZipFile)
 	if err := ctx.Bind(downloadZipFile); err != nil {
-		return err
+		s.Logger.Error(err)
+		return returnMessage(ctx, "参数错误")
 	}
 
 	var pkgFileItems []model.PkgFileItem
@@ -166,39 +174,45 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 
 	err := packageEntity.Validate()
 	if err != nil {
-		return errors.WithStack(err)
+		s.Logger.Error(err)
+		return returnMessage(ctx, "参数错误")
 	}
 
 	var totalSize int64
 	for _, item := range packageEntity.Items {
 		entity, err := s.GetFileEntity(item.RawKey)
 		if err != nil {
+			if err == common.ErrKeyNotFound {
+				return returnMessage(ctx, "文件不存在")
+			}
 			return errors.WithStack(err)
 		}
 
 		totalSize = totalSize + entity.Size
 	}
 
-	if totalSize > s.TaskFileSizeThreshold {
-		hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, packageEntity.Name))
-		err = s.CreateTask(hashKey, packageEntity)
-		err = ctx.Redirect(http.StatusMovedPermanently, "/tasks?key="+hashKey)
-		return err
+	if downloadZipFile.IsLimit && totalSize > s.TaskFileSizeThreshold {
+		return returnMessage(ctx, "文件太大，请分供应商下载或到详情页面下载")
 	}
 
 	response := ctx.Response()
 
-	pkgType := packageEntity.GetPkgType()
-
-	if pkgType == utils.Tar {
-		response.Header().Set(echo.HeaderContentType, "application/tar")
-	} else {
-		response.Header().Set(echo.HeaderContentType, "application/zip")
-	}
+	response.Header().Set(echo.HeaderContentType, "application/zip")
 
 	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", packageEntity.GetPkgName()))
 
 	return Package(packageEntity, response, s.GetFileEntity, s.Storage.Download)
+}
+
+func returnMessage(ctx echo.Context, msg string) error {
+	returnData := ReturnData{
+		Status:  0,
+		Url:     "",
+		Path:    "",
+		Message: msg,
+	}
+	err := ctx.JSON(200, returnData)
+	return err
 }
 
 // ApiUploadHandler.ashx
