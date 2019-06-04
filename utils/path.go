@@ -19,6 +19,15 @@ func PathSegment(path string, i int) string {
 	return segments[i]
 }
 
+func PathLastSegment(path string) string {
+	path = strings.TrimLeft(path, Separator)
+	segments := strings.Split(path, Separator)
+	if len(segments) <= 1 {
+		return path
+	}
+	return segments[len(segments)-1]
+}
+
 func PathRemoveSegment(path string, i int) (removed string, result string) {
 	segments := strings.Split(strings.TrimLeft(path, Separator), Separator)
 	if len(segments) <= i {

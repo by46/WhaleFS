@@ -35,3 +35,9 @@ func TestPathRemoveSegment(t *testing.T) {
 	assert.Equal(t, "/benjamin/level1/level/hello.jpg", actualResult)
 	assert.Equal(t, "", actualRemoved)
 }
+
+func TestPathLastSegment(t *testing.T) {
+	assert.Equal(t, "test", PathLastSegment("test"))
+	assert.Equal(t, "test", PathLastSegment("/test"))
+	assert.Equal(t, "test", PathLastSegment("/benjamin/test"))
+}
