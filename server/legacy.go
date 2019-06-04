@@ -11,18 +11,24 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hhrutter/pdfcpu/pkg/api"
-	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
-	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 
+	"github.com/hhrutter/pdfcpu/pkg/api"
+	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
 	pdf "github.com/hhrutter/pdfcpu/pkg/pdfcpu"
+	"github.com/labstack/echo"
 
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
 )
+
+type DownloadZipFile struct {
+	ZipFileName string            `json:"zipFileName"`
+	Attachments map[string]string `json:"attachments"`
+	IsLimit     bool              `json:"islimit"`
+}
 
 const (
 	ResultCodeSuccess    = "1000";
@@ -134,6 +140,65 @@ func (s *Server) legacyDownloadFileByRemote(ctx echo.Context) error {
 	}
 	_, err := ctx.Response().Write(file.Content)
 	return err
+}
+
+func (s *Server) legacyBatchDownload(ctx echo.Context) error {
+	downloadZipFile := new(DownloadZipFile)
+	if err := ctx.Bind(downloadZipFile); err != nil {
+		return err
+	}
+
+	var pkgFileItems []model.PkgFileItem
+	for k, v := range downloadZipFile.Attachments {
+		item := model.PkgFileItem{
+			RawKey: k,
+			Target: v,
+		}
+
+		pkgFileItems = append(pkgFileItems, item)
+	}
+
+	packageEntity := &model.PackageEntity{
+		Name:  utils.PathLastSegment(downloadZipFile.ZipFileName),
+		Items: pkgFileItems,
+		Type:  model.Zip,
+	}
+
+	err := packageEntity.Validate()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	var totalSize int64
+	for _, item := range packageEntity.Items {
+		entity, err := s.GetFileEntity(item.RawKey)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		totalSize = totalSize + entity.Size
+	}
+
+	if totalSize > s.TaskFileSizeThreshold {
+		hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, packageEntity.Name))
+		err = s.CreateTask(hashKey, packageEntity)
+		err = ctx.Redirect(http.StatusMovedPermanently, "/tasks?key="+hashKey)
+		return err
+	}
+
+	response := ctx.Response()
+
+	pkgType := packageEntity.GetPkgType()
+
+	if pkgType == utils.Tar {
+		response.Header().Set(echo.HeaderContentType, "application/tar")
+	} else {
+		response.Header().Set(echo.HeaderContentType, "application/zip")
+	}
+
+	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", packageEntity.GetPkgName()))
+
+	return Package(packageEntity, response, s.GetFileEntity, s.Storage.Download)
 }
 
 // ApiUploadHandler.ashx

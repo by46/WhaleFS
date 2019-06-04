@@ -42,3 +42,9 @@ func TestNameWithoutExtension(t *testing.T) {
 	assert.Equal(t, "name.tar", NameWithoutExtension("name.tar.gz"))
 	assert.Equal(t, "中国", NameWithoutExtension("中国.txt"))
 }
+
+func TestPathLastSegment(t *testing.T) {
+	assert.Equal(t, "test", PathLastSegment("test"))
+	assert.Equal(t, "test", PathLastSegment("/test"))
+	assert.Equal(t, "test", PathLastSegment("/benjamin/test"))
+}

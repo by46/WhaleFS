@@ -14,7 +14,7 @@ const (
 )
 
 type PackageUnitEntity struct {
-	Reader io.Reader
+	Reader io.ReadCloser
 	Size   int64
 	Target string
 }
@@ -38,6 +38,7 @@ func TarUnit(tw *tar.Writer, tarEntity *PackageUnitEntity) error {
 		return err
 	}
 	_, err = io.Copy(tw, tarEntity.Reader)
+	err = tarEntity.Reader.Close()
 
 	return err
 }
@@ -55,5 +56,7 @@ func ZipUnit(zw *zip.Writer, zipEntity *PackageUnitEntity) error {
 		return err
 	}
 	_, err = io.Copy(writer, zipEntity.Reader)
+	err = zipEntity.Reader.Close()
+
 	return err
 }
