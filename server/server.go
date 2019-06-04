@@ -101,21 +101,6 @@ func (s *Server) install() {
 
 	s.app.Use(middleware.Logger())
 
-	//s.app.Use(middleware2.InjectContext())
-
-	//s.app.Use(middleware2.ParseFileParams(middleware2.ParseFileParamsConfig{
-	//	Server: s,
-	//	Skipper: func(context echo.Context) bool {
-	//		url := strings.ToLower(context.Request().URL.Path)
-	//		return url == "/tools" ||
-	//			url == "/packagedownload" ||
-	//			url == "/pkgdownloadtool" ||
-	//			url == "/tasks" ||
-	//			url == "/metric" ||
-	//			url == "/favicon.ico"
-	//	},
-	//}))
-
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST},
@@ -145,13 +130,8 @@ func (s *Server) install() {
 	s.app.GET("/DownloadHandler.ashx", s.legacyDownloadFile)
 	s.app.Match(methods, "/ApiUploadHandler.ashx", s.legacyApiUpload)
 	s.app.Match(methods, "/BatchMergePdfHandler.ashx", s.legacyMergePDF)
+	s.app.Match(methods, "/SliceUploadHandler.ashx", s.legacySliceUpload)
 	s.app.Match(methods, "/*", s.file)
-}
-
-func (s *Server) hashKey(uri string) (string, error) {
-	key := strings.ToLower(uri)
-	key = strings.TrimLeft(uri, "/")
-	return utils.Sha1(key)
 }
 
 func (s *Server) ListenAndServe() {
@@ -160,5 +140,4 @@ func (s *Server) ListenAndServe() {
 	if err := s.app.Start(address); err != nil {
 		s.Logger.Fatalf("Listen error %v\n", err)
 	}
-
 }

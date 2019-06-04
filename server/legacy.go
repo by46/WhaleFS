@@ -8,7 +8,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -42,11 +44,17 @@ const (
 	ResultCodeFailed     = "1001"
 	ResultMessageSuccess = "调用成功"
 	ResultMessageFailed  = "调用失败"
+	AppName              = "appName"
+	ActionCancel         = "cancel"
+)
+
+var (
+	ReInteger = regexp.MustCompile("^[0-9]+$")
 )
 
 // UploadHandler.ashx
 func (s *Server) legacyUploadFile(ctx echo.Context) error {
-	bucketName := ctx.QueryParam("appName")
+	bucketName := ctx.QueryParam(AppName)
 	if bucketName == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
 	}
@@ -75,7 +83,7 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 
 // DownloadSaveServerHandler.ashx
 func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
-	bucketName := ctx.QueryParam("appName")
+	bucketName := ctx.QueryParam(AppName)
 	if bucketName == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
 	}
@@ -303,9 +311,101 @@ func (s *Server) legacyMergePDF(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = ctx.Response().Write([]byte(entity.Key))
-	return err
+	return ctx.String(http.StatusOK, entity.Key)
 }
+
+// SliceUploadHandler.ashx
+func (s *Server) legacySliceUpload(ctx echo.Context) error {
+	appName := strings.ToLower(ctx.QueryParam(AppName))
+	identity := strings.TrimSpace(ctx.QueryParam("FileIdentity"))
+	if identity == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "缺少FileIdentity")
+	}
+	if appName == "" {
+		if ActionCancel == strings.TrimSpace(ctx.QueryParam("Action")) {
+			return s.legacySliceUploadAbort(ctx, identity)
+		}
+		return s.legacySliceUploadChunk(ctx, identity)
+	}
+	return s.legacySliceUploadComplete(ctx, appName, identity)
+}
+
+func (s *Server) legacySliceUploadChunk(ctx echo.Context, identity string) error {
+	positionValue := strings.TrimSpace(ctx.QueryParam("startPosition"))
+
+	if ReInteger.MatchString(positionValue) == false {
+		return echo.NewHTTPError(http.StatusBadRequest, "StartPosition未设置")
+	}
+	position := utils.ToInt32(positionValue)
+
+	key, _ := utils.Sha1(identity)
+	key = fmt.Sprintf("chunks:%s", key)
+	fileContext := new(model.FileContext)
+
+	if err := fileContext.ParseFileContentFromRequest(ctx); err != nil {
+		return errors.WithMessage(err, "读取文件失败")
+	}
+
+	meta := &model.PartMeta{Parts: make(model.Parts, 0)}
+	if err := s.Meta.Get(key, meta); err != nil {
+		if err = s.Meta.SetTTL(key, meta, TTLChunk); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+	opt := &common.UploadOption{
+		Collection:  s.Config.Basis.CollectionShare,
+		Replication: ReplicationOne,
+	}
+	needle, err := s.Storage.Upload(opt, echo.MIMEOctetStream, bytes.NewReader(fileContext.File.Content))
+	if err != nil {
+		return err
+	}
+	part := &model.Part{
+		FID:        needle.FID,
+		Size:       needle.Size,
+		PartNumber: position,
+	}
+	if err := s.Meta.SubListAppend(key, "parts", part, 0); err != nil {
+		return errors.WithMessage(err, "更新文件Parts失败")
+	}
+	return ctx.String(http.StatusOK, identity)
+}
+
+func (s *Server) legacySliceUploadComplete(ctx echo.Context, appName, identity string) error {
+	bucket, err := s.getBucketByName(appName)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "未正确设置Bucket")
+	}
+	key, _ := utils.Sha1(identity)
+	key = fmt.Sprintf("chunks:%s", key)
+	partMeta := &model.PartMeta{}
+	if err := s.Meta.Get(key, partMeta); err != nil {
+		return errors.WithMessage(err, "获取文件信息失败")
+	}
+
+	fileName := ctx.QueryParam("FileName")
+	relativePath := ctx.QueryParam("RelativePath")
+	relativePath = strings.ReplaceAll(relativePath, "\\", model.Separator)
+	fileKey := path.Join(model.Separator, appName, relativePath, fileName)
+
+	meta := partMeta.AsFileMeta()
+	meta.RawKey = fileKey
+	if err := s.Meta.SetTTL(fileKey, meta, bucket.Basis.TTL.Expiry()); err != nil {
+		return errors.WithMessage(err, "设置文件内容失败")
+	}
+	if err := s.Meta.Delete(key, 0); err != nil {
+		return errors.WithMessage(err, "删除临时文件失败")
+	}
+	return ctx.JSON(http.StatusOK, meta.AsEntity(appName, bucket.Name, fileName))
+}
+
+func (s *Server) legacySliceUploadAbort(ctx echo.Context, identity string) error {
+	key, _ := utils.Sha1(identity)
+	key = fmt.Sprintf("chunks:%s", key)
+	return s.Meta.Delete(key, 0)
+}
+
+// end SliceUploadHandler.ashx
 
 func (s *Server) legacyDownloadFileByFile(ctx echo.Context, key string) (*utils.PDFFile, error) {
 	_, key, _ = s.parseBucketAndFileKey(key)

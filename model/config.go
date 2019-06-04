@@ -9,8 +9,19 @@ type StorageConfig struct {
 	Cluster []string
 }
 
+type CollectionConfig struct {
+	Tmp   string `default:"tmp"`
+	Share string `default:"mass"`
+}
+
+type BasisConfig struct {
+	CollectionTmp   string `default:"tmp"`
+	CollectionShare string `default:"mass"`
+}
+
 type Config struct {
 	Host                  string `default:":8080"`
+	Basis                 *BasisConfig
 	Storage               *StorageConfig
 	Master                []string
 	Debug                 bool `default:"false"`

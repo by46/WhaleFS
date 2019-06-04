@@ -17,7 +17,7 @@ import (
 )
 
 // 生成multi-chunk上传任务
-func (s *Server) uploads(ctx echo.Context) (err error) {
+func (s *Server) uploads(ctx echo.Context) (uploads *model.Uploads, err error) {
 	context := ctx.(*middleware.ExtendContext)
 	fileContext := context.FileContext
 	bucket := context.FileContext.Bucket
@@ -27,7 +27,7 @@ func (s *Server) uploads(ctx echo.Context) (err error) {
 	if mimeType == "" {
 		mimeType = echo.MIMEOctetStream
 	}
-	uploads := &model.Uploads{
+	uploads = &model.Uploads{
 		Bucket:   bucket.Name,
 		Key:      context.FileContext.Key,
 		UploadId: uploadId,
@@ -44,14 +44,14 @@ func (s *Server) uploads(ctx echo.Context) (err error) {
 	}
 	key := fmt.Sprintf("chunks:%s", uploadId)
 	if err = s.Meta.SetTTL(key, partMeta, TTLChunk); err != nil {
-		return err
+		return nil, err
 	}
 	s.Logger.Info("multi-chunk upload : %s", key)
-	return ctx.JSON(http.StatusOK, uploads)
+	return uploads, nil
 }
 
 // 上传multi-chunk分块
-func (s *Server) uploadPart(ctx echo.Context) (err error) {
+func (s *Server) uploadPart(ctx echo.Context) (part *model.Part, err error) {
 	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileContext.Bucket
 	file := context.FileContext.File
@@ -65,7 +65,7 @@ func (s *Server) uploadPart(ctx echo.Context) (err error) {
 		}
 		needle, err := s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
 		if err != nil {
-			return err
+			return nil, err
 		}
 		entity = needle.AsFileMeta()
 		s.saveChunk(ctx, key, entity)
@@ -73,26 +73,26 @@ func (s *Server) uploadPart(ctx echo.Context) (err error) {
 
 	chunkKey := fmt.Sprintf("chunks:%s", context.FileContext.UploadId)
 
-	part := &model.Part{
+	part = &model.Part{
 		PartNumber: context.FileContext.PartNumber,
 		FID:        entity.FID,
 		Size:       entity.Size,
 	}
 	if err = s.Meta.SubListAppend(chunkKey, "parts", part, 0); err != nil {
-		return err
+		return nil, err
 	}
-	return ctx.JSON(http.StatusOK, part)
+	return part, nil
 }
 
 // 完成multi-chunk上传任务
-func (s *Server) uploadComplete(ctx echo.Context) (err error) {
+func (s *Server) uploadComplete(ctx echo.Context) (entity *model.FileEntity, err error) {
 	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileContext.Bucket
 	var cas uint64
 
 	parts := make([]*model.Part, 0)
 	if err = ctx.Bind(&parts); err != nil {
-		return err
+		return nil, err
 	}
 
 	uploadId := context.FileContext.UploadId
@@ -101,7 +101,7 @@ func (s *Server) uploadComplete(ctx echo.Context) (err error) {
 	partMeta := new(model.PartMeta)
 
 	if cas, err = s.Meta.GetWithCas(key, partMeta); err != nil {
-		return err
+		return nil, err
 	}
 
 	mapping := make(map[int32]*model.Part)
@@ -119,18 +119,17 @@ func (s *Server) uploadComplete(ctx echo.Context) (err error) {
 	for _, part := range parts {
 		serverPart, exists := mapping[part.PartNumber]
 		if !exists {
-			ctx.Response().WriteHeader(http.StatusBadRequest)
-			return nil
+			return nil, echo.NewHTTPError(http.StatusBadRequest, "分块不存在")
 		}
 		meta.Size += serverPart.Size
 		ids = append(ids, serverPart.FID)
 	}
 	meta.FID = strings.Join(ids, FIDSep)
 	if err = s.Meta.SetTTL(meta.RawKey, meta, bucket.Basis.TTL.Expiry()); err != nil {
-		return err
+		return nil, err
 	}
 	_ = s.Meta.Delete(key, cas)
-	return ctx.JSON(http.StatusOK, meta.AsEntity(context.FileContext.BucketName, bucket.Name, ""))
+	return meta.AsEntity(context.FileContext.BucketName, bucket.Name, ""), nil
 }
 
 //终止multi-chunk上传任务
