@@ -54,7 +54,7 @@ var (
 
 // UploadHandler.ashx
 func (s *Server) legacyUploadFile(ctx echo.Context) error {
-	bucketName := ctx.QueryParam(AppName)
+	bucketName := utils.Params(ctx, AppName)
 	if bucketName == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
 	}
@@ -83,7 +83,7 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 
 // DownloadSaveServerHandler.ashx
 func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
-	bucketName := ctx.QueryParam(AppName)
+	bucketName := utils.Params(ctx, AppName)
 	if bucketName == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
 	}
@@ -95,8 +95,8 @@ func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
 		Bucket:     bucket,
 		BucketName: bucketName,
 	}
-	source := ctx.QueryParam("FileUrl")
-	if source != "" {
+	source := utils.Params(ctx, "FileUrl")
+	if source == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "FileUrl不能为空")
 	}
 	if err := fileContext.ParseFileContent(source, nil); err != nil {

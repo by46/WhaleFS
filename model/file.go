@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"net/textproto"
+	"path"
 	"strings"
 	"time"
 
@@ -76,6 +77,7 @@ func (f *FileMeta) AsEntity(bucketName, aliasBucketName, fileName string) *FileE
 	return &FileEntity{
 		Key:      key,
 		Url:      key,
+		Title:    path.Base(key),
 		Original: fileName,
 		Message:  "上传成功",
 		State:    "SUCCESS",
