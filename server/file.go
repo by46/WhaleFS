@@ -179,6 +179,7 @@ func (s *Server) uploadFile(ctx echo.Context) (err error) {
 	}
 	return ctx.JSON(http.StatusOK, entity)
 }
+
 func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity, err error) {
 	context := ctx.(*middleware.ExtendContext)
 	fileContext := context.FileContext

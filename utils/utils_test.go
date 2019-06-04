@@ -2,8 +2,12 @@ package utils
 
 import (
 	"encoding/json"
+	"os"
 	"testing"
 
+	"github.com/hhrutter/pdfcpu/pkg/api"
+	pdf "github.com/hhrutter/pdfcpu/pkg/pdfcpu"
+	"github.com/labstack/gommon/log"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,4 +36,34 @@ func TestJson(t *testing.T) {
 	err = json.Unmarshal([]byte(content), a)
 	assert.Nil(t, err)
 	assert.Equal(t, &A{Name: "benjamin", Sizes: make(Sizes)}, a)
+}
+
+func TestPDFMerge(t *testing.T) {
+	rr := make([]pdf.ReadSeekerCloser, 0)
+	files := []string{"../sample/raft.pdf", "../sample/Beaver.pdf"}
+	for _, name := range files {
+		f, err := os.Open(name)
+		if err != nil {
+			log.Fatalf("open file %s failed %v\n", name, err)
+		}
+		rr = append(rr, f)
+	}
+
+	defer func() {
+		for _, closer := range rr {
+			_ = closer.Close()
+		}
+	}()
+
+	config := pdf.NewDefaultConfiguration()
+	config.Cmd = pdf.MERGE
+
+	ctx, err := api.MergeContexts(rr, config)
+	assert.Nil(t, err)
+
+	out, err := os.Create("../sample/merge2.pdf")
+	assert.Nil(t, err)
+	defer func() { _ = out.Close() }()
+
+	_ = api.WriteContext(ctx, out)
 }

@@ -7,10 +7,11 @@ require (
 	github.com/disintegration/imaging v1.6.0
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/uuid v1.1.1
+	github.com/hhrutter/pdfcpu v0.1.23
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/labstack/echo v3.3.10+incompatible
-	github.com/labstack/gommon v0.0.0-20190125185610-82ef680aef51 // indirect
+	github.com/labstack/gommon v0.0.0-20190125185610-82ef680aef51
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mholt/binding v0.3.0
 	github.com/opentracing/opentracing-go v1.1.0 // indirect
@@ -27,7 +28,7 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/syndtr/goleveldb v1.0.0
 	github.com/valyala/fasttemplate v1.0.1 // indirect
-	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
+	golang.org/x/image v0.0.0-20181116024801-cd38e8056d9b
 	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5 // indirect
 	gopkg.in/couchbase/gocb.v1 v1.6.1
 	gopkg.in/couchbase/gocbcore.v7 v7.1.13 // indirect
@@ -40,7 +41,9 @@ replace (
 	golang.org/x/crypto v0.0.0-20180904163835-0709b304e793 => github.com/golang/crypto v0.0.0-20180904163835-0709b304e793
 	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9 => github.com/golang/crypto v0.0.0-20181203042331-505ab145d0a9
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2 => github.com/golang/crypto v0.0.0-20190308221718-c2843e01d9a2
+	golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c => github.com/golang/crypto v0.0.0-20190325154230-a5d413f7728c
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81 => github.com/golang/image v0.0.0-20180708004352-c73c2afc3b81
+	golang.org/x/image v0.0.0-20181116024801-cd38e8056d9b => github.com/golang/image v0.0.0-20181116024801-cd38e8056d9b
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd => github.com/golang/net v0.0.0-20180906233101-161cd47e91fd
 	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a => github.com/golang/net v0.0.0-20181114220301-adae6a3d119a
 	golang.org/x/net v0.0.0-20190311183353-d8887717615a => github.com/golang/net v0.0.0-20190311183353-d8887717615a
