@@ -34,9 +34,10 @@ func (p Parts) Swap(i, j int) {
 }
 
 type PartMeta struct {
-	Key      string `json:"key"`
-	MimeType string `json:"mimeType"`
-	Parts    Parts  `json:"parts"`
+	Key          string `json:"key"`
+	MimeType     string `json:"mimeType"`
+	IsRandomName bool   `json:"is_random_name"`
+	Parts        Parts  `json:"parts"`
 }
 
 func (p *PartMeta) AsFileMeta() *FileMeta {

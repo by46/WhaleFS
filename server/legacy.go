@@ -396,7 +396,7 @@ func (s *Server) legacySliceUploadComplete(ctx echo.Context, appName, identity s
 	if err := s.Meta.Delete(key, 0); err != nil {
 		return errors.WithMessage(err, "删除临时文件失败")
 	}
-	return ctx.JSON(http.StatusOK, meta.AsEntity(appName, bucket.Name, fileName))
+	return ctx.JSON(http.StatusOK, meta.AsEntity(appName, fileName))
 }
 
 func (s *Server) legacySliceUploadAbort(ctx echo.Context, identity string) error {

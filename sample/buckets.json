@@ -269,6 +269,14 @@
         "image/png"
       ]
     },
+    "sizes": [
+      {
+        "name": "p90",
+        "width": 90,
+        "height": 90,
+        "mode": "stretch"
+      }
+    ],
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },

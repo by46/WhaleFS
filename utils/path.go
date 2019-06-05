@@ -41,8 +41,14 @@ func PathRemoveSegment(path string, i int) (removed string, result string) {
 }
 
 func PathNormalize(path string) string {
+	path = strings.ToLower(path)
 	segments := strings.Split(path, Separator)
 	segments = Filter(segments, func(s string) bool { return s != "" })
+	if len(segments) > 2 {
+		if segments[1] == "original" {
+			segments = append(segments[:1], segments[2:]...)
+		}
+	}
 	return Separator + strings.Join(segments, Separator)
 }
 

@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"os"
-	"path"
 	"testing"
 
 	"github.com/hhrutter/pdfcpu/pkg/api"
@@ -69,6 +68,3 @@ func TestPDFMerge(t *testing.T) {
 	_ = api.WriteContext(ctx, out)
 }
 
-func TestPathJoin(t *testing.T) {
-	assert.Equal(t, "/hello/hello2/hello3", path.Join("/", "/hello", "hello2/hello3"))
-}

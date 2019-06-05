@@ -33,14 +33,16 @@ func (s *Server) uploads(ctx echo.Context) (uploads *model.Uploads, err error) {
 		UploadId: uploadId,
 	}
 	if fileContext.ObjectName == "" {
+		fileContext.IsRandomName = true
 		fileContext.ObjectName = utils.RandomName(mimeType)
 		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.Name, fileContext.ObjectName)
 		uploads.Key = fileContext.Key
 	}
 	partMeta := &model.PartMeta{
-		Key:      context.FileContext.Key,
-		MimeType: mimeType,
-		Parts:    []*model.Part{},
+		Key:          context.FileContext.Key,
+		MimeType:     mimeType,
+		IsRandomName: fileContext.IsRandomName,
+		Parts:        []*model.Part{},
 	}
 	key := fmt.Sprintf("chunks:%s", uploadId)
 	if err = s.Meta.SetTTL(key, partMeta, TTLChunk); err != nil {
@@ -113,6 +115,7 @@ func (s *Server) uploadComplete(ctx echo.Context) (entity *model.FileEntity, err
 	meta := &model.FileMeta{
 		RawKey:       partMeta.Key,
 		MimeType:     partMeta.MimeType,
+		IsRandomName: partMeta.IsRandomName,
 		LastModified: time.Now().UTC().Unix(),
 	}
 	ids := make([]string, 0)
@@ -129,7 +132,7 @@ func (s *Server) uploadComplete(ctx echo.Context) (entity *model.FileEntity, err
 		return nil, err
 	}
 	_ = s.Meta.Delete(key, cas)
-	return meta.AsEntity(context.FileContext.BucketName, bucket.Name, ""), nil
+	return meta.AsEntity(context.FileContext.BucketName, ""), nil
 }
 
 //终止multi-chunk上传任务

@@ -206,7 +206,7 @@ func (b *Bucket) getExtendInt(key string) int {
 
 // 获取图片切片信息
 func (b *Bucket) GetSize(name string) *ImageSize {
-	if b.Sizes == nil {
+	if len(b.Sizes) == 0 {
 		return nil
 	}
 
@@ -249,4 +249,8 @@ func (b *Bucket) GetOverlay(name string) *ImageOverlay {
 	} else {
 		return b.Overlay
 	}
+}
+
+func (b *Bucket) HasSizes() bool {
+	return len(b.Sizes) != 0
 }

@@ -36,6 +36,7 @@ type FileMeta struct {
 	Width        int        `json:"width,omitempty"`
 	Height       int        `json:"height,omitempty"`
 	Thumbnails   Thumbnails `json:"thumbnails,omitempty"`
+	IsRandomName bool       `json:"is_random_name,omitempty"`
 }
 
 func (f *FileMeta) LastModifiedTime() time.Time {
@@ -68,11 +69,13 @@ func (f *FileMeta) IsImage() bool {
 	return utils.IsImage(f.MimeType)
 }
 
-func (f *FileMeta) AsEntity(bucketName, aliasBucketName, fileName string) *FileEntity {
-	_, objectName := utils.PathRemoveSegment(f.RawKey, 0)
+func (f *FileMeta) AsEntity(bucketName, fileName string) *FileEntity {
+	aliasBucketName, objectName := utils.PathRemoveSegment(f.RawKey, 0)
 	key := fmt.Sprintf("%s%s", bucketName, objectName)
 	if ProductBucketName == aliasBucketName {
 		key = strings.TrimLeft(objectName, Separator)
+	} else if f.IsRandomName {
+		key = fmt.Sprintf("%s/Original%s", bucketName, objectName)
 	}
 	return &FileEntity{
 		Key:      key,

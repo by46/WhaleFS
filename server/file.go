@@ -199,6 +199,7 @@ func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity,
 	bucket := context.FileContext.Bucket
 
 	if fileContext.ObjectName == "" {
+		fileContext.IsRandomName = true
 		fileContext.ObjectName = utils.RandomName(file.Extension)
 		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.Name, fileContext.ObjectName)
 	}
@@ -233,10 +234,11 @@ func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity,
 
 	hash := fileContext.HashKey()
 	meta.RawKey = fileContext.Key
+	meta.IsRandomName = fileContext.IsRandomName
 	if err = s.Meta.SetTTL(hash, meta, bucket.Basis.TTL.Expiry()); err != nil {
 		return
 	}
-	return meta.AsEntity(fileContext.BucketName, bucket.Name, file.FileName), nil
+	return meta.AsEntity(fileContext.BucketName, file.FileName), nil
 }
 
 func (s *Server) buildMetaFromChunk(ctx echo.Context) (string, *model.FileMeta) {
