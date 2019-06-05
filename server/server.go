@@ -2,6 +2,9 @@ package server
 
 import (
 	"fmt"
+	"github.com/BurntSushi/toml"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 	"net/http"
 	"os"
 	"strings"
@@ -31,6 +34,7 @@ type Server struct {
 	buckets               *sync.Map
 	TaskBucketName        string
 	TaskFileSizeThreshold int64
+	I18nBundle            *i18n.Bundle
 }
 
 func BuildConfig() (*model.Config, error) {
@@ -63,6 +67,15 @@ func buildTaskMeta(config *model.Config) common.Task {
 	return api.NewTaskClient(config.TaskBucket)
 }
 
+func buildI18nBundle() *i18n.Bundle {
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	bundle.MustLoadMessageFile("i18n/error_message.zh.toml")
+	bundle.MustLoadMessageFile("i18n/error_message.en.toml")
+
+	return bundle
+}
+
 func NewServer() *Server {
 	config, err := BuildConfig()
 	if err != nil {
@@ -75,6 +88,7 @@ func NewServer() *Server {
 	chuckDao := BuildDao(config.ChunkMeta)
 	bucketMeta := BuildDao(config.BucketMeta)
 	taskMeta := buildTaskMeta(config)
+	bundle := buildI18nBundle()
 	app := echo.New()
 
 	srv := &Server{
@@ -90,6 +104,7 @@ func NewServer() *Server {
 		TaskBucketName:        config.TaskFileBucketName,
 		TaskMeta:              taskMeta,
 		TaskFileSizeThreshold: config.TaskFileSizeThreshold,
+		I18nBundle:            bundle,
 	}
 	srv.install()
 	return srv

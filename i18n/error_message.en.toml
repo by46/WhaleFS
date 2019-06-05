@@ -1,0 +1,5 @@
+HelloPerson = "Hello {{.Name}}"
+bucketNameNotCorrect = "bucket name not correct"
+invalidParam = "invalid parameter"
+fileNotFound = "file not found"
+fileTooLarge = "package file is too large"
