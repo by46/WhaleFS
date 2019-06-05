@@ -23,6 +23,8 @@ func TestMimeTypeByExtension(t *testing.T) {
 	assert.Equal(t, "image/png", MimeTypeByExtension("file.png"))
 	assert.Equal(t, "image/bmp", MimeTypeByExtension("file.bmp"))
 	assert.Equal(t, "text/plain; charset=utf-8", MimeTypeByExtension("file.go"))
+	assert.Equal(t, "application/x-sh", MimeTypeByExtension("file.sh"))
+	assert.Equal(t, "application/x-sh", MimeTypeByExtension("file.bash"))
 	assert.Equal(t, "application/octet-stream", MimeTypeByExtension("file.xxx"))
 }
 

@@ -55,7 +55,7 @@ func buildStorage(config *model.StorageConfig) common.Storage {
 	return api.NewStorageClient(config.Cluster)
 }
 
-func buildDao(connectionString string) common.Dao {
+func BuildDao(connectionString string) common.Dao {
 	return api.NewMetaClient(connectionString)
 }
 
@@ -71,9 +71,9 @@ func NewServer() *Server {
 
 	logger := utils.BuildLogger(config.Log.Home, config.Log.Level)
 	storage := buildStorage(config.Storage)
-	meta := buildDao(config.Meta)
-	chuckDao := buildDao(config.ChunkMeta)
-	bucketMeta := buildDao(config.BucketMeta)
+	meta := BuildDao(config.Meta)
+	chuckDao := BuildDao(config.ChunkMeta)
+	bucketMeta := BuildDao(config.BucketMeta)
 	taskMeta := buildTaskMeta(config)
 	app := echo.New()
 

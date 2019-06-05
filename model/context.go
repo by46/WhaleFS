@@ -111,11 +111,11 @@ func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader,
 	file.Headers = headers
 	file.Content = buf
 	file.Size = int64(len(buf))
-	file.MimeType = http.DetectContentType(buf)
 	file.FileName = filename
 	file.Extension = filepath.Ext(filename)
-	if file.Extension == "" {
-		file.Extension = utils.ExtensionByMimeType(file.MimeType)
+	file.MimeType = http.DetectContentType(buf)
+	if file.MimeType == echo.MIMEOctetStream {
+		file.MimeType = utils.MimeTypeByExtension(filename)
 	}
 	file.Digest, err = utils.ContentSha1(bytes.NewReader(buf))
 	if err != nil {
