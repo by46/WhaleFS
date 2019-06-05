@@ -9,6 +9,9 @@ TaskFileBucketName: benjamin
 TaskFileSizeThreshold: 1073741824
 HttpClientBase: http://localhost:8089
 TempFileDir: ./tmp/
+Basis:
+  CollectionTmp: tmp
+  CollectionShare: mass
 Storage:
   Cluster:
     - 192.168.1.9:9333

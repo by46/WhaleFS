@@ -6,8 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
+	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 )
 
@@ -124,4 +126,12 @@ func QueryExists(value url.Values, name string) (exists bool) {
 	v := map[string][]string(value)
 	_, exists = v[name]
 	return
+}
+
+func Params(ctx echo.Context, name string) string {
+	value := strings.TrimSpace(ctx.QueryParam(name))
+	if value != "" {
+		return value
+	}
+	return ctx.Request().FormValue(name)
 }

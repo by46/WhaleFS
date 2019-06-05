@@ -46,6 +46,9 @@
 6. UploadHandler.ashx - done
 7. 错误提示多语言
 8. 水印支持文字
+9. migrate 迁移支持大文件
+10. multi-chunk file etag 如何生成
+11. 支持默认图
 
 目前根据facebook的一篇针对小文件优化的文件系统的论文, 找了一个golang的开源实现, 在此基础上进行开发, https://github.com/chrislusf/seaweedfs
 

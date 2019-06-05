@@ -190,7 +190,7 @@
     "memo": "mo bucket",
     "basis": {
       "collection": "tmp",
-      "replication": "001",
+      "replication": "000",
       "expires": 20,
       "prepare_thumbnail_min_width": 1024,
       "prepare_thumbnail": ""

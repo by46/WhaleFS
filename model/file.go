@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"net/textproto"
+	"path"
 	"strings"
 	"time"
 
@@ -76,6 +77,7 @@ func (f *FileMeta) AsEntity(bucketName, aliasBucketName, fileName string) *FileE
 	return &FileEntity{
 		Key:      key,
 		Url:      key,
+		Title:    path.Base(key),
 		Original: fileName,
 		Message:  "上传成功",
 		State:    "SUCCESS",
@@ -86,6 +88,7 @@ func (f *FileMeta) AsEntity(bucketName, aliasBucketName, fileName string) *FileE
 // 用于记录上传文件内容
 type FileContent struct {
 	FileName  string
+	Digest    string
 	MimeType  string
 	Size      int64
 	Override  bool
@@ -103,10 +106,10 @@ func (f *FileContent) IsImage() bool {
 // 上传接口返回的api
 type FileEntity struct {
 	Key      string `json:"key"`
-	Url      string `json:"url"`
-	Title    string `json:"title"`
-	Message  string `json:"message"`
-	State    string `json:"state"`
-	Original string `json:"original"`
 	Size     int64  `json:"size"`
+	Url      string `json:"url"`      // legacy property
+	Title    string `json:"title"`    // legacy property
+	Message  string `json:"message"`  // legacy property
+	State    string `json:"state"`    // legacy property
+	Original string `json:"original"` // legacy property
 }

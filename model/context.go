@@ -1,11 +1,11 @@
 package model
 
 import (
+	"bytes"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
-	"net/url"
 	"path/filepath"
 
 	"github.com/labstack/echo"
@@ -35,18 +35,18 @@ type FileContext struct {
 }
 
 // parse image size from path, used to resize picture
-func (self *FileContext) ParseImageSize(bucket *Bucket) {
-	name, key := utils.PathRemoveSegment(self.Key, 1)
+func (f *FileContext) ParseImageSize(bucket *Bucket) {
+	name, key := utils.PathRemoveSegment(f.Key, 1)
 	if name == "" {
 		return
 	}
 	size := bucket.GetSize(name)
 	if size != nil {
-		self.Key, self.Size = key, size
+		f.Key, f.Size = key, size
 	}
 }
 
-func (self *FileContext) ParseFileContentFromRequest(ctx echo.Context) (err error) {
+func (f *FileContext) ParseFileContentFromRequest(ctx echo.Context) (err error) {
 	body := ctx.Request().Body
 	if body != nil {
 		defer func() {
@@ -57,26 +57,21 @@ func (self *FileContext) ParseFileContentFromRequest(ctx echo.Context) (err erro
 	if err != nil {
 		return errors.WithStack(err)
 	}
-
-	file := new(FileContent)
-	file.Headers = textproto.MIMEHeader(ctx.Request().Header)
-	file.Content = buf
-	file.Size = int64(len(buf))
-	file.MimeType = ctx.Request().Header.Get(echo.HeaderContentType)
-	self.File = file
-	return
+	f.File, err = f.buildFileContent(buf, textproto.MIMEHeader(ctx.Request().Header), "")
+	return err
 }
 
-func (self *FileContext) ParseFileContent(url string, formFile *multipart.FileHeader) (err error) {
+func (f *FileContext) ParseFileContent(url string, formFile *multipart.FileHeader) (err error) {
 	if url != "" {
-		err = self.parseFileContentFromRemote(url)
-	} else if formFile != nil {
-		err = self.parseFileContentFromForm(formFile)
+		return f.parseFileContentFromRemote(url)
+	}
+	if formFile != nil {
+		return f.parseFileContentFromForm(formFile)
 	}
 	return
 }
 
-func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) error {
+func (f *FileContext) parseFileContentFromForm(form *multipart.FileHeader) error {
 	body, err := form.Open()
 	if err != nil {
 		return errors.WithStack(err)
@@ -88,21 +83,11 @@ func (self *FileContext) parseFileContentFromForm(form *multipart.FileHeader) er
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	file := new(FileContent)
-	file.Headers = form.Header
-	file.Content = buf
-	file.Size = int64(len(buf))
-	file.MimeType = http.DetectContentType(buf)
-	file.Extension = filepath.Ext(form.Filename)
-	file.FileName = form.Filename
-	if file.Extension == "" {
-		file.Extension = utils.ExtensionByMimeType(file.MimeType)
-	}
-	self.File = file
-	return nil
+	f.File, err = f.buildFileContent(buf, form.Header, form.Filename)
+	return err
 }
 
-func (self *FileContext) parseFileContentFromRemote(source string) error {
+func (f *FileContext) parseFileContentFromRemote(source string) error {
 	response, err := utils.Get(source, nil)
 	if response != nil {
 		defer func() {
@@ -112,26 +97,37 @@ func (self *FileContext) parseFileContentFromRemote(source string) error {
 	if err != nil {
 		return err
 	}
-	file := new(FileContent)
-	file.Content, err = response.ReadAll()
+	buf, err := response.ReadAll()
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	file.Size = int64(len(file.Content))
-	file.MimeType = http.DetectContentType(file.Content)
-	u, _ := url.Parse(source)
-	file.Extension = filepath.Ext(u.Path)
+	fileName := utils.Url2FileName(source)
+	f.File, err = f.buildFileContent(buf, textproto.MIMEHeader(response.Header), fileName)
+	return err
+}
+
+func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader, filename string) (file *FileContent, err error) {
+	file = new(FileContent)
+	file.Headers = headers
+	file.Content = buf
+	file.Size = int64(len(buf))
+	file.MimeType = http.DetectContentType(buf)
+	file.FileName = filename
+	file.Extension = filepath.Ext(filename)
 	if file.Extension == "" {
 		file.Extension = utils.ExtensionByMimeType(file.MimeType)
 	}
-	self.File = file
-	return nil
+	file.Digest, err = utils.ContentSha1(bytes.NewReader(buf))
+	if err != nil {
+		return nil, errors.WithMessage(err, "文件内容摘要错误")
+	}
+	return
 }
 
-func (self *FileContext) HashKey() string {
-	//hash, _ := utils.Sha1(self.Key)
+func (f *FileContext) HashKey() string {
+	//hash, _ := utils.Sha1(f.Key)
 	//return hash
-	return self.Key
+	return f.Key
 }
 
 type FormParams struct {

@@ -136,13 +136,25 @@ func (s *Server) file(ctx echo.Context) (err error) {
 		return s.download(context)
 	case http.MethodPost:
 		if fileContext.Uploads {
-			return s.uploads(context)
+			if entity, err := s.uploads(context); err != nil {
+				return err
+			} else {
+				return ctx.JSON(http.StatusOK, entity)
+			}
 		}
 		if fileContext.UploadId != "" && fileContext.PartNumber != 0 {
-			return s.uploadPart(context)
+			if entity, err := s.uploadPart(context); err != nil {
+				return err
+			} else {
+				return ctx.JSON(http.StatusOK, entity)
+			}
 		}
 		if fileContext.UploadId != "" {
-			return s.uploadComplete(context)
+			if entity, err := s.uploadComplete(context); err != nil {
+				return err
+			} else {
+				return ctx.JSON(http.StatusOK, entity)
+			}
 		}
 		return s.uploadFile(context)
 	case http.MethodDelete:
