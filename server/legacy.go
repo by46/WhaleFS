@@ -56,7 +56,7 @@ var (
 func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	bucketName := utils.Params(ctx, AppName)
 	if bucketName == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdBucketNameNotCorrect, getLangsFromCtx(ctx)...))
 	}
 	bucket, err := s.getBucketByName(bucketName)
 	if err != nil {
@@ -85,7 +85,7 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
 	bucketName := utils.Params(ctx, AppName)
 	if bucketName == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdBucketNameNotCorrect, getLangsFromCtx(ctx)...))
 	}
 	bucket, err := s.getBucketByName(bucketName)
 	if err != nil {
@@ -118,7 +118,7 @@ func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 	bucket, key, size := s.parseBucketAndFileKey(key)
 
 	if bucket == nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdBucketNameNotCorrect, getLangsFromCtx(ctx)...))
 	}
 	fileContext := &model.FileContext{
 		Bucket:         bucket,
@@ -161,7 +161,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	downloadZipFile := new(DownloadZipFile)
 	if err := ctx.Bind(downloadZipFile); err != nil {
 		s.Logger.Error(err)
-		return returnMessage(ctx, "参数错误")
+		return returnMessage(ctx, s.getMessage(MsgIdInvalidParam, getLangsFromCtx(ctx)...))
 	}
 
 	var pkgFileItems []model.PkgFileItem
@@ -183,7 +183,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	err := packageEntity.Validate()
 	if err != nil {
 		s.Logger.Error(err)
-		return returnMessage(ctx, "参数错误")
+		return returnMessage(ctx, s.getMessage(MsgIdInvalidParam, getLangsFromCtx(ctx)...))
 	}
 
 	var totalSize int64
@@ -191,7 +191,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 		entity, err := s.GetFileEntity(item.RawKey)
 		if err != nil {
 			if err == common.ErrKeyNotFound {
-				return returnMessage(ctx, "文件不存在")
+				return returnMessage(ctx, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...))
 			}
 			return errors.WithStack(err)
 		}
@@ -200,7 +200,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	}
 
 	if downloadZipFile.IsLimit && totalSize > s.TaskFileSizeThreshold {
-		return returnMessage(ctx, "文件太大，请分供应商下载或到详情页面下载")
+		return returnMessage(ctx, s.getMessage(MsgIdFileTooLarge, getLangsFromCtx(ctx)...))
 	}
 
 	response := ctx.Response()
@@ -443,4 +443,18 @@ func (s *Server) legacyFormFile(ctx echo.Context) (file *multipart.FileHeader, e
 
 func (s *Server) legacyBuildDownloadUrl(ctx echo.Context, filePath, fileName string) string {
 	return fmt.Sprintf("%s://%s/%s?attachmentName=%s", ctx.Scheme(), ctx.Request().Host, filePath, url.PathEscape(fileName))
+}
+
+func getLangsFromCtx(ctx echo.Context) []string {
+	var langs []string
+	lang := ctx.QueryParam("lang")
+	if lang != "" {
+		langs = append(langs, lang)
+	}
+	acceptLang := ctx.Request().Header.Get("Accept-Language")
+	if acceptLang != "" {
+		langs = append(langs, acceptLang)
+	}
+	langs = append(langs, "zh")
+	return langs
 }

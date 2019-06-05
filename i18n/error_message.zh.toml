@@ -1,0 +1,5 @@
+HelloPerson = "你好 {{.Name}}"
+bucketNameNotCorrect = "未设置正确设置Bucket名"
+invalidParam = "参数错误"
+fileNotFound = "文件不存在"
+fileTooLarge = "文件太大，请分供应商下载或到详情页面下载"
