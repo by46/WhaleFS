@@ -11,6 +11,7 @@ import (
 
 func init() {
 	_ = mime.AddExtensionType(".go", "text/plain; charset=utf-8")
+	_ = mime.AddExtensionType(".bash", "application/x-sh")
 }
 
 func IsImage(mimeType string) bool {

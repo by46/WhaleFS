@@ -123,6 +123,37 @@
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },
+  "system.bucket.mro_ec": {
+    "name": "mro_ec",
+    "memo": "新mro商城站点模块上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
   "system.bucket.pdt": {
     "name": "pdt",
     "memo": "mo bucket",
@@ -154,9 +185,1247 @@
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },
+  "system.bucket.product": {
+    "name": "product",
+    "memo": "产品",
+    "basis": {
+      "alias": "pdt"
+    }
+  },
+  "system.bucket.ueditor_upload_files": {
+    "name": "ueditor_upload_files",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    }
+  },
+  "system.bucket.ueditor": {
+    "name": "ueditor",
+    "memo": "产品",
+    "basis": {
+      "alias": "ueditor_upload_files"
+    }
+  },
+  "system.bucket.avatar_01": {
+    "name": "avatar_01",
+    "memo": "用户头像上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.avatar": {
+    "name": "avatar",
+    "memo": "用户头像上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
   "system.bucket.tender": {
     "name": "tender",
-    "memo": "mo bucket",
+    "memo": "招标上传",
+    "basis": {
+      "collection": "trade",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.tender_01": {
+    "name": "tender_01",
+    "memo": "招标上传",
+    "basis": {
+      "collection": "trade",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.bond": {
+    "name": "bond",
+    "memo": "退款上传",
+    "basis": {
+      "collection": "trade",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.bond_01": {
+    "name": "bond_01",
+    "memo": "退款上传",
+    "basis": {
+      "collection": "trade",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.contract": {
+    "name": "contract",
+    "memo": "合同上传",
+    "basis": {
+      "collection": "trade",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.contract_01": {
+    "name": "contract_01",
+    "memo": "合同上传",
+    "basis": {
+      "collection": "trade",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.eInvoice": {
+    "name": "eInvoice",
+    "memo": "电子发票上传",
+    "basis": {
+      "collection": "trade",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.eInvoice_01": {
+    "name": "eInvoice_01",
+    "memo": "电子发票上传",
+    "basis": {
+      "collection": "trade",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.icon": {
+    "name": "icon",
+    "memo": "品类图标上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.banner": {
+    "name": "banner",
+    "memo": "品类Banner上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.banner_01": {
+    "name": "banner_01",
+    "memo": "品类Banner上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall": {
+    "name": "mall",
+    "memo": "企业商城上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall_01": {
+    "name": "mall_01",
+    "memo": "企业商城上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall_photobuy": {
+    "name": "mall_photobuy",
+    "memo": "拍照购上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall_productimport": {
+    "name": "mall_productimport",
+    "memo": "商品导入上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.supplier": {
+    "name": "supplier",
+    "memo": "友商宝上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.supplier_01": {
+    "name": "supplier_01",
+    "memo": "友商宝上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.weixin": {
+    "name": "weixin",
+    "memo": "微信图片上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.ibuild": {
+    "name": "ibuild",
+    "memo": "智慧工地上传图片",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.ibuild_01": {
+    "name": "ibuild_01",
+    "memo": "智慧工地上传图片",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.ibuild-image": {
+    "name": "ibuild-image",
+    "memo": "产品",
+    "basis": {
+      "alias": "pdt"
+    }
+  },
+  "system.bucket.ibuild-cover-image": {
+    "name": "ibuild-cover-image",
+    "memo": "智慧工地上传项目封面图",
+    "basis": {
+      "alias": "pdt"
+    }
+  },
+  "system.bucket.goods-receipt": {
+    "name": "goods-receipt",
+    "memo": "收获系统上传图片",
+    "basis": {
+      "alias": "pdt"
+    }
+  },
+  "system.bucket.ibuild-DroneStrike-imgOrVideo": {
+    "name": "ibuild-DroneStrike-imgOrVideo",
+    "memo": "智慧工地项目无人机航拍图片或视频",
+    "basis": {
+      "alias": "pdt"
+    }
+  },
+  "system.bucket.ibuild-BigScreen-imgOrVideo": {
+    "name": "ibuild-BigScreen-imgOrVideo",
+    "memo": "智慧工地项目大屏图片或视频",
+    "basis": {
+      "alias": "pdt"
+    }
+  },
+  "system.bucket.ibuild-video": {
+    "name": "ibuild-video",
+    "memo": "智慧工地项目大屏图片或视频",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.ibuild-video_01": {
+    "name": "ibuild-video_01",
+    "memo": "智慧工地项目大屏图片或视频",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.xionganSteel": {
+    "name": "xionganSteel",
+    "memo": "智慧工地 雄安钢构",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.ibuild_xionganSteel": {
+    "name": "ibuild_xionganSteel",
+    "memo": "智慧工地 雄安钢构",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.ibuild_file": {
+    "name": "ibuild_file",
+    "memo": "智慧工地附件",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.ibuild_basis": {
+    "name": "ibuild_basis",
+    "memo": "智慧工地附件",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.ibuild_app": {
+    "name": "ibuild_app",
+    "memo": "智慧工地",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.sm-image": {
+    "name": "sm-image",
+    "memo": "资产管理系统",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.pf": {
+    "name": "pf",
+    "memo": "评分系统附件",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.productcenter": {
+    "name": "productcenter",
+    "memo": "材料中心上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.jinfu": {
+    "name": "jinfu",
+    "memo": "jinfu上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mohurd_picture": {
+    "name": "mohurd_picture",
+    "memo": "住建部官网图片上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mohurd_video": {
+    "name": "mohurd_video",
+    "memo": "住建部官网视频上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mohurd_file": {
+    "name": "mohurd_file",
+    "memo": "住建部官网文件上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mohurd_ueditor": {
+    "name": "mohurd_ueditor",
+    "memo": "住建部富文本编辑器上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mohurd_ueditor_upload": {
+    "name": "mohurd_ueditor_upload",
+    "memo": "住建部富文本编辑器上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.ibuild_notify_attachment": {
+    "name": "ibuild_notify_attachment",
+    "memo": "智慧工地消息通知服务上传",
     "basis": {
       "collection": "general",
       "replication": "100",
@@ -187,7 +1456,7 @@
   },
   "system.bucket.tmp": {
     "name": "tmp",
-    "memo": "mo bucket",
+    "memo": "临时bucket",
     "basis": {
       "collection": "tmp",
       "replication": "000",
