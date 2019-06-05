@@ -28,7 +28,7 @@ func (i *PkgFileItem) GetTarget() string {
 	if i.Target != "" {
 		ext := path.Ext(i.Target)
 		if ext == "" {
-			return strings.TrimRight(i.Target, ".") + path.Ext(i.RawKey)
+			return strings.TrimRight(i.Target, "/") + "/" + utils.PathLastSegment(i.RawKey)
 		}
 		return i.Target
 	}
