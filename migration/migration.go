@@ -106,14 +106,16 @@ func (m *migration) prepare() []string {
 }
 
 func (m *migration) detectAppType(names []string) map[string]bool {
-	options := m.options
-	mapping := make(map[string]bool)
-	for _, name := range names {
-		if m.isProduct(filepath.Join(options.Location, name)) {
-			mapping[strings.ToLower(name)] = true
-		}
-	}
-	return mapping
+	return map[string]bool{"pdt": true}
+
+	//options := m.options
+	//mapping := make(map[string]bool)
+	//for _, name := range names {
+	//	if m.isProduct(filepath.Join(options.Location, name)) {
+	//		mapping[strings.ToLower(name)] = true
+	//	}
+	//}
+	//return mapping
 }
 
 func (m *migration) isProduct(fullPath string) bool {
@@ -136,6 +138,11 @@ func (m *migration) splitBucketNameAndFileName(name string) (bucketName, filenam
 	if _, exists := m.productAppNames[strings.ToLower(bucketName)]; exists {
 		if NameOriginal == strings.ToLower(segments[1]) {
 			filename = filepath.Base(name)
+			return
+		}
+	} else {
+		if NameOriginal == strings.ToLower(segments[1]) {
+			filename = path.Join(segments[2:]...)
 			return
 		}
 	}
