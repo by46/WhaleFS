@@ -1,4 +1,3 @@
-HelloPerson = "你好 {{.Name}}"
 bucketNameNotCorrect = "未设置正确Bucket名"
 invalidParam = "参数错误"
 fileNotFound = "文件不存在"

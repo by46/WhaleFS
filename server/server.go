@@ -35,6 +35,7 @@ type Server struct {
 	TaskBucketName        string
 	TaskFileSizeThreshold int64
 	I18nBundle            *i18n.Bundle
+	LocalizerMap          map[string]*i18n.Localizer
 }
 
 func BuildConfig() (*model.Config, error) {
@@ -76,6 +77,13 @@ func buildI18nBundle() *i18n.Bundle {
 	return bundle
 }
 
+func buildI18nLocalizer(bundle *i18n.Bundle) map[string]*i18n.Localizer {
+	localizerMap := make(map[string]*i18n.Localizer, 2)
+	localizerMap["zh"] = i18n.NewLocalizer(bundle, "zh")
+	localizerMap["en"] = i18n.NewLocalizer(bundle, "en")
+	return localizerMap
+}
+
 func NewServer() *Server {
 	config, err := BuildConfig()
 	if err != nil {
@@ -89,6 +97,7 @@ func NewServer() *Server {
 	bucketMeta := BuildDao(config.BucketMeta)
 	taskMeta := buildTaskMeta(config)
 	bundle := buildI18nBundle()
+	localizerMap := buildI18nLocalizer(bundle)
 	app := echo.New()
 
 	srv := &Server{
@@ -105,6 +114,7 @@ func NewServer() *Server {
 		TaskMeta:              taskMeta,
 		TaskFileSizeThreshold: config.TaskFileSizeThreshold,
 		I18nBundle:            bundle,
+		LocalizerMap:          localizerMap,
 	}
 	srv.install()
 	return srv
