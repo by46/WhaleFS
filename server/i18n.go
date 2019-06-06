@@ -9,11 +9,25 @@ const (
 	MsgIdInvalidParam         = "invalidParam"
 	MsgIdFileNotFound         = "fileNotFound"
 	MsgIdFileTooLarge         = "fileTooLarge"
+	MsgIdNoFileContent        = "noFileContent"
+	MsgIdFileUrlCannotBeEmpty = "fileUrlCannotBeEmpty"
+	MsgIdParamParseFailed     = "paramParseFailed"
+	MsgIdPdfFilePathNotSet    = "pdfFilePathNotSet"
+	MsgIdMergePdfFailed       = "mergePdfFailed"
+	MsgIdMissFileIdentity     = "missFileIdentity"
+	MsgIdStartPositionNotSet  = "startPositionNotSet"
 )
 
+var config = &i18n.LocalizeConfig{}
+
 func (s *Server) getMessage(msgId string, langs ...string) string {
-	localizer := i18n.NewLocalizer(s.I18nBundle, langs...)
-	return localizer.MustLocalize(&i18n.LocalizeConfig{
-		MessageID: msgId,
-	})
+	config.MessageID = msgId
+	for _, lang := range langs {
+		localizer := s.LocalizerMap[lang]
+		if localizer != nil {
+			return localizer.MustLocalize(config)
+		}
+	}
+	localizer := s.LocalizerMap["zh"]
+	return localizer.MustLocalize(config)
 }
