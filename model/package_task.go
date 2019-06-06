@@ -5,6 +5,7 @@ const (
 	TASK_SUCCESS = 2
 	TASK_RUNNING = 1
 	TASK_FAILED  = -1
+	TASK_AUTO    = 3
 )
 
 type PackageTask struct {

@@ -22,3 +22,18 @@ func (s *Server) CreateTask(hashKey string, pkgFileInfo *model.PackageEntity) er
 	}
 	return nil
 }
+
+func (s *Server) CreateAutoTask(hashKey string, pkgFileInfo *model.PackageEntity) error {
+	task := &model.PackageTask{
+		PackageInfo: pkgFileInfo,
+		InDate:      time.Now().Unix(),
+		EditDate:    time.Now().Unix(),
+		Status:      model.TASK_AUTO,
+		Id:          hashKey,
+	}
+
+	if err := s.TaskMeta.Set(hashKey, task); err != nil {
+		return err
+	}
+	return nil
+}

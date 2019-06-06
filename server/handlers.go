@@ -103,6 +103,12 @@ func (s *Server) checkTask(ctx echo.Context) error {
 		if err != nil {
 			return err
 		}
+	} else if task.Status == model.TASK_AUTO {
+		response := ctx.Response()
+		response.Header().Set(echo.HeaderContentType, "application/zip")
+		response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", task.PackageInfo.GetPkgName()))
+
+		return Package(task.PackageInfo, response, s.GetFileEntity, s.Storage.Download)
 	} else {
 		err := ctx.JSON(http.StatusOK, task)
 		if err != nil {
