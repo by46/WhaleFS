@@ -52,6 +52,18 @@ var (
 	ReInteger = regexp.MustCompile("^[0-9]+$")
 )
 
+// 兼容legacy下载接口, 支持OSS模式
+func (s *Server) legacySupportOSS(ctx echo.Context, key string) string {
+	if strings.ToLower(ctx.QueryParam("oss")) == "yes" {
+		size := ctx.QueryParam("format")
+		if size == "" {
+			size = s.Config.Basis.SizeDefault
+		}
+		key = fmt.Sprintf("/%s/%s%s", common.BucketPdt, size, key)
+	}
+	return key
+}
+
 // UploadHandler.ashx
 func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	bucketName := utils.Params(ctx, AppName)
@@ -407,7 +419,6 @@ func (s *Server) legacySliceUploadAbort(ctx echo.Context, identity string) error
 }
 
 // end SliceUploadHandler.ashx
-
 func (s *Server) legacyDownloadFileByFile(ctx echo.Context, key string) (*utils.PDFFile, error) {
 	_, key, _ = s.parseBucketAndFileKey(key)
 	meta, err := s.GetFileEntity(key)

@@ -161,6 +161,7 @@
       "collection": "product",
       "replication": "100",
       "expires": 20,
+      "default_image": "/home/default.png",
       "prepare_thumbnail_min_width": 1024,
       "prepare_thumbnail": ""
     },
@@ -182,6 +183,26 @@
         "image/png"
       ]
     },
+    "sizes": [
+      {
+        "name": "p200",
+        "width": 200,
+        "height": 150,
+        "mode": "stretch"
+      },
+      {
+        "name": "p360",
+        "width": 360,
+        "height": 360,
+        "mode": "fit"
+      },
+      {
+        "name": "p160",
+        "width": 160,
+        "height": 120,
+        "mode": "thumbnail"
+      }
+    ],
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },

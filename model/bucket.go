@@ -72,6 +72,7 @@ type Basis struct {
 	Replication      string `json:"replication"`
 	TTL              TTL    `json:"ttl"`
 	Expires          *int   `json:"expires"` // unit: second
+	DefaultImage     string `json:"default_image"`
 	PrepareThumbnail string `json:"prepare_thumbnail"`
 	// 触发进行图片预处理的最小宽度
 	PrepareThumbnailMinWidth int `json:"prepare_thumbnail_min_width"`

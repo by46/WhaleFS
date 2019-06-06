@@ -21,6 +21,7 @@ type BasisConfig struct {
 	CollectionTmpTTL           TTL    `default:"7d"`
 	CollectionShare            string `default:"mass"`
 	CollectionShareReplication string `default:"100"`
+	SizeDefault                string `default:"p200"`
 }
 
 type Config struct {

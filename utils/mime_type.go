@@ -14,6 +14,10 @@ func init() {
 	_ = mime.AddExtensionType(".bash", "application/x-sh")
 }
 
+func IsImageByFileName(fileName string) bool {
+	mimeType := MimeTypeByExtension(fileName)
+	return IsImage(mimeType)
+}
 func IsImage(mimeType string) bool {
 	if mimeType == "" {
 		return false

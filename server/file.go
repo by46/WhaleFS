@@ -64,6 +64,7 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 		}
 	} else if method == http.MethodHead || method == http.MethodGet {
 		fileContext.AttachmentName = ctx.QueryParam("attachmentName")
+		key = s.legacySupportOSS(ctx, key)
 	}
 
 	key = utils.PathNormalize(key)
@@ -126,6 +127,9 @@ func (s *Server) file(ctx echo.Context) (err error) {
 		fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey())
 		if err != nil {
 			if err == common.ErrKeyNotFound {
+				if bucket.Basis.DefaultImage != "" && utils.IsImageByFileName(fileContext.Key) {
+					return s.downloadDefaultImage(context)
+				}
 				return echo.NewHTTPError(http.StatusNotFound)
 			}
 			return err
@@ -305,6 +309,9 @@ func (s *Server) download(ctx echo.Context) (err error) {
 	body, err := s.downloadFile(ctx)
 	if err != nil {
 		if err == common.ErrFileNotFound {
+			if bucket.Basis.DefaultImage != "" && utils.IsImage(entity.MimeType) {
+				return s.downloadDefaultImage(ctx)
+			}
 			ctx.Response().WriteHeader(http.StatusNotFound)
 			return nil
 		}
@@ -344,6 +351,22 @@ func (s *Server) downloadFile(ctx echo.Context) (io.Reader, error) {
 		return nil, err
 	}
 	return s.thumbnail(ctx, body)
+}
+
+func (s *Server) downloadDefaultImage(ctx echo.Context) error {
+	context := ctx.(*middleware.ExtendContext)
+	bucket := context.FileContext.Bucket
+	r, err := s.downloadFileByFullName(bucket.Basis.DefaultImage)
+	if err != nil {
+		s.Logger.Errorf("download defualt image failed %v", err)
+		ctx.Response().WriteHeader(http.StatusNotFound)
+		return nil
+	}
+	defer func() {
+		_ = r.Close()
+	}()
+	_, err = io.Copy(ctx.Response(), r)
+	return err
 }
 
 func (s *Server) form(ctx echo.Context) (*multipart.FileHeader, error) {
