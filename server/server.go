@@ -2,13 +2,14 @@ package server
 
 import (
 	"fmt"
-	"github.com/BurntSushi/toml"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"golang.org/x/text/language"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/BurntSushi/toml"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -32,6 +33,7 @@ type Server struct {
 	Version               string
 	app                   *echo.Echo
 	buckets               *sync.Map
+	overlays              *sync.Map // 用于存放少量overlay的缓存数据
 	TaskBucketName        string
 	TaskFileSizeThreshold int64
 	I18nBundle            *i18n.Bundle
@@ -110,6 +112,7 @@ func NewServer() *Server {
 		Logger:                logger,
 		Version:               VERSION,
 		buckets:               &sync.Map{},
+		overlays:              &sync.Map{},
 		TaskBucketName:        config.TaskFileBucketName,
 		TaskMeta:              taskMeta,
 		TaskFileSizeThreshold: config.TaskFileSizeThreshold,

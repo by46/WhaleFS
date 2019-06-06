@@ -9,7 +9,5 @@ const (
 	TTLChunk          = 60 * 60 * 24 * 7 //7 days
 	TTLTmp            = "7d"
 	FIDSep            = "|"
-	CollectionNameTmp = "tmp"
-	ReplicationNo     = "000"
 	ReplicationOne    = "100"
 )

@@ -52,6 +52,18 @@ var (
 	ReInteger = regexp.MustCompile("^[0-9]+$")
 )
 
+// 兼容legacy下载接口, 支持OSS模式
+func (s *Server) legacySupportOSS(ctx echo.Context, key string) string {
+	if strings.ToLower(ctx.QueryParam("oss")) == "yes" {
+		size := ctx.QueryParam("format")
+		if size == "" {
+			size = s.Config.Basis.SizeDefault
+		}
+		key = fmt.Sprintf("/%s/%s%s", common.BucketPdt, size, key)
+	}
+	return key
+}
+
 // UploadHandler.ashx
 func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	bucketName := utils.Params(ctx, AppName)
@@ -76,6 +88,7 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	if err := fileContext.ParseFileContent("", file); err != nil {
 		return err
 	}
+	fileContext.File.WaterMark = utils.Params(ctx, "watermarkPic")
 	context := &middleware.ExtendContext{ctx, fileContext}
 
 	return s.uploadFile(context)
@@ -351,7 +364,7 @@ func (s *Server) legacySliceUploadChunk(ctx echo.Context, identity string) error
 	}
 	opt := &common.UploadOption{
 		Collection:  s.Config.Basis.CollectionShare,
-		Replication: ReplicationOne,
+		Replication: s.Config.Basis.CollectionShareReplication,
 	}
 	needle, err := s.Storage.Upload(opt, echo.MIMEOctetStream, bytes.NewReader(fileContext.File.Content))
 	if err != nil {
@@ -403,7 +416,6 @@ func (s *Server) legacySliceUploadAbort(ctx echo.Context, identity string) error
 }
 
 // end SliceUploadHandler.ashx
-
 func (s *Server) legacyDownloadFileByFile(ctx echo.Context, key string) (*utils.PDFFile, error) {
 	_, key, _ = s.parseBucketAndFileKey(key)
 	meta, err := s.GetFileEntity(key)

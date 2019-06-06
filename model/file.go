@@ -37,6 +37,7 @@ type FileMeta struct {
 	Height       int        `json:"height,omitempty"`
 	Thumbnails   Thumbnails `json:"thumbnails,omitempty"`
 	IsRandomName bool       `json:"is_random_name,omitempty"`
+	WaterMark    string     `json:"water_mark,omitempty"`
 }
 
 func (f *FileMeta) LastModifiedTime() time.Time {
@@ -100,6 +101,7 @@ type FileContent struct {
 	Width     int
 	Height    int
 	Extension string
+	WaterMark string // 记录上传时设定的水印
 }
 
 func (f *FileContent) IsImage() bool {
