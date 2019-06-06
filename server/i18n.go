@@ -9,6 +9,13 @@ const (
 	MsgIdInvalidParam         = "invalidParam"
 	MsgIdFileNotFound         = "fileNotFound"
 	MsgIdFileTooLarge         = "fileTooLarge"
+	MsgIdNoFileContent        = "noFileContent"
+	MsgIdFileUrlCannotBeEmpty = "fileUrlCannotBeEmpty"
+	MsgIdParamParseFailed     = "paramParseFailed"
+	MsgIdPdfFilePathNotSet    = "pdfFilePathNotSet"
+	MsgIdMergePdfFailed       = "mergePdfFailed"
+	MsgIdMissFileIdentity     = "missFileIdentity"
+	MsgIdStartPositionNotSet  = "startPositionNotSet"
 )
 
 func (s *Server) getMessage(msgId string, langs ...string) string {

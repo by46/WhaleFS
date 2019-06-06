@@ -71,7 +71,7 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 		return err
 	}
 	if file == nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "没有文件内容")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdNoFileContent, getLangsFromCtx(ctx)...))
 	}
 	if err := fileContext.ParseFileContent("", file); err != nil {
 		return err
@@ -97,7 +97,7 @@ func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
 	}
 	source := utils.Params(ctx, "FileUrl")
 	if source == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "FileUrl不能为空")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdFileUrlCannotBeEmpty, getLangsFromCtx(ctx)...))
 	}
 	if err := fileContext.ParseFileContent(source, nil); err != nil {
 		return err
@@ -144,7 +144,7 @@ func (s *Server) legacyDownloadFileByRemote(ctx echo.Context) error {
 		AttachmentName: ctx.QueryParam("FileName"),
 	}
 	if err := fileContext.ParseFileContent(source, nil); err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "文件不存在")
+		return echo.NewHTTPError(http.StatusNotFound, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...))
 	}
 	file := fileContext.File
 	ctx.Response().Header().Set(echo.HeaderContentType, file.MimeType)
@@ -263,11 +263,11 @@ func (s *Server) legacyApiUpload(ctx echo.Context) error {
 // BatchMergePdfHandler.ashx
 func (s *Server) legacyMergePDF(ctx echo.Context) error {
 	if err := ctx.Request().ParseForm(); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "解析输入参数失败")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdParamParseFailed, getLangsFromCtx(ctx)...))
 	}
 	pdfFiles := ctx.Request().Form.Get("pdfFilePaths")
 	if pdfFiles == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "pdfFilePaths未设置")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdPdfFilePathNotSet, getLangsFromCtx(ctx)...))
 	}
 	items := make([]pdfcpu.ReadSeekerCloser, 0)
 	files := utils.Split(pdfFiles, ",")
@@ -284,7 +284,7 @@ func (s *Server) legacyMergePDF(ctx echo.Context) error {
 
 	mergeContext, err := api.MergeContexts(items, config)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "合并PDF失败")
+		return echo.NewHTTPError(http.StatusInternalServerError, s.getMessage(MsgIdMergePdfFailed, getLangsFromCtx(ctx)...))
 	}
 	buf := bytes.NewBuffer(nil)
 	if err := api.WriteContext(mergeContext, buf); err != nil {
@@ -319,7 +319,7 @@ func (s *Server) legacySliceUpload(ctx echo.Context) error {
 	appName := strings.ToLower(ctx.QueryParam(AppName))
 	identity := strings.TrimSpace(ctx.QueryParam("FileIdentity"))
 	if identity == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "缺少FileIdentity")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdMissFileIdentity, getLangsFromCtx(ctx)...))
 	}
 	if appName == "" {
 		if ActionCancel == strings.TrimSpace(ctx.QueryParam("Action")) {
@@ -334,7 +334,7 @@ func (s *Server) legacySliceUploadChunk(ctx echo.Context, identity string) error
 	positionValue := strings.TrimSpace(ctx.QueryParam("startPosition"))
 
 	if ReInteger.MatchString(positionValue) == false {
-		return echo.NewHTTPError(http.StatusBadRequest, "StartPosition未设置")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdStartPositionNotSet, getLangsFromCtx(ctx)...))
 	}
 	position := utils.ToInt32(positionValue)
 
@@ -374,7 +374,7 @@ func (s *Server) legacySliceUploadChunk(ctx echo.Context, identity string) error
 func (s *Server) legacySliceUploadComplete(ctx echo.Context, appName, identity string) error {
 	bucket, err := s.getBucketByName(appName)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "未正确设置Bucket")
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdBucketNameNotCorrect, getLangsFromCtx(ctx)...))
 	}
 	key, _ := utils.Sha1(identity)
 	key = fmt.Sprintf("chunks:%s", key)
@@ -430,7 +430,7 @@ func (s *Server) legacyDownloadFileByFile(ctx echo.Context, key string) (*utils.
 func (s *Server) legacyFormFile(ctx echo.Context) (file *multipart.FileHeader, err error) {
 	form, err := ctx.MultipartForm()
 	if err != nil || form.File == nil {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "没有文件内容")
+		return nil, echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdNoFileContent, getLangsFromCtx(ctx)...))
 	}
 	for _, value := range form.File {
 		if len(value) > 0 {
