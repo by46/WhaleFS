@@ -61,3 +61,21 @@ func RandomName(extension string) string {
 	}
 	return name
 }
+
+func MimeMatch(mimeType string, patterns []string) bool {
+	if len(patterns) == 0 {
+		return true
+	}
+	mimeType = strings.ToLower(mimeType)
+	for _, pattern := range patterns {
+		if strings.Contains(pattern, "*") {
+			mainType := strings.Split(pattern, "/")[0]
+			if strings.HasPrefix(mimeType, strings.ToLower(mainType)) {
+				return true
+			}
+		} else if strings.ToLower(pattern) == mimeType {
+			return true
+		}
+	}
+	return false
+}

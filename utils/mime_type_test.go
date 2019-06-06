@@ -38,3 +38,14 @@ func TestExtensionByMimeType(t *testing.T) {
 	assert.Equal(t, ".jpg", ExtensionByMimeType("image/jpeg"))
 	assert.Equal(t, "", ExtensionByMimeType("image/unknown"))
 }
+
+func TestMimeMatch(t *testing.T) {
+	assert.True(t, MimeMatch("text/plain", []string{"text/*"}))
+	assert.True(t, MimeMatch("text/html", []string{"text/*"}))
+	assert.True(t, MimeMatch("text/html", []string{"text/html", "image/jpeg"}))
+	assert.True(t, MimeMatch("text/plain", []string{}))
+	assert.True(t, MimeMatch("text/plain", nil))
+
+	assert.False(t, MimeMatch("text/html", []string{"image/*"}))
+	assert.False(t, MimeMatch("text/html", []string{"image/*", "video/*"}))
+}

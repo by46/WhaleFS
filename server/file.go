@@ -411,7 +411,9 @@ func (s *Server) validateFile(ctx echo.Context) error {
 			}
 		}
 
-		// TODO(benjamin):检查文件类型限制
+		if utils.MimeMatch(file.MimeType, limit.MimeTypes) == false {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持$s格式的文件", strings.Join(limit.MimeTypes, ",")))
+		}
 	}
 
 	hash := params.HashKey()
