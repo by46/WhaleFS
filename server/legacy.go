@@ -174,7 +174,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	downloadZipFile := new(DownloadZipFile)
 	if err := ctx.Bind(downloadZipFile); err != nil {
 		s.Logger.Error(err)
-		return returnMessage(ctx, s.getMessage(MsgIdInvalidParam, getLangsFromCtx(ctx)...))
+		return returnMessage(ctx, s.getMessage(MsgIdInvalidParam, getLangsFromCtx(ctx)...), "")
 	}
 
 	var pkgFileItems []model.PkgFileItem
@@ -196,7 +196,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	err := packageEntity.Validate()
 	if err != nil {
 		s.Logger.Error(err)
-		return returnMessage(ctx, s.getMessage(MsgIdInvalidParam, getLangsFromCtx(ctx)...))
+		return returnMessage(ctx, s.getMessage(MsgIdInvalidParam, getLangsFromCtx(ctx)...), "")
 	}
 
 	var totalSize int64
@@ -204,7 +204,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 		entity, err := s.GetFileEntity(item.RawKey)
 		if err != nil {
 			if err == common.ErrKeyNotFound {
-				return returnMessage(ctx, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...))
+				return returnMessage(ctx, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...), "")
 			}
 			return errors.WithStack(err)
 		}
@@ -213,22 +213,19 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	}
 
 	if downloadZipFile.IsLimit && totalSize > s.TaskFileSizeThreshold {
-		return returnMessage(ctx, s.getMessage(MsgIdFileTooLarge, getLangsFromCtx(ctx)...))
+		return returnMessage(ctx, s.getMessage(MsgIdFileTooLarge, getLangsFromCtx(ctx)...), "")
 	}
 
-	response := ctx.Response()
+	hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, packageEntity.Name))
+	err = s.CreateAutoTask(hashKey, packageEntity)
 
-	response.Header().Set(echo.HeaderContentType, "application/zip")
-
-	response.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=%s", packageEntity.GetPkgName()))
-
-	return Package(packageEntity, response, s.GetFileEntity, s.Storage.Download)
+	return returnMessage(ctx, "success", s.Config.HttpClientBase+"/tasks?key="+hashKey)
 }
 
-func returnMessage(ctx echo.Context, msg string) error {
+func returnMessage(ctx echo.Context, msg string, url string) error {
 	returnData := ReturnData{
 		Status:  0,
-		Url:     "",
+		Url:     url,
 		Path:    "",
 		Message: msg,
 	}
