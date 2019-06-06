@@ -235,6 +235,7 @@ func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity,
 	hash := fileContext.HashKey()
 	meta.RawKey = fileContext.Key
 	meta.IsRandomName = fileContext.IsRandomName
+	meta.WaterMark = file.WaterMark
 	if err = s.Meta.SetTTL(hash, meta, bucket.Basis.TTL.Expiry()); err != nil {
 		return
 	}

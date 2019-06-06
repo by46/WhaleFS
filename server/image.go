@@ -74,7 +74,18 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 func (s *Server) overlay(ctx echo.Context, img image.Image) image.Image {
 	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileContext.Bucket
-	overlay := bucket.GetOverlay("")
+	meta := context.FileContext.Meta
+
+	var overlay *model.ImageOverlay
+	if meta.WaterMark != "" {
+		overlay = &model.ImageOverlay{
+			Image:    meta.WaterMark,
+			Opacity:  0.8,
+			Position: model.PositionBottomRight,
+		}
+	} else {
+		overlay = bucket.GetOverlay("")
+	}
 	if overlay == nil {
 		return img
 	}
@@ -122,6 +133,8 @@ func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err er
 		} else {
 			// TODO(benjamin): 把所有缩略图生成到临时collection中
 			option := &common.UploadOption{
+				Collection:  s.Config.Basis.CollectionTmp,
+				Replication: ReplicationNo,
 			}
 			if prepareThumbnailMeta, err := s.Storage.Upload(option, meta.MimeType, prepareThumbnail); err != nil {
 				s.Logger.Errorf("上传预处理图片失败 %+v", err)

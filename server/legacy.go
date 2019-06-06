@@ -76,6 +76,7 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	if err := fileContext.ParseFileContent("", file); err != nil {
 		return err
 	}
+	fileContext.File.WaterMark = utils.Params(ctx, "watermarkPic")
 	context := &middleware.ExtendContext{ctx, fileContext}
 
 	return s.uploadFile(context)
