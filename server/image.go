@@ -138,13 +138,11 @@ func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err er
 
 // 下载overlay的图片
 // TODO(benjamin): 需要优化, 可以在加载bucket的时候, 就加载overlay文件内容
-func (s *Server) downloadOverlay(fid string) (img image.Image, err error) {
-	content, _, err := s.Storage.Download(fid)
-	if err != nil {
-		return
-	}
-	if img, err = imaging.Decode(content); err != nil {
-		return nil, errors.Wrap(err, "图片编码失败")
+func (s *Server) downloadOverlay(name string) (img image.Image, err error) {
+	fullName := fmt.Sprintf("/%s/overlay/%s", s.Config.Basis.BucketHome, name)
+	img = s.getOverlayByFullName(fullName)
+	if img == nil {
+		return nil, errors.New("读取文件失败")
 	}
 	return
 }

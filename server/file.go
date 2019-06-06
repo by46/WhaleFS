@@ -426,3 +426,12 @@ func (s *Server) validateFile(ctx echo.Context) error {
 	}
 	return nil
 }
+
+func (s *Server) downloadFileByFullName(fullName string) (io.ReadCloser, error) {
+	meta := new(model.FileMeta)
+	if err := s.Meta.Get(fullName, meta); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	r, _, err := s.Storage.Download(meta.FID)
+	return r, err
+}

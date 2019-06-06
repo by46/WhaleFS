@@ -15,6 +15,7 @@ type CollectionConfig struct {
 }
 
 type BasisConfig struct {
+	BucketHome      string `default:"home"`
 	CollectionTmp   string `default:"tmp"`
 	CollectionShare string `default:"mass"`
 }

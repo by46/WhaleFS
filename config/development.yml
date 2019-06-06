@@ -8,6 +8,7 @@ TaskFileSizeThreshold: 1073741824
 HttpClientBase: http://localhost:8089
 TempFileDir: ./tmp/
 Basis:
+  BucketHome: home
   CollectionTmp: tmp
   CollectionShare: mass
 Storage:

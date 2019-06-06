@@ -2,7 +2,9 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/hhrutter/pdfcpu/pkg/api"
@@ -68,3 +70,22 @@ func TestPDFMerge(t *testing.T) {
 	_ = api.WriteContext(ctx, out)
 }
 
+func TestSyncMap(t *testing.T) {
+	type NameFunc func() string
+	m := &sync.Map{}
+	value, loaded := m.LoadOrStore("name", NameFunc(func() string {
+		fmt.Printf("debugging in")
+		return "benjamin"
+	}))
+
+	assert.Equal(t, "benjamin", value)
+	assert.False(t, loaded)
+
+	value, loaded = m.LoadOrStore("name", NameFunc(func() string {
+		fmt.Printf("debugging in")
+		return "benjamin"
+	}))
+
+	assert.Equal(t, "benjamin", value)
+	assert.True(t, loaded)
+}
