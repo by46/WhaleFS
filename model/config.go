@@ -15,9 +15,12 @@ type CollectionConfig struct {
 }
 
 type BasisConfig struct {
-	BucketHome      string `default:"home"`
-	CollectionTmp   string `default:"tmp"`
-	CollectionShare string `default:"mass"`
+	BucketHome                 string `default:"home"`
+	CollectionTmp              string `default:"tmp"`
+	CollectionTmpReplication   string `default:"000"`
+	CollectionTmpTTL           TTL    `default:"7d"`
+	CollectionShare            string `default:"mass"`
+	CollectionShareReplication string `default:"100"`
 }
 
 type Config struct {

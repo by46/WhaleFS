@@ -134,7 +134,8 @@ func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err er
 			// TODO(benjamin): 把所有缩略图生成到临时collection中
 			option := &common.UploadOption{
 				Collection:  s.Config.Basis.CollectionTmp,
-				Replication: ReplicationNo,
+				Replication: s.Config.Basis.CollectionTmpReplication,
+				TTL:         s.Config.Basis.CollectionTmpTTL,
 			}
 			if prepareThumbnailMeta, err := s.Storage.Upload(option, meta.MimeType, prepareThumbnail); err != nil {
 				s.Logger.Errorf("上传预处理图片失败 %+v", err)
@@ -187,9 +188,11 @@ func (s *Server) uploadThumbnail(ctx echo.Context, r io.Reader) {
 	meta := context.FileContext.Meta
 	size := context.FileContext.Size
 
+	// TODO(benjamin): 过期时间
 	option := &common.UploadOption{
-		Collection:  CollectionNameTmp,
-		Replication: "000",
+		Collection:  s.Config.Basis.CollectionTmp,
+		Replication: s.Config.Basis.CollectionTmpReplication,
+		TTL:         s.Config.Basis.CollectionTmpTTL,
 	}
 	needle, err := s.Storage.Upload(option, meta.MimeType, r)
 	if err != nil {
@@ -205,6 +208,9 @@ func (s *Server) uploadThumbnail(ctx echo.Context, r io.Reader) {
 	if err := s.Meta.SubSet(meta.RawKey, fmt.Sprintf("thumbnails.%s", size.Name), thumbnailMeta, 0); err != nil {
 		s.Logger.Warnf("更新缩略图失败 %s, %v", meta.RawKey, err)
 	} else {
+		if meta.Thumbnails == nil {
+			meta.Thumbnails = make(model.Thumbnails)
+		}
 		meta.Thumbnails[size.Name] = thumbnailMeta
 	}
 }

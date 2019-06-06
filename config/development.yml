@@ -10,7 +10,10 @@ TempFileDir: ./tmp/
 Basis:
   BucketHome: home
   CollectionTmp: tmp
+  CollectionTmpReplication: 000
+  CollectionTmpTTL: 7d
   CollectionShare: mass
+  CollectionShareReplication: 100
 Storage:
   Cluster:
     - 192.168.1.9:9333
