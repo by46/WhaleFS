@@ -1,17 +1,46 @@
 package utils
 
 import (
+	"bufio"
 	"mime"
+	"os"
 	"path"
 	"strings"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo"
+	"github.com/labstack/gommon/log"
 )
 
 func init() {
-	_ = mime.AddExtensionType(".go", "text/plain; charset=utf-8")
-	_ = mime.AddExtensionType(".bash", "application/x-sh")
+	loadMime()
+}
+func loadMime() {
+	file := "config/mime.txt"
+	if FileExists(file) {
+		f, err := os.Open(file)
+		if err != nil {
+			log.Warnf("load mime type file failed: %v", err)
+			return
+		}
+		defer func() {
+			_ = f.Close()
+		}()
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			line := strings.TrimSpace(scanner.Text())
+			if line == "" {
+				continue
+			}
+			segments := strings.SplitN(line, " ", 2)
+			if len(segments) != 2 {
+				log.Warnf("invalid format %v", line)
+				continue
+			}
+			extension, mimeType := strings.TrimSpace(strings.ToLower(segments[0])), strings.TrimSpace(strings.ToLower(segments[1]))
+			_ = mime.AddExtensionType(extension, mimeType)
+		}
+	}
 }
 
 func IsImageByFileName(fileName string) bool {
