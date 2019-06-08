@@ -100,6 +100,7 @@ func MimeMatch(mimeType string, patterns []string) bool {
 		return true
 	}
 	mimeType = strings.ToLower(mimeType)
+	mimeType = NormalMimeType(mimeType)
 	for _, pattern := range patterns {
 		if strings.Contains(pattern, "*") {
 			mainType := strings.Split(pattern, "/")[0]
@@ -111,4 +112,12 @@ func MimeMatch(mimeType string, patterns []string) bool {
 		}
 	}
 	return false
+}
+
+func NormalMimeType(mimeType string) string {
+	media, _, err := mime.ParseMediaType(mimeType)
+	if err != nil {
+		return mimeType
+	}
+	return media
 }

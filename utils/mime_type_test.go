@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"mime"
 	"strings"
 	"testing"
 
@@ -29,9 +30,9 @@ func TestMimeTypeByExtension(t *testing.T) {
 }
 
 func TestRandomName(t *testing.T) {
-	assert.True(t, strings.HasSuffix(RandomName("image/jpeg"), ".jpg"))
-	assert.True(t, strings.HasSuffix(RandomName("image/png"), ".png"))
-	assert.True(t, strings.HasSuffix(RandomName("application/json"), ".json"))
+	assert.True(t, strings.HasSuffix(RandomName(".jpeg"), ".jpg"))
+	assert.True(t, strings.HasSuffix(RandomName(".png"), ".png"))
+	assert.True(t, strings.HasSuffix(RandomName(".json"), ".json"))
 }
 
 func TestExtensionByMimeType(t *testing.T) {
@@ -48,4 +49,11 @@ func TestMimeMatch(t *testing.T) {
 
 	assert.False(t, MimeMatch("text/html", []string{"image/*"}))
 	assert.False(t, MimeMatch("text/html", []string{"image/*", "video/*"}))
+}
+
+func TestParseMediaType(t *testing.T) {
+	media, p, err := mime.ParseMediaType("text/plain;charset=utf8")
+	assert.Nil(t, err)
+	assert.Equal(t, "text/plain", media)
+	assert.Equal(t, map[string]string{"charset": "utf8"}, p)
 }

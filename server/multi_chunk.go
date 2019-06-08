@@ -34,7 +34,7 @@ func (s *Server) uploads(ctx echo.Context) (uploads *model.Uploads, err error) {
 	}
 	if fileContext.ObjectName == "" {
 		fileContext.IsRandomName = true
-		fileContext.ObjectName = utils.RandomName(mimeType)
+		fileContext.ObjectName = utils.RandomName(utils.ExtensionByMimeType(mimeType))
 		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.Name, fileContext.ObjectName)
 		uploads.Key = fileContext.Key
 	}

@@ -436,7 +436,7 @@ func (s *Server) validateFile(ctx echo.Context) error {
 		}
 
 		if utils.MimeMatch(file.MimeType, limit.MimeTypes) == false {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持$s格式的文件", strings.Join(limit.MimeTypes, ",")))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持%v格式的文件", strings.Join(limit.MimeTypes, ",")))
 		}
 	}
 

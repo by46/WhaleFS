@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io/ioutil"
 	"mime/multipart"
-	"net/http"
 	"net/textproto"
 	"path/filepath"
 
@@ -114,10 +113,11 @@ func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader,
 	file.Size = int64(len(buf))
 	file.FileName = filename
 	file.Extension = filepath.Ext(filename)
-	file.MimeType = http.DetectContentType(buf)
-	if file.MimeType == echo.MIMEOctetStream {
-		file.MimeType = utils.MimeTypeByExtension(filename)
-	}
+	file.MimeType = utils.MimeTypeByExtension(filename)
+	//file.MimeType = http.DetectContentType(buf)
+	//if file.MimeType == echo.MIMEOctetStream {
+	//	file.MimeType = utils.MimeTypeByExtension(filename)
+	//}
 	file.Digest, err = utils.ContentSha1(bytes.NewReader(buf))
 	if err != nil {
 		return nil, errors.WithMessage(err, "文件内容摘要错误")
