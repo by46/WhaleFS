@@ -219,7 +219,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, packageEntity.Name))
 	err = s.CreateAutoTask(hashKey, packageEntity)
 
-	return returnMessage(ctx, "success", s.Config.HttpClientBase+"/tasks?key="+hashKey)
+	return returnMessage(ctx, "success", "http://"+ctx.Request().Host+"/tasks?key="+hashKey)
 }
 
 func returnMessage(ctx echo.Context, msg string, url string) error {
