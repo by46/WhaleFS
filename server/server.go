@@ -18,6 +18,7 @@ import (
 	"github.com/by46/whalefs/api"
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/model"
+	middleware2 "github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
 )
 
@@ -110,7 +111,7 @@ func NewServer() *Server {
 		BucketMeta:            bucketMeta,
 		ChunkDao:              chuckDao,
 		Logger:                logger,
-		Version:               VERSION,
+		Version:               common.VERSION,
 		buckets:               &sync.Map{},
 		overlays:              &sync.Map{},
 		TaskBucketName:        config.TaskFileBucketName,
@@ -128,6 +129,8 @@ func (s *Server) install() {
 	s.app.HTTPErrorHandler = s.HTTPErrorHandler
 
 	s.app.Use(middleware.Logger())
+
+	s.app.Use(middleware2.InjectServer())
 
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},

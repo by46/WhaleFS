@@ -206,3 +206,4 @@ POST /benjamin/demo/hello.jpg?uploadId=uuid1
 
 whalefs.exe migrate --location="D:\application\ImageServer" --target="192.168.1.9:8000" --includes="banner,banner_01"
 whalefs.exe migrate --location="D:\application\ImageServer" --target="192.168.1.9:8000" --includes="bond,bond_01,contract,contract_01,eInvoice,eInvoice_01"
+whalefs.exe migrate --location="D:\application\ImageServer" --target="192.168.1.9:8000" --includes="ibuild,ibuild_01"
