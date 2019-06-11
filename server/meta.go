@@ -13,7 +13,7 @@ func (s *Server) GetFileEntity(hash string) (*model.FileMeta, error) {
 	entity := &model.FileMeta{}
 	if err := s.Meta.Get(hash, entity); err != nil {
 		// 兼容JC legacy 文件系统
-		if err == common.ErrKeyNotFound {
+		if err == common.ErrKeyNotFound && s.Config.LegacyFS != "" {
 			return s.GetFileEntityFromLegacy(hash)
 		}
 		return nil, err
