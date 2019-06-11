@@ -26,8 +26,9 @@ type BasisConfig struct {
 
 type Config struct {
 	Host                  string `default:":8080"`
-	Basis                 *BasisConfig
 	Storage               *StorageConfig
+	LegacyFS              string
+	Basis                 *BasisConfig
 	Master                []string
 	Debug                 bool `default:"false"`
 	Log                   *LogConfig
