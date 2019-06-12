@@ -14,6 +14,10 @@ sub vcl_recv {
         }
     }
 
+    if (req.url ~ "(?i)\.ashx") {
+        return (pipe);
+    }
+
     if (req.method != "GET" &&
         req.method != "HEAD" &&
         req.method != "PUT" &&
