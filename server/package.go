@@ -29,7 +29,7 @@ func Package(
 
 	for _, item := range pkgFileInfo.Items {
 
-		entity, err := getEntityFunc(item.RawKey)
+		entity, err := getEntityFunc(utils.PathNormalize(item.RawKey))
 		if err != nil {
 			return err
 		}
