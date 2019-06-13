@@ -47,7 +47,7 @@ func initialize(cmd *cobra.Command, args []string) {
 	for key := range buckets {
 		value := buckets[key]
 		if err := meta.Set(key, value); err != nil {
-			fmt.Printf("添加配置key: %s失败, %v", key, err)
+			fmt.Printf("添加配置key: %s失败, %v\n", key, err)
 		}
 	}
 }

@@ -19,13 +19,13 @@
 .zip application/x-zip-compressed
 .tar application/x-tar
 .jar application/java-archive
+.7z application/x-7z-compressed
 .dwg image/vnd.dwg
 .dws image/vnd.dws
 .dwt image/vnd.dwt
 .dxf application/x-dxf
 .dwf drawing/dwf
 .csv text/csv
-.7z application/x-7z-compressed
 .wps application/kswps
 .rtf application/rtf
 .et application/kset

@@ -122,6 +122,7 @@ func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
 // DownloadHandler.ashx
 func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 	key := ctx.QueryParam("FilePath")
+	key = utils.PathNormalize(key)
 	attachmentName := ctx.QueryParam("FileName")
 	//shouldMark := utils.ToBool(ctx.QueryParam("Mark"))
 

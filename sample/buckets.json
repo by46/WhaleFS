@@ -24,7 +24,24 @@
       "mime_types": [
         "image/png",
         "image/jpeg",
-        "image/png"
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
       ]
     },
     "last_edit_date": 123143,
@@ -47,6 +64,34 @@
         "value": "21"
       }
     ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
+      ]
+    },
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },
@@ -75,7 +120,17 @@
       "mime_types": [
         "image/png",
         "image/jpeg",
-        "image/png"
+        "image/gif",
+        "image/bmp",
+        "text/css",
+        "text/javascript",
+        "text/html",
+        "image/svg+xml",
+        "font/woff2",
+        "application/x-tar",
+        "image/vnd.microsoft.icon",
+        "application/json",
+        "application/x-navimap"
       ]
     },
     "last_edit_date": 123143,
@@ -106,7 +161,24 @@
       "mime_types": [
         "image/png",
         "image/jpeg",
-        "image/png"
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
       ]
     },
     "last_edit_date": 123143,
@@ -137,7 +209,24 @@
       "mime_types": [
         "image/png",
         "image/jpeg",
-        "image/png"
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
       ]
     },
     "last_edit_date": 123143,
@@ -168,7 +257,24 @@
       "mime_types": [
         "image/png",
         "image/jpeg",
-        "image/png"
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
       ]
     },
     "last_edit_date": 123143,
@@ -608,7 +714,7 @@
       "mime_types": [
         "application/pdf",
         "application/x-zip-compressed",
-        "application/x-tar"
+        "application/x-rar-compressed"
       ]
     },
     "last_edit_date": 123143,
@@ -635,7 +741,7 @@
       "mime_types": [
         "application/pdf",
         "application/x-zip-compressed",
-        "application/x-tar"
+        "application/x-rar-compressed"
       ]
     },
     "last_edit_date": 123143,
