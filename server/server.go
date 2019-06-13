@@ -159,6 +159,7 @@ func (s *Server) install() {
 	s.app.POST("/BatchDownloadHandler.ashx", s.legacyBatchDownload)
 	s.app.Match(methods, "/DownloadSaveServerHandler.ashx", s.legacyUploadByRemote)
 	s.app.GET("/DownloadHandler.ashx", s.legacyDownloadFile)
+	s.app.GET("/DownLoadHandler.ashx", s.legacyDownloadFile)
 	s.app.Match(methods, "/ApiUploadHandler.ashx", s.legacyApiUpload)
 	s.app.Match(methods, "/BatchMergePdfHandler.ashx", s.legacyMergePDF)
 	s.app.Match(methods, "/SliceUploadHandler.ashx", s.legacySliceUpload)
