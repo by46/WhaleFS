@@ -136,7 +136,7 @@ func (s *Server) install() {
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST},
 		ExposeHeaders: []string{"X-Request-Id"},
-		AllowHeaders:  []string{"X-Request-Id"},
+		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno"},
 		MaxAge:        60 * 30,
 	}))
 	methods := []string{
