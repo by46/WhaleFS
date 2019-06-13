@@ -1568,6 +1568,28 @@
         "value": "21"
       }
     ],
+    "limit": {
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "text/plain",
+        "text/csv",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf"
+      ]
+    },
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },
@@ -1588,6 +1610,14 @@
         "value": "21"
       }
     ],
+    "limit": {
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp"
+      ]
+    },
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },
@@ -1608,6 +1638,16 @@
         "value": "21"
       }
     ],
+    "limit": {
+      "mime_types": [
+        "video/x-flv",
+        "application/x-shockwave-flash",
+        "video/avi",
+        "video/quicktime",
+        "video/x-ms-wmv",
+        "video/mpeg4"
+      ]
+    },
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },
@@ -1648,6 +1688,16 @@
         "value": "21"
       }
     ],
+    "limit": {
+      "mime_types": [
+        "video/x-flv",
+        "application/x-shockwave-flash",
+        "video/avi",
+        "video/quicktime",
+        "video/x-ms-wmv",
+        "video/mpeg4"
+      ]
+    },
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },
@@ -1688,6 +1738,29 @@
         "value": "21"
       }
     ],
+    "limit": {
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "text/plain",
+        "text/csv",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf"
+      ]
+    },
     "last_edit_date": 123143,
     "last_edit_user": "by46"
   },
