@@ -51,7 +51,9 @@
 11. 支持默认图
 12. 支持单图多水印
 13. 如果通过remote 下载时, 如果文件过大,需要转换为multi-chunks
-14. 接口兼容问题(handler存在多个系统中时, 有可能失败)
+14. 接口兼容问题(handler存在多个系统中时, 有可能失败) - done
+15. bucket 更新接口
+
 
 目前根据facebook的一篇针对小文件优化的文件系统的论文, 找了一个golang的开源实现, 在此基础上进行开发, https://github.com/chrislusf/seaweedfs
 
@@ -64,3 +66,5 @@
   { source: "101_100.doc", target: "供应商101\招标文件\xxx招标.doc" },
   { source: "101_101.doc", target: "供应商101\投标文件\xxx投标.doc" }]
 }
+
+/usr/bin/kubelet  --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --cgroup-driver=systemd --network-plugin=cni --pod-infra-container-image=k8s.gcr.io/pause:3.1

@@ -32,7 +32,7 @@ func (s *Server) HTTPErrorHandler(err error, ctx echo.Context) {
 	}
 
 	if _, ok := msg.(string); ok {
-		msg = echo.Map{"message": msg}
+		msg = echo.Map{"message": msg, "state": "TYPE"}
 	}
 
 	// Send response
