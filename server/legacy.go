@@ -91,7 +91,14 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	fileContext.File.WaterMark = utils.Params(ctx, "watermarkPic")
 	context := &middleware.ExtendContext{ctx, fileContext}
 
-	return s.uploadFile(context)
+	err = s.uploadFile(context)
+	if err != nil {
+		inner, success := err.(*echo.HTTPError)
+		if success {
+			inner.Code = http.StatusOK
+		}
+	}
+	return err
 }
 
 // DownloadSaveServerHandler.ashx
