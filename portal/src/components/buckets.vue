@@ -69,7 +69,7 @@
     methods: {
       loadData() {
         var self = this
-        this.axios.get("http://localhost:8089/buckets")
+        this.axios.get(this.BASE_API_URL + "/buckets")
           .then(function (response) {
             self.bucketData = response.data.rows;
           })
@@ -83,7 +83,7 @@
       onSave(id) {
         var self = this
         this.dialogBucketVisible = false
-        this.axios.post("http://localhost:8089/buckets", {
+        this.axios.post(this.BASE_API_URL + "/buckets", {
           "id": id,
           "doc": this.editBucket
         })
