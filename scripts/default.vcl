@@ -26,14 +26,16 @@ sub vcl_recv {
         req.method != "OPTIONS" &&
         req.method != "DELETE" &&
         req.method != "PURGE") {
-            return (pipe);
+        return (pipe);
     }
 
     if (req.method != "GET" && req.method != "HEAD") {
         return (pass);
     }
 
-    if (req.method == "GET" && req.url ~ "(?i)\.zip") {
+    if (req.method == "GET" &&
+        !(req.url ~ "\.(gif|jpg|jpeg|png|bmp|ico)" ||
+            req.url ~ "\.(css|js|html|htm)")) {
         return (pass);
     }
 
