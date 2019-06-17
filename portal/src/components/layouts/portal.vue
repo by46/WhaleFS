@@ -1,31 +1,27 @@
 <template>
-    <div>
-        <el-menu
-                :default-active="activeIndex2"
-                class="el-menu-demo"
-                mode="horizontal"
-                @select="handleSelect"
-                background-color="#545c64"
-                text-color="#fff"
-                active-text-color="#ffd04b">
-            <el-menu-item index="1">
-                <router-link to="buckets">Bucket管理</router-link>
-            </el-menu-item>
-            <el-submenu index="2">
-                <template slot="title">我的工作台</template>
-                <el-menu-item index="2-1">选项1</el-menu-item>
-                <el-menu-item index="2-2">选项2</el-menu-item>
-                <el-menu-item index="2-3">选项3</el-menu-item>
-            </el-submenu>
-        </el-menu>
-        <section class="content">
-            <transition
-                    name="page"
-                    mode="out-in">
-                <router-view></router-view>
-            </transition>
-        </section>
-    </div>
+    <el-container style="height: 100vh; border: 1px solid #eee">
+        <el-header class="header">
+
+        </el-header>
+
+        <el-container>
+            <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+                <el-menu :router="true" class="totalUl">
+                    <el-menu-item index="/portal/buckets"><i class="el-icon-message"></i>Bucket</el-menu-item>
+                    <el-menu-item index="1"><i class="el-icon-message"></i>Other</el-menu-item>
+                </el-menu>
+            </el-aside>
+            <el-main>
+                <section class="content">
+                    <transition
+                            name="page"
+                            mode="out-in">
+                        <router-view></router-view>
+                    </transition>
+                </section>
+            </el-main>
+        </el-container>
+    </el-container>
 </template>
 
 <script>
@@ -33,3 +29,20 @@
         name: "portal"
     }
 </script>
+
+<style scoped>
+    .header {
+        color: rgba(255, 255, 255, 0.75);
+        line-height: 60px;
+        background-color: #24292e;
+        text-align: center;
+    }
+
+    .header div {
+        display: inline;
+    }
+
+    .totalUl {
+        height: 100%;
+    }
+</style>
