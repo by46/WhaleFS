@@ -56,6 +56,58 @@
 16. resize cache 如何过期
 
 
+80,110,160,240,220,600,375,750,1125
+
+{
+    "name": "p80",
+    "width": 80,
+    "height": 60,
+    "mode": "stretch"
+},
+{
+    "name": "p110",
+    "width": 110,
+    "height": 82,
+    "mode": "stretch"
+},
+{
+    "name": "p160",
+    "width": 160,
+    "height": 120,
+    "mode": "stretch"
+},
+{
+ "name": "p220",
+ "width": 220,
+ "height": 165,
+ "mode": "stretch"
+},
+{
+ "name": "p600",
+ "width": 600,
+ "height": 450,
+ "mode": "stretch"
+},
+ {
+  "name": "p375",
+  "width": 375,
+  "height": 281,
+  "mode": "stretch"
+ },
+   {
+    "name": "p750",
+    "width": 750,
+    "height": 563,
+    "mode": "stretch"
+   },
+       {
+        "name": "p1125",
+        "width": 750,
+        "height": 844,
+        "mode": "stretch"
+       }
+
+
 目前根据facebook的一篇针对小文件优化的文件系统的论文, 找了一个golang的开源实现, 在此基础上进行开发, https://github.com/chrislusf/seaweedfs
 
 ### 打包下载

@@ -363,6 +363,54 @@
         "width": 800,
         "height": 800,
         "mode": "stretch"
+      },
+      {
+        "name": "p80",
+        "width": 80,
+        "height": 60,
+        "mode": "stretch"
+      },
+      {
+        "name": "p110",
+        "width": 110,
+        "height": 82,
+        "mode": "stretch"
+      },
+      {
+        "name": "p160",
+        "width": 160,
+        "height": 120,
+        "mode": "stretch"
+      },
+      {
+        "name": "p220",
+        "width": 220,
+        "height": 165,
+        "mode": "stretch"
+      },
+      {
+        "name": "p600",
+        "width": 600,
+        "height": 450,
+        "mode": "stretch"
+      },
+      {
+        "name": "p375",
+        "width": 375,
+        "height": 281,
+        "mode": "stretch"
+      },
+      {
+        "name": "p750",
+        "width": 750,
+        "height": 563,
+        "mode": "stretch"
+      },
+      {
+        "name": "p1125",
+        "width": 1125,
+        "height": 844,
+        "mode": "stretch"
       }
     ],
     "last_edit_date": 123143,
