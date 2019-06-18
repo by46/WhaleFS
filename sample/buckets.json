@@ -311,10 +311,40 @@
     },
     "sizes": [
       {
+        "name": "p60",
+        "width": 60,
+        "height": 60,
+        "mode": "fit"
+      },
+      {
+        "name": "p68",
+        "width": 68,
+        "height": 68,
+        "mode": "fit"
+      },
+      {
+        "name": "p120",
+        "width": 120,
+        "height": 120,
+        "mode": "fit"
+      },
+      {
+        "name": "p160",
+        "width": 160,
+        "height": 160,
+        "mode": "fit"
+      },
+      {
         "name": "p200",
         "width": 200,
-        "height": 150,
-        "mode": "stretch"
+        "height": 200,
+        "mode": "fit"
+      },
+      {
+        "name": "p240",
+        "width": 240,
+        "height": 240,
+        "mode": "fit"
       },
       {
         "name": "p360",
@@ -323,10 +353,16 @@
         "mode": "fit"
       },
       {
-        "name": "p160",
-        "width": 160,
-        "height": 120,
-        "mode": "thumbnail"
+        "name": "p450",
+        "width": 450,
+        "height": 450,
+        "mode": "fit"
+      },
+      {
+        "name": "p800",
+        "width": 800,
+        "height": 800,
+        "mode": "fit"
       }
     ],
     "last_edit_date": 123143,
