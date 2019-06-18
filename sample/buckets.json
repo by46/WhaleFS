@@ -314,55 +314,55 @@
         "name": "p60",
         "width": 60,
         "height": 60,
-        "mode": "fit"
+        "mode": "stretch"
       },
       {
         "name": "p68",
         "width": 68,
         "height": 68,
-        "mode": "fit"
+        "mode": "stretch"
       },
       {
         "name": "p120",
         "width": 120,
         "height": 120,
-        "mode": "fit"
+        "mode": "stretch"
       },
       {
         "name": "p160",
         "width": 160,
         "height": 160,
-        "mode": "fit"
+        "mode": "stretch"
       },
       {
         "name": "p200",
         "width": 200,
         "height": 200,
-        "mode": "fit"
+        "mode": "stretch"
       },
       {
         "name": "p240",
         "width": 240,
         "height": 240,
-        "mode": "fit"
+        "mode": "stretch"
       },
       {
         "name": "p360",
         "width": 360,
         "height": 360,
-        "mode": "fit"
+        "mode": "stretch"
       },
       {
         "name": "p450",
         "width": 450,
         "height": 450,
-        "mode": "fit"
+        "mode": "stretch"
       },
       {
         "name": "p800",
         "width": 800,
         "height": 800,
-        "mode": "fit"
+        "mode": "stretch"
       }
     ],
     "last_edit_date": 123143,
@@ -1878,7 +1878,7 @@
         "name": "p60",
         "width": 60,
         "height": 45,
-        "mode": "fit"
+        "mode": "stretch"
       },
       {
         "name": "p160",
