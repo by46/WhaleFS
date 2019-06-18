@@ -136,7 +136,7 @@ func (s *Server) install() {
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST},
 		ExposeHeaders: []string{"X-Request-Id"},
-		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno"},
+		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno", "content-type"},
 		MaxAge:        60 * 30,
 	}))
 	methods := []string{
@@ -155,6 +155,8 @@ func (s *Server) install() {
 	s.app.GET("/tasks", s.checkTask)
 	s.app.GET("/metrics", s.metric)
 	s.app.POST("/demo", s.demo)
+	s.app.GET("/buckets", s.listBucket)
+	s.app.POST("/buckets", s.updateBucket)
 	s.app.POST("/UploadHandler.ashx", s.legacyUploadFile)
 	s.app.POST("/BatchDownloadHandler.ashx", s.legacyBatchDownload)
 	s.app.Match(methods, "/DownloadSaveServerHandler.ashx", s.legacyUploadByRemote)
