@@ -14,9 +14,7 @@ Vue.use(ElementUI)
 Vue.use(VueAxios, axios)
 
 Vue.config.productionTip = false
-if (process.env.NODE_ENV === "development") {
-    Vue.prototype.BASE_API_URL = "http://192.168.1.9:8089"
-}
+Vue.prototype.BASE_API_URL = "http://localhost:8089"
 
 new Vue({
     router,
