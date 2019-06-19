@@ -7,9 +7,9 @@ import (
 type User struct {
 	Name     string   `json:"username"`
 	Password string   `json:"password"`
-	Buckets  []string `json:"buckets"`
+	Buckets  []string `json:"buckets,omitempty"`
 	Type     string   `json:"type"`
-	Tokens   []string `json:"tokens"`
+	Tokens   []string `json:"tokens,omitempty"`
 	Role     string   `json:"role"`
 }
 

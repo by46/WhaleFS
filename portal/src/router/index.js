@@ -3,6 +3,7 @@ import Portal from '@/components/layouts/portal'
 import Login from '@/components/login'
 import Dashboard from '@/components/dashboard'
 import Buckets from '@/components/buckets'
+import Users from '@/components/users'
 
 export default new Router({
   mode: 'history',
@@ -18,13 +19,17 @@ export default new Router({
       component: Portal,
       children:
         [{
-          path: '',
+          path: 'dashboard',
           name: 'dashboard',
           component: Dashboard
         }, {
           path: 'buckets',
           name: 'buckets',
           component: Buckets
+        }, {
+          path: 'users',
+          name: 'users',
+          component: Users
         }]
     },
     {

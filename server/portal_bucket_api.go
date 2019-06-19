@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo"
 	"gopkg.in/couchbase/gocb.v1"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -32,8 +33,10 @@ type userInfo struct {
 }
 
 type basisInfo struct {
-	Id    string      `json:"id"`
-	Basis interface{} `json:"basis,omitempty"`
+	Id      string      `json:"id"`
+	Cas     uint64      `json:"cas,omitempty"`
+	Version string      `json:"version"`
+	Basis   interface{} `json:"basis,omitempty"`
 }
 
 func (s *Server) listBucket(ctx echo.Context) error {
@@ -60,6 +63,7 @@ func (s *Server) listBucket(ctx echo.Context) error {
 		if results.Next(info) == false {
 			break
 		}
+		info.Version = strconv.FormatUint(info.Cas, 10)
 		infos = append(infos, info)
 	}
 
@@ -145,6 +149,16 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 	bucketName := strings.TrimPrefix(bucket.Id, prefixBucket)
 	if !utils.Exists(u.Buckets, bucketName) {
 		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
+	}
+
+	var b interface{}
+	cas, err := s.BucketMeta.GetWithCas(bucket.Id, b)
+	if err != nil {
+		s.Logger.Errorf("数据库操作失败 %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	if strconv.FormatUint(cas, 10) != bucket.Version {
+		return echo.NewHTTPError(http.StatusConflict, "bucket 已被其他用户修改，请刷新重试")
 	}
 
 	basis := bucket.Basis.(map[string]interface{})

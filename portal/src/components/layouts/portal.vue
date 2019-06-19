@@ -1,8 +1,8 @@
 <template>
     <el-container style="height: 100vh; border: 1px solid #eee">
         <el-header class="header">
-            <div>
-                <span>Whalefs后台管理系统</span>
+            <div class="logo">
+                <img src="../../assets/logo.png" alt="whalefs">
             </div>
             <div class="right-header">
                 <div v-if="username != ''">
@@ -25,9 +25,10 @@
 
         <el-container>
             <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-                <el-menu :router="true" class="totalUl">
-                    <el-menu-item index="/portal/buckets"><i class="el-icon-message"></i>Bucket</el-menu-item>
-                    <el-menu-item index="1"><i class="el-icon-message"></i>Other</el-menu-item>
+                <el-menu :router="true" class="totalUl" :default-active="$route.path">
+                    <el-menu-item index="/portal/dashboard"><i class="el-icon-pie-chart"></i>Dashboard</el-menu-item>
+                    <el-menu-item index="/portal/buckets"><i class="el-icon-delete"></i>Buckets</el-menu-item>
+                    <el-menu-item index="/portal/users"><i class="el-icon-user"></i>Users</el-menu-item>
                 </el-menu>
             </el-aside>
             <el-main>
@@ -76,7 +77,6 @@
         color: rgba(255, 255, 255, 0.75);
         line-height: 60px;
         background-color: #24292e;
-        text-align: center;
     }
 
     .header div {
@@ -93,5 +93,11 @@
 
     .user {
         margin-right: 10px;
+    }
+
+    .logo img {
+        width: 180px;
+        height: 180px;
+        margin: -57px 10px -40px -10px;
     }
 </style>

@@ -42,7 +42,7 @@
                              @json-change="onJsonChange"></vue-json-editor>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogBucketVisible = false">取 消</el-button>
-                <el-button type="primary" @click="onSave(isEdit?editId:newBucketId)">确 定</el-button>
+                <el-button type="primary" @click="onSave(isEdit?editRow.id:newBucketId)">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -61,7 +61,7 @@
       return {
         bucketData: [],
         editBucket: {},
-        editId: null,
+        editRow: {},
         dialogBucketVisible: false,
         isEdit: false,
         newBucketId: null
@@ -78,8 +78,8 @@
       onEdit(row) {
         this.isEdit = true
         this.dialogBucketVisible = true
+        this.editRow = row
         this.editBucket = row.basis
-        this.editId = row.id
       },
       onSave(id) {
         var self = this
@@ -87,6 +87,7 @@
         if (this.isEdit) {
           this.$http.put(this.BASE_API_URL + "/api/buckets", {
             "id": id,
+            "version": this.editRow.version,
             "basis": this.editBucket
           }).then(function () {
             self.loadData()
@@ -94,6 +95,7 @@
         } else {
           this.$http.post(this.BASE_API_URL + "/api/buckets", {
             "id": id,
+            "version": "",
             "basis": this.editBucket
           }).then(function () {
             self.loadData()
@@ -107,6 +109,7 @@
         this.isEdit = false
         this.dialogBucketVisible = true
         this.editBucket = {}
+        this.editRow = {}
       },
       onDelete(row) {
         var self = this
