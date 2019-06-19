@@ -1,7 +1,26 @@
 <template>
     <el-container style="height: 100vh; border: 1px solid #eee">
         <el-header class="header">
-
+            <div>
+                <span>Whalefs后台管理系统</span>
+            </div>
+            <div class="right-header">
+                <div v-if="username != ''">
+                    <span class="user">当前用户: {{ username }}</span>
+                    <el-button style="padding: 0px"
+                               type="text"
+                               @click="onLogout">
+                        退出
+                    </el-button>
+                </div>
+                <div v-else>
+                    <el-button style="padding: 0px"
+                               type="text"
+                               @click="onLogin">
+                        登录
+                    </el-button>
+                </div>
+            </div>
         </el-header>
 
         <el-container>
@@ -26,7 +45,29 @@
 
 <script>
     export default {
-        name: "portal"
+      name: "portal",
+      data() {
+        return {
+          username: '',
+        }
+      },
+      mounted: function () {
+        let user = JSON.parse(window.localStorage.getItem('user'))
+        this.username = user.username
+      },
+      methods: {
+        onLogout() {
+          var self = this
+          this.$http.post(this.BASE_API_URL + "/api/logout", {})
+            .then(function () {
+              window.localStorage.removeItem("user")
+              self.$router.push({ path: '/login'})
+            })
+        },
+        onLogin() {
+          this.$router.push({ path: '/login'})
+        }
+      }
     }
 </script>
 
@@ -44,5 +85,13 @@
 
     .totalUl {
         height: 100%;
+    }
+
+    .right-header {
+        float: right;
+    }
+
+    .user {
+        margin-right: 10px;
     }
 </style>

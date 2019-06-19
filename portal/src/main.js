@@ -15,8 +15,26 @@ Vue.use(VueAxios, axios)
 
 Vue.config.productionTip = false
 Vue.prototype.BASE_API_URL = "http://localhost:8089"
+Vue.prototype.$http.interceptors.request.use(config => {
+  let user = JSON.parse(window.localStorage.getItem('user'))
+
+  if (user && user.token) {
+    config.headers.Authorization = `Bearer ${user.token}`
+  }
+  return config
+})
+
+Vue.prototype.$http.interceptors.response.use(res => {
+  return res
+}, error => {
+  if (error.response.status === 401) {
+    window.localStorage.removeItem('user')
+    router.push({ path: '/login'})
+  }
+  return Promise.reject(error);
+})
 
 new Vue({
-    router,
-    render: h => h(App),
+  router,
+  render: h => h(App),
 }).$mount('#app')

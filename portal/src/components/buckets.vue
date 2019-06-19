@@ -13,7 +13,7 @@
                     prop="doc"
                     label="内容">
                 <template slot-scope="{row}">
-                    {{row.doc.json}}
+                    {{row.basis}}
                 </template>
             </el-table-column>
             <el-table-column
@@ -69,27 +69,35 @@
     methods: {
       loadData() {
         var self = this
-        this.axios.get(this.BASE_API_URL + "/api/buckets")
+        this.$http.get(this.BASE_API_URL + "/api/buckets")
           .then(function (response) {
-            self.bucketData = response.data.rows;
+            self.bucketData = response.data;
           })
       },
       onEdit(row) {
         this.isEdit = true
         this.dialogBucketVisible = true
-        this.editBucket = row.doc.json
+        this.editBucket = row.basis
         this.editId = row.id
       },
       onSave(id) {
         var self = this
         this.dialogBucketVisible = false
-        this.axios.post(this.BASE_API_URL + "/api/buckets", {
-          "id": id,
-          "doc": this.editBucket
-        })
-          .then(function () {
+        if (this.isEdit) {
+          this.$http.put(this.BASE_API_URL + "/api/buckets", {
+            "id": id,
+            "basis": this.editBucket
+          }).then(function () {
             self.loadData()
           })
+        } else {
+          this.$http.post(this.BASE_API_URL + "/api/buckets", {
+            "id": id,
+            "basis": this.editBucket
+          }).then(function () {
+            self.loadData()
+          })
+        }
       },
       onJsonChange(value) {
         this.editBucket = value

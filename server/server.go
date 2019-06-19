@@ -134,9 +134,9 @@ func (s *Server) install() {
 
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},
-		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST},
+		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST, echo.PUT},
 		ExposeHeaders: []string{"X-Request-Id"},
-		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno", "content-type"},
+		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno", "content-type", "Authorization"},
 		MaxAge:        60 * 30,
 	}))
 	methods := []string{
@@ -156,7 +156,10 @@ func (s *Server) install() {
 	s.app.GET("/metrics", s.metric)
 	s.app.POST("/demo", s.demo)
 	s.app.GET("/api/buckets", s.listBucket)
-	s.app.POST("/api/buckets", s.updateBucket)
+	s.app.PUT("/api/buckets", s.updateBucket)
+	s.app.POST("/api/buckets", s.addBucket)
+	s.app.POST("/api/login", s.login)
+	s.app.POST("/api/logout", s.logout)
 	s.app.POST("/UploadHandler.ashx", s.legacyUploadFile)
 	s.app.POST("/BatchDownloadHandler.ashx", s.legacyBatchDownload)
 	s.app.Match(methods, "/DownloadSaveServerHandler.ashx", s.legacyUploadByRemote)

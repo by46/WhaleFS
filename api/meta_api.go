@@ -122,3 +122,22 @@ func (m *metaClient) SubSet(key, path string, value interface{}, cas uint64) (er
 	_, err = m.Bucket.MutateIn(key, 0, 0).Upsert(path, value, true).Execute()
 	return errors.WithStack(err)
 }
+
+func (m *metaClient) GetBucketsByNames(bucketNames []string) (gocb.QueryResults, error) {
+	cond := ""
+	for _, name := range bucketNames {
+		cond = cond + "'" + name + "',"
+	}
+	cond = strings.TrimSuffix(cond, ",")
+
+	n1sql := "SELECT meta(basis).id, basis FROM basis WHERE type = 'bucket' AND name IN [" + cond + "]"
+
+	query := gocb.NewN1qlQuery(n1sql)
+	return m.ExecuteN1qlQuery(query, nil)
+}
+
+func (m *metaClient) GetAllBuckets() (gocb.QueryResults, error) {
+	n1sql := "SELECT meta(basis).id, basis FROM basis WHERE type = 'bucket'"
+	query := gocb.NewN1qlQuery(n1sql)
+	return m.ExecuteN1qlQuery(query, nil)
+}

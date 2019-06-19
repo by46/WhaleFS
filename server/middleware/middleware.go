@@ -11,3 +11,8 @@ type ExtendContext struct {
 	echo.Context
 	FileContext *model.FileContext
 }
+
+type UserContext struct {
+	echo.Context
+	User *model.User
+}
