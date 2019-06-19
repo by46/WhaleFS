@@ -33,7 +33,7 @@ type userInfo struct {
 
 type basisInfo struct {
 	Id    string      `json:"id"`
-	Basis interface{} `json:"basis"`
+	Basis interface{} `json:"basis,omitempty"`
 }
 
 func (s *Server) listBucket(ctx echo.Context) error {
@@ -174,6 +174,41 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 	return err
 }
 
+func (s *Server) deleteBucket(ctx echo.Context) error {
+	u, err := s.getUser(ctx)
+	if err != nil {
+		return err
+	}
+
+	bucketId := strings.TrimPrefix(ctx.Request().URL.Path, "/api/buckets/")
+
+	if !strings.HasPrefix(bucketId, prefixBucket) {
+		bucketId = prefixBucket + bucketId
+	}
+
+	bucketName := strings.TrimPrefix(bucketId, prefixBucket)
+	if !utils.Exists(u.Buckets, bucketName) {
+		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
+	}
+
+	err = s.BucketMeta.Delete(bucketId, 0)
+	if err != nil {
+		s.Logger.Errorf("数据库操作失败 %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	var newBuckets []string
+	for _, b := range u.Buckets {
+		if bucketName != b {
+			newBuckets = append(newBuckets, b)
+		}
+	}
+	u.Buckets = newBuckets
+	err = s.BucketMeta.SubSet(prefixUser+u.Name, "buckets", u.Buckets, 0)
+
+	return err
+}
+
 func (s *Server) login(ctx echo.Context) error {
 	reqUser := new(model.User)
 	if err := ctx.Bind(reqUser); err != nil {
@@ -243,8 +278,8 @@ func (s *Server) logout(ctx echo.Context) error {
 		}
 	}
 	u.Tokens = newTokens
+	err = s.BucketMeta.SubSet(prefixUser+u.Name, "tokens", u.Tokens, 0)
 
-	err = s.BucketMeta.Set(prefixUser+u.Name, u)
 	if err != nil {
 		return err
 	}

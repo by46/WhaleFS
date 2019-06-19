@@ -27,7 +27,8 @@
                         编辑
                     </el-button>
                     <el-button style="padding: 0px"
-                               type="text">
+                               type="text"
+                               @click="onDelete(row)">
                         删除
                     </el-button>
                 </template>
@@ -106,6 +107,13 @@
         this.isEdit = false
         this.dialogBucketVisible = true
         this.editBucket = {}
+      },
+      onDelete(row) {
+        var self = this
+        this.$http.delete(this.BASE_API_URL + `/api/buckets/${row.id}`)
+          .then(function () {
+          self.loadData()
+        })
       }
     },
     mounted() {

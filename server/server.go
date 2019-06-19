@@ -134,7 +134,7 @@ func (s *Server) install() {
 
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},
-		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST, echo.PUT},
+		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST, echo.PUT, echo.DELETE},
 		ExposeHeaders: []string{"X-Request-Id"},
 		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno", "content-type", "Authorization"},
 		MaxAge:        60 * 30,
@@ -157,6 +157,7 @@ func (s *Server) install() {
 	s.app.POST("/demo", s.demo)
 	s.app.GET("/api/buckets", s.listBucket)
 	s.app.PUT("/api/buckets", s.updateBucket)
+	s.app.DELETE("/api/buckets/*", s.deleteBucket)
 	s.app.POST("/api/buckets", s.addBucket)
 	s.app.POST("/api/login", s.login)
 	s.app.POST("/api/logout", s.logout)
