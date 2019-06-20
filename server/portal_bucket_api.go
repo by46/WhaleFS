@@ -40,12 +40,10 @@ type basisInfo struct {
 }
 
 func (s *Server) listBucket(ctx echo.Context) error {
-	u, err := s.GetUser(ctx)
-	if err != nil {
-		return err
-	}
+	u := s.getCurrentUser(ctx)
 
 	var results gocb.QueryResults
+	var err error
 	if u.Role == roleAdmin {
 		results, err = s.BucketMeta.GetAllBuckets()
 	} else {
@@ -72,10 +70,7 @@ func (s *Server) listBucket(ctx echo.Context) error {
 }
 
 func (s *Server) addBucket(ctx echo.Context) error {
-	u, err := s.GetUser(ctx)
-	if err != nil {
-		return err
-	}
+	u := s.getCurrentUser(ctx)
 
 	bucket := basisInfo{}
 	f := ctx.Request().Body
@@ -89,7 +84,8 @@ func (s *Server) addBucket(ctx echo.Context) error {
 	}
 
 	var b interface{}
-	if err = s.BucketMeta.Get(bucket.Id, b); err == nil {
+	err := s.BucketMeta.Get(bucket.Id, b)
+	if err == nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "bucket 已经存在")
 	}
 	if err != common.ErrKeyNotFound {
@@ -130,10 +126,7 @@ func (s *Server) addBucket(ctx echo.Context) error {
 }
 
 func (s *Server) updateBucket(ctx echo.Context) error {
-	u, err := s.GetUser(ctx)
-	if err != nil {
-		return err
-	}
+	u := s.getCurrentUser(ctx)
 
 	bucket := basisInfo{}
 	f := ctx.Request().Body
@@ -189,10 +182,7 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 }
 
 func (s *Server) deleteBucket(ctx echo.Context) error {
-	u, err := s.GetUser(ctx)
-	if err != nil {
-		return err
-	}
+	u := s.getCurrentUser(ctx)
 
 	bucketId := strings.TrimPrefix(ctx.Request().URL.Path, "/api/buckets/")
 
@@ -205,7 +195,7 @@ func (s *Server) deleteBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
 	}
 
-	err = s.BucketMeta.Delete(bucketId, 0)
+	err := s.BucketMeta.Delete(bucketId, 0)
 	if err != nil {
 		s.Logger.Errorf("数据库操作失败 %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
@@ -272,15 +262,12 @@ func (s *Server) login(ctx echo.Context) error {
 }
 
 func (s *Server) logout(ctx echo.Context) error {
-	u, err := s.GetUser(ctx)
-	if err != nil {
-		return err
-	}
+	u := s.getCurrentUser(ctx)
 
 	authToken := ctx.Request().Header.Get("Authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
 
-	err = s.BucketMeta.Delete(prefixToken+authToken, 0)
+	err := s.BucketMeta.Delete(prefixToken+authToken, 0)
 	if err != nil {
 		return err
 	}
@@ -299,30 +286,4 @@ func (s *Server) logout(ctx echo.Context) error {
 	}
 
 	return err
-}
-
-func (s *Server) GetUser(ctx echo.Context) (*model.User, error) {
-	authToken := ctx.Request().Header.Get("Authorization")
-	authToken = strings.TrimPrefix(authToken, "Bearer ")
-	t := &model.Token{}
-	err := s.BucketMeta.Get(prefixToken+authToken, t)
-	if err != nil {
-		if err == common.ErrKeyNotFound {
-			return nil, echo.NewHTTPError(http.StatusUnauthorized)
-		}
-		return nil, echo.NewHTTPError(http.StatusInternalServerError)
-	}
-	if t.Expires.Before(time.Now()) {
-		return nil, echo.NewHTTPError(http.StatusUnauthorized)
-	}
-
-	u := &model.User{}
-	err = s.BucketMeta.Get(t.UserId, u)
-	if err != nil {
-		if err == common.ErrKeyNotFound {
-			return nil, echo.NewHTTPError(http.StatusNotFound)
-		}
-		return nil, echo.NewHTTPError(http.StatusInternalServerError)
-	}
-	return u, nil
 }

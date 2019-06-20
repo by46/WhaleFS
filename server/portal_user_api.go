@@ -7,10 +7,7 @@ import (
 )
 
 func (s *Server) addUser(ctx echo.Context) error {
-	u, err := s.GetUser(ctx)
-	if err != nil {
-		return err
-	}
+	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
 		return echo.NewHTTPError(http.StatusForbidden, "只有admin用户才能操作")
 	}
@@ -19,10 +16,7 @@ func (s *Server) addUser(ctx echo.Context) error {
 }
 
 func (s *Server) listUser(ctx echo.Context) error {
-	u, err := s.GetUser(ctx)
-	if err != nil {
-		return err
-	}
+	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
 		return echo.NewHTTPError(http.StatusForbidden, "只有admin用户才能操作")
 	}
@@ -49,10 +43,7 @@ func (s *Server) listUser(ctx echo.Context) error {
 }
 
 func (s *Server) updateUser(ctx echo.Context) error {
-	u, err := s.GetUser(ctx)
-	if err != nil {
-		return err
-	}
+	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
 		return echo.NewHTTPError(http.StatusForbidden, "只有admin用户才能操作")
 	}
@@ -61,10 +52,7 @@ func (s *Server) updateUser(ctx echo.Context) error {
 }
 
 func (s *Server) deleteUser(ctx echo.Context) error {
-	u, err := s.GetUser(ctx)
-	if err != nil {
-		return err
-	}
+	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
 		return echo.NewHTTPError(http.StatusForbidden, "只有admin用户才能操作")
 	}

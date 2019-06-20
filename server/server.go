@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -139,6 +140,16 @@ func (s *Server) install() {
 		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno", "content-type", "Authorization"},
 		MaxAge:        60 * 30,
 	}))
+
+	s.app.Use(middleware2.InjectUser(middleware2.AuthUserConfig{
+		Server: s,
+		Skipper: func(context echo.Context) bool {
+			return !(context.Request().URL.Path == "/api/users" ||
+				context.Request().URL.Path == "/api/buckets" ||
+				context.Request().URL.Path == "/api/logout")
+		},
+	}))
+
 	methods := []string{
 		http.MethodHead,
 		http.MethodGet,
@@ -179,4 +190,32 @@ func (s *Server) ListenAndServe() {
 	if err := s.app.Start(address); err != nil {
 		s.Logger.Fatalf("Listen error %v\n", err)
 	}
+}
+
+func (s *Server) AuthenticateUser(authToken string) (*model.User, error) {
+	t := &model.Token{}
+	err := s.BucketMeta.Get(prefixToken+authToken, t)
+	if err != nil {
+		if err == common.ErrKeyNotFound {
+			return nil, echo.NewHTTPError(http.StatusUnauthorized)
+		}
+		return nil, echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	if t.Expires.Before(time.Now()) {
+		return nil, echo.NewHTTPError(http.StatusUnauthorized)
+	}
+
+	u := &model.User{}
+	err = s.BucketMeta.Get(t.UserId, u)
+	if err != nil {
+		if err == common.ErrKeyNotFound {
+			return nil, echo.NewHTTPError(http.StatusNotFound)
+		}
+		return nil, echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	return u, nil
+}
+
+func (s *Server) getCurrentUser(ctx echo.Context) *model.User {
+	return ctx.Get("user").(*model.User)
 }
