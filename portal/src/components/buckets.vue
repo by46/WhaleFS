@@ -73,7 +73,9 @@
         this.$http.get(this.BASE_API_URL + "/api/buckets")
           .then(function (response) {
             self.bucketData = response.data;
-          })
+          }).catch(function (error) {
+          self.$message(error.response.data.message)
+        })
       },
       onEdit(row) {
         this.isEdit = true
@@ -90,7 +92,10 @@
             "version": this.editRow.version,
             "basis": this.editBucket
           }).then(function () {
+            self.$message("修改成功")
             self.loadData()
+          }).catch(function (error) {
+            self.$message(error.response.data.message)
           })
         } else {
           this.$http.post(this.BASE_API_URL + "/api/buckets", {
@@ -98,7 +103,10 @@
             "version": "",
             "basis": this.editBucket
           }).then(function () {
+            self.$message("创建成功")
             self.loadData()
+          }).catch(function (error) {
+            self.$message(error.response.data.message)
           })
         }
       },
@@ -115,7 +123,10 @@
         var self = this
         this.$http.delete(this.BASE_API_URL + `/api/buckets/${row.id}`)
           .then(function () {
-          self.loadData()
+            self.$message("删除成功")
+            self.loadData()
+          }).catch(function (error) {
+          self.$message(error.response.data.message)
         })
       }
     },

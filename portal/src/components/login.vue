@@ -76,6 +76,10 @@
       }
     },
     mounted() {
+      let user = JSON.parse(window.localStorage.getItem('user'))
+      if (user && user.token) {
+        this.$router.push({ path: '/portal', query: this.otherQuery })
+      }
       if (this.loginForm.username === '') {
         this.$refs.username.focus()
       } else if (this.loginForm.password === '') {
