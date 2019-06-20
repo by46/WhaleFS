@@ -1,24 +1,50 @@
 package server
 
 import (
+	"encoding/json"
+	"github.com/by46/whalefs/model"
+	"github.com/by46/whalefs/utils"
 	"github.com/labstack/echo"
 	"net/http"
 	"strconv"
+	"strings"
+)
+
+const (
+	msgMustBeAdminRole = "只有admin用户才能操作"
 )
 
 func (s *Server) addUser(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
-		return echo.NewHTTPError(http.StatusForbidden, "只有admin用户才能操作")
+		return echo.NewHTTPError(http.StatusForbidden, msgMustBeAdminRole)
 	}
 
-	return nil
+	user := &model.User{}
+	body := ctx.Request().Body
+	if err := json.NewDecoder(body).Decode(user); err != nil {
+		s.Logger.Errorf("Json 解析失败 %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
+	encryptPass, err := utils.Sha1(user.Password)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	user.Password = encryptPass
+	user.Type = typeUser
+	user.Role = roleNormal
+	user.Name = strings.TrimPrefix(user.Name, prefixUser)
+	err = s.BucketMeta.Set(prefixUser+user.Name, user)
+
+	return err
 }
 
 func (s *Server) listUser(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
-		return echo.NewHTTPError(http.StatusForbidden, "只有admin用户才能操作")
+		return echo.NewHTTPError(http.StatusForbidden, msgMustBeAdminRole)
 	}
 
 	results, err := s.BucketMeta.GetAllUsers()
@@ -45,7 +71,25 @@ func (s *Server) listUser(ctx echo.Context) error {
 func (s *Server) updateUser(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
-		return echo.NewHTTPError(http.StatusForbidden, "只有admin用户才能操作")
+		return echo.NewHTTPError(http.StatusForbidden, msgMustBeAdminRole)
+	}
+
+	user := &model.User{}
+	body := ctx.Request().Body
+	if err := json.NewDecoder(body).Decode(user); err != nil {
+		s.Logger.Errorf("Json 解析失败 %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
+	user.Name = strings.TrimPrefix(user.Name, prefixUser)
+
+	user.Type = typeUser
+	user.Role = roleNormal
+	user.Name = strings.TrimPrefix(user.Name, prefixUser)
+	err := s.BucketMeta.Set(prefixUser+user.Name, user)
+	if err != nil {
+		s.Logger.Errorf("数据库操作失败 %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	return nil
@@ -54,7 +98,19 @@ func (s *Server) updateUser(ctx echo.Context) error {
 func (s *Server) deleteUser(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
-		return echo.NewHTTPError(http.StatusForbidden, "只有admin用户才能操作")
+		return echo.NewHTTPError(http.StatusForbidden, msgMustBeAdminRole)
+	}
+
+	userId := strings.TrimPrefix(ctx.Request().URL.Path, "/api/users/")
+
+	if !strings.HasPrefix(userId, prefixUser) {
+		userId = prefixUser + userId
+	}
+
+	err := s.BucketMeta.Delete(userId, 0)
+	if err != nil {
+		s.Logger.Errorf("数据库操作失败 %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	return nil

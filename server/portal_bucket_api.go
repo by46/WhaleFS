@@ -23,7 +23,8 @@ const (
 	prefixUser   = "system.user."
 	prefixToken  = "system.token."
 
-	roleAdmin = "admin"
+	roleAdmin  = "admin"
+	roleNormal = "normal"
 )
 
 type userInfo struct {

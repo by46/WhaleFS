@@ -166,13 +166,20 @@ func (s *Server) install() {
 	s.app.GET("/tasks", s.checkTask)
 	s.app.GET("/metrics", s.metric)
 	s.app.POST("/demo", s.demo)
+
 	s.app.GET("/api/users", s.listUser)
+	s.app.POST("/api/users", s.addUser)
+	s.app.PUT("/api/users", s.updateUser)
+	s.app.DELETE("/api/users/*", s.deleteUser)
+
 	s.app.GET("/api/buckets", s.listBucket)
 	s.app.PUT("/api/buckets", s.updateBucket)
 	s.app.DELETE("/api/buckets/*", s.deleteBucket)
 	s.app.POST("/api/buckets", s.addBucket)
+
 	s.app.POST("/api/login", s.login)
 	s.app.POST("/api/logout", s.logout)
+
 	s.app.POST("/UploadHandler.ashx", s.legacyUploadFile)
 	s.app.POST("/BatchDownloadHandler.ashx", s.legacyBatchDownload)
 	s.app.Match(methods, "/DownloadSaveServerHandler.ashx", s.legacyUploadByRemote)
@@ -181,6 +188,7 @@ func (s *Server) install() {
 	s.app.Match(methods, "/ApiUploadHandler.ashx", s.legacyApiUpload)
 	s.app.Match(methods, "/BatchMergePdfHandler.ashx", s.legacyMergePDF)
 	s.app.Match(methods, "/SliceUploadHandler.ashx", s.legacySliceUpload)
+
 	s.app.Match(methods, "/*", s.file)
 }
 
