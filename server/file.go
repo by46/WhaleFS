@@ -193,6 +193,7 @@ func (s *Server) uploadFile(ctx echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
+	s.sendMessage(entity)
 	return ctx.JSON(http.StatusOK, entity)
 }
 

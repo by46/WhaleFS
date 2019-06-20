@@ -11,6 +11,15 @@ const (
 	Separator = "/"
 )
 
+func PathReplace(path string, i int, new string) string {
+	path2 := strings.TrimLeft(path, Separator)
+	segments := strings.Split(path2, Separator)
+	if len(segments) <= i {
+		return path
+	}
+	segments[i] = new
+	return Separator + strings.Join(segments, Separator)
+}
 func PathSegment(path string, i int) string {
 	path = strings.TrimLeft(path, Separator)
 	segments := strings.Split(path, Separator)

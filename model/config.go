@@ -24,6 +24,14 @@ type BasisConfig struct {
 	SizeDefault                string `default:"p200"`
 }
 
+type SyncConfig struct {
+	Enable             bool `default:"false"`
+	DFSHost            string
+	RabbitMQConnection string
+	QueueName          string `default:"whale-fs"`
+	LegacyFSRoot       string
+}
+
 type Config struct {
 	Host                  string `default:":8080"`
 	Storage               *StorageConfig
@@ -40,4 +48,5 @@ type Config struct {
 	TaskFileSizeThreshold int64
 	HttpClientBase        string
 	TempFileDir           string
+	Sync                  *SyncConfig
 }
