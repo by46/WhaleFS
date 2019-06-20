@@ -32,7 +32,7 @@ require (
 	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5 // indirect
 	golang.org/x/text v0.3.2
 	gopkg.in/couchbase/gocb.v1 v1.6.1
-	gopkg.in/couchbase/gocbcore.v7 v7.1.13 // indirect
+	gopkg.in/couchbase/gocbcore.v7 v7.1.13
 	gopkg.in/couchbaselabs/gocbconnstr.v1 v1.0.2 // indirect
 	gopkg.in/couchbaselabs/gojcbmock.v1 v1.0.3 // indirect
 	gopkg.in/couchbaselabs/jsonx.v1 v1.0.0 // indirect

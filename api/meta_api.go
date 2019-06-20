@@ -119,8 +119,8 @@ func (m *metaClient) SubListAppend(key, path string, value interface{}, cas uint
 }
 
 func (m *metaClient) SubSet(key, path string, value interface{}, cas uint64) (err error) {
-	_, err = m.Bucket.MutateIn(key, 0, 0).Upsert(path, value, true).Execute()
-	return errors.WithStack(err)
+	_, err = m.Bucket.MutateIn(key, gocb.Cas(cas), 0).Upsert(path, value, true).Execute()
+	return err
 }
 
 func (m *metaClient) GetBucketsByNames(bucketNames []string) (gocb.QueryResults, error) {

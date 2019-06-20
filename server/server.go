@@ -144,8 +144,8 @@ func (s *Server) install() {
 	s.app.Use(middleware2.InjectUser(middleware2.AuthUserConfig{
 		Server: s,
 		Skipper: func(context echo.Context) bool {
-			return !(context.Request().URL.Path == "/api/users" ||
-				context.Request().URL.Path == "/api/buckets" ||
+			return !(strings.HasPrefix(context.Request().URL.Path, "/api/users") ||
+				strings.HasPrefix(context.Request().URL.Path, "/api/buckets") ||
 				context.Request().URL.Path == "/api/logout")
 		},
 	}))

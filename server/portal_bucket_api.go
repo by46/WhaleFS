@@ -118,10 +118,7 @@ func (s *Server) addBucket(ctx echo.Context) error {
 	}
 
 	bucketName := strings.TrimPrefix(bucket.Id, prefixBucket)
-	if !utils.Exists(u.Buckets, bucketName) {
-		u.Buckets = append(u.Buckets, bucketName)
-	}
-	err = s.BucketMeta.SubSet(prefixUser+u.Name, "buckets", u.Buckets, 0)
+	err = s.BucketMeta.SubListAppend(prefixUser+u.Name, "buckets", bucketName, 0)
 
 	return nil
 }
@@ -202,16 +199,31 @@ func (s *Server) deleteBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	var newBuckets []string
-	for _, b := range u.Buckets {
-		if bucketName != b {
-			newBuckets = append(newBuckets, b)
+	user := &model.User{}
+	for {
+		cas, err := s.BucketMeta.GetWithCas(prefixUser+u.Name, user)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-	}
-	u.Buckets = newBuckets
-	err = s.BucketMeta.SubSet(prefixUser+u.Name, "buckets", u.Buckets, 0)
 
-	return err
+		var newBuckets []string
+		for _, b := range user.Buckets {
+			if bucketName != b {
+				newBuckets = append(newBuckets, b)
+			}
+		}
+		user.Buckets = newBuckets
+		err = s.BucketMeta.SubSet(prefixUser+u.Name, "buckets", user.Buckets, cas)
+		if err != nil {
+			if err == gocb.ErrKeyExists {
+				continue
+			}
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		break
+	}
+
+	return nil
 }
 
 func (s *Server) login(ctx echo.Context) error {
@@ -270,21 +282,32 @@ func (s *Server) logout(ctx echo.Context) error {
 
 	err := s.BucketMeta.Delete(prefixToken+authToken, 0)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	var newTokens []string
-	for _, token := range u.Tokens {
-		if authToken != token {
-			newTokens = append(newTokens, token)
+	user := &model.User{}
+	for {
+		cas, err := s.BucketMeta.GetWithCas(prefixUser+u.Name, user)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-	}
-	u.Tokens = newTokens
-	err = s.BucketMeta.SubSet(prefixUser+u.Name, "tokens", u.Tokens, 0)
 
-	if err != nil {
-		return err
+		var newTokens []string
+		for _, token := range user.Tokens {
+			if authToken != token {
+				newTokens = append(newTokens, token)
+			}
+		}
+		user.Tokens = newTokens
+		err = s.BucketMeta.SubSet(prefixUser+u.Name, "tokens", user.Tokens, cas)
+		if err != nil {
+			if err == gocb.ErrKeyExists {
+				continue
+			}
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		break
 	}
 
-	return err
+	return nil
 }
