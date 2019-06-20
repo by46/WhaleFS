@@ -129,6 +129,8 @@ func (s *Server) install() {
 
 	s.app.HTTPErrorHandler = s.HTTPErrorHandler
 
+	s.app.Use(middleware.Recover())
+
 	s.app.Use(middleware.Logger())
 
 	s.app.Use(middleware2.InjectServer())
