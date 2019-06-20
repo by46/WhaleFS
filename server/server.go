@@ -155,6 +155,7 @@ func (s *Server) install() {
 	s.app.GET("/tasks", s.checkTask)
 	s.app.GET("/metrics", s.metric)
 	s.app.POST("/demo", s.demo)
+	s.app.GET("/api/users", s.listUser)
 	s.app.GET("/api/buckets", s.listBucket)
 	s.app.PUT("/api/buckets", s.updateBucket)
 	s.app.DELETE("/api/buckets/*", s.deleteBucket)

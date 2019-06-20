@@ -40,7 +40,7 @@ type basisInfo struct {
 }
 
 func (s *Server) listBucket(ctx echo.Context) error {
-	u, err := s.getUser(ctx)
+	u, err := s.GetUser(ctx)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (s *Server) listBucket(ctx echo.Context) error {
 }
 
 func (s *Server) addBucket(ctx echo.Context) error {
-	u, err := s.getUser(ctx)
+	u, err := s.GetUser(ctx)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func (s *Server) addBucket(ctx echo.Context) error {
 }
 
 func (s *Server) updateBucket(ctx echo.Context) error {
-	u, err := s.getUser(ctx)
+	u, err := s.GetUser(ctx)
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 }
 
 func (s *Server) deleteBucket(ctx echo.Context) error {
-	u, err := s.getUser(ctx)
+	u, err := s.GetUser(ctx)
 	if err != nil {
 		return err
 	}
@@ -272,7 +272,7 @@ func (s *Server) login(ctx echo.Context) error {
 }
 
 func (s *Server) logout(ctx echo.Context) error {
-	u, err := s.getUser(ctx)
+	u, err := s.GetUser(ctx)
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func (s *Server) logout(ctx echo.Context) error {
 	return err
 }
 
-func (s *Server) getUser(ctx echo.Context) (*model.User, error) {
+func (s *Server) GetUser(ctx echo.Context) (*model.User, error) {
 	authToken := ctx.Request().Header.Get("Authorization")
 	authToken = strings.TrimPrefix(authToken, "Bearer ")
 	t := &model.Token{}

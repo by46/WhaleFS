@@ -17,4 +17,5 @@ type Dao interface {
 	SubSet(key, path string, value interface{}, cas uint64) error
 	GetBucketsByNames(bucketNames []string) (gocb.QueryResults, error)
 	GetAllBuckets() (gocb.QueryResults, error)
+	GetAllUsers() (gocb.QueryResults, error)
 }
