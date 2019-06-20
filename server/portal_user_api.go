@@ -14,18 +14,28 @@ const (
 	msgMustBeAdminRole = "只有admin用户才能操作"
 )
 
+type userCreate struct {
+	Id      string     `json:"id"`
+	Cas     uint64     `json:"cas,omitempty"`
+	Version string     `json:"version"`
+	User    model.User `json:"basis,omitempty"`
+}
+
 func (s *Server) addUser(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
 		return echo.NewHTTPError(http.StatusForbidden, msgMustBeAdminRole)
 	}
 
-	user := &model.User{}
+	basisInfo := &userCreate{}
 	body := ctx.Request().Body
-	if err := json.NewDecoder(body).Decode(user); err != nil {
+	if err := json.NewDecoder(body).Decode(basisInfo); err != nil {
 		s.Logger.Errorf("Json 解析失败 %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
+
+	user := basisInfo.User
+	user.Name = basisInfo.Id
 
 	encryptPass, err := utils.Sha1(user.Password)
 	if err != nil {
@@ -74,14 +84,15 @@ func (s *Server) updateUser(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, msgMustBeAdminRole)
 	}
 
-	user := &model.User{}
+	basisInfo := &userCreate{}
 	body := ctx.Request().Body
-	if err := json.NewDecoder(body).Decode(user); err != nil {
+	if err := json.NewDecoder(body).Decode(basisInfo); err != nil {
 		s.Logger.Errorf("Json 解析失败 %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	user.Name = strings.TrimPrefix(user.Name, prefixUser)
+	user := basisInfo.User
+	user.Name = basisInfo.Id
 
 	user.Type = typeUser
 	user.Role = roleNormal
