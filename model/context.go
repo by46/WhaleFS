@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"mime/multipart"
+	"net/http"
 	"net/textproto"
 	"path/filepath"
 
@@ -64,7 +65,7 @@ func (f *FileContext) ParseFileContent(url string, formFile *multipart.FileHeade
 	if formFile != nil {
 		return f.parseFileContentFromForm(formFile)
 	}
-	return
+	return echo.NewHTTPError(http.StatusBadRequest, "缺少文件内容")
 }
 
 func (f *FileContext) parseFileContentFromForm(form *multipart.FileHeader) error {

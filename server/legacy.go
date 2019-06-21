@@ -257,7 +257,7 @@ func (s *Server) legacyApiUpload(ctx echo.Context) error {
 	fileContext := &model.FileContext{
 		Bucket:     bucket,
 		BucketName: bucket.Name,
-		Key:        fmt.Sprintf("/%s/", bucketName),
+		Key:        fmt.Sprintf("/%s/", bucket.GetName()),
 	}
 	file, err := s.legacyFormFile(ctx)
 	if err != nil {

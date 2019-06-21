@@ -61,13 +61,14 @@ type Buckets struct {
 }
 
 type Basis struct {
-	Alias            string `json:"alias"`
-	Collection       string `json:"collection"`
-	Replication      string `json:"replication"`
-	TTL              TTL    `json:"ttl"`
-	Expires          *int   `json:"expires"` // unit: second
-	DefaultImage     string `json:"default_image"`
-	PrepareThumbnail string `json:"prepare_thumbnail"`
+	Alias            string   `json:"alias"`
+	Alias2           []string `json:"alias2"`
+	Collection       string   `json:"collection"`
+	Replication      string   `json:"replication"`
+	TTL              TTL      `json:"ttl"`
+	Expires          *int     `json:"expires"` // unit: second
+	DefaultImage     string   `json:"default_image"`
+	PrepareThumbnail string   `json:"prepare_thumbnail"`
 	// 触发进行图片预处理的最小宽度
 	PrepareThumbnailMinWidth int `json:"prepare_thumbnail_min_width"`
 }
@@ -155,6 +156,7 @@ type BucketLimit struct {
 type Bucket struct {
 	Name           string                   `json:"name"`
 	Memo           string                   `json:"memo"`
+	Alias          []string                 `json:"alias"`
 	Basis          *Basis                   `json:"basis"`
 	Extends        [] *ExtendItem           `json:"extends"`
 	LastEditDate   int64                    `json:"last_edit_date"`
@@ -175,6 +177,13 @@ func (b *Bucket) Key() string {
 func (b *Bucket) MaxAge() *int {
 	// TODO(benjamin): 处理最大过期时间
 	return b.Basis.Expires
+}
+
+func (b *Bucket) GetName() string {
+	if b.Alias != nil {
+		return b.Alias[0]
+	}
+	return b.Name
 }
 
 func (b *Bucket) getExtend(key string) string {

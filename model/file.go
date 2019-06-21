@@ -11,7 +11,6 @@ import (
 	"github.com/by46/whalefs/utils"
 )
 
-
 // 用于存储缩略图信息
 type ThumbnailMeta struct {
 	FID  string `json:"fid,omitempty"`
@@ -36,6 +35,7 @@ type FileMeta struct {
 	Thumbnails   Thumbnails `json:"thumbnails,omitempty"`
 	IsRandomName bool       `json:"is_random_name,omitempty"`
 	WaterMark    string     `json:"water_mark,omitempty"`
+	Bucket       string     `json:"bucket,omitempty"`
 }
 
 func (f *FileMeta) LastModifiedTime() time.Time {

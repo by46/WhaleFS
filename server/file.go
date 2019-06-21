@@ -70,22 +70,26 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 
 	key = utils.PathNormalize(key)
 
-	bucketName, objectName := utils.PathRemoveSegment(key, 0)
-	if bucketName == "" {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
-	}
+	// 处理上传逻辑， 下载的时候由于bucket 别名的引入导致不能提前获取到bucket信息
+	if method != http.MethodGet {
+		bucketName, objectName := utils.PathRemoveSegment(key, 0)
+		if bucketName == "" {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
+		}
 
-	bucket, err := s.getBucketByName(bucketName)
-	if err != nil {
-		return nil, err
+		bucket, err := s.getBucketByName(bucketName)
+		if err != nil {
+			return nil, err
+		}
+		bucketName = bucket.GetName()
+		key = fmt.Sprintf("/%s%s", bucketName, objectName)
+		fileContext.Key = key
+		if len(key) > len(bucketName)+2 {
+			fileContext.ObjectName = key[len(bucketName)+2:]
+		}
+		fileContext.BucketName = bucketName
+		fileContext.Bucket = bucket
 	}
-	key = fmt.Sprintf("/%s%s", bucket.Name, objectName)
-	fileContext.Key = key
-	if len(key) > len(bucketName)+2 {
-		fileContext.ObjectName = key[len(bucketName)+2:]
-	}
-	fileContext.BucketName = bucketName
-	fileContext.Bucket = bucket
 	return fileContext, nil
 }
 
@@ -208,7 +212,7 @@ func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity,
 	if fileContext.ObjectName == "" {
 		fileContext.IsRandomName = true
 		fileContext.ObjectName = utils.RandomName(file.Extension)
-		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.Name, fileContext.ObjectName)
+		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.GetName(), fileContext.ObjectName)
 	}
 
 	if file.IsImage() {
@@ -243,6 +247,7 @@ func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity,
 	meta.RawKey = fileContext.Key
 	meta.IsRandomName = fileContext.IsRandomName
 	meta.WaterMark = file.WaterMark
+	meta.Bucket = bucket.Name
 	if err = s.Meta.SetTTL(hash, meta, bucket.Basis.TTL.Expiry()); err != nil {
 		return
 	}

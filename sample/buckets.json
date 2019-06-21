@@ -1905,8 +1905,14 @@
   "system.bucket.benjamin": {
     "name": "benjamin",
     "type": "bucket",
+    "alias": [
+      "benjamin_01"
+    ],
     "memo": "本地测试",
     "basis": {
+      "alias2": [
+        "benjamin_01"
+      ],
       "collection": "",
       "replication": "100",
       "expires": 20,
