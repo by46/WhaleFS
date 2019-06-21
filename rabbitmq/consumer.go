@@ -2,7 +2,6 @@
 package rabbitmq
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -34,59 +33,31 @@ type SyncConsumer struct {
 	config *model.Config
 	common.Logger
 	recorder *logrus.Logger
+	*RabbitMQ
 }
 
 func NewConsumer(config *model.Config) *SyncConsumer {
 	logger := utils.BuildLogger(config.Log.Home, config.Log.Level)
 	return &SyncConsumer{
-		config,
-		logger,
-		buildRecorder(config.Log.Home, "files.log"),
+		config:   config,
+		Logger:   logger,
+		recorder: buildRecorder(config.Log.Home, "files.log"),
+		RabbitMQ: New(config, logger),
 	}
 }
 
 func (s *SyncConsumer) Run() {
-	conn, err := Dial(s.config.Sync.RabbitMQConnection)
-	if err != nil {
-		s.Fatalf("connect rabbitmq failed, %v", err)
-	}
-
-	channel, err := conn.Channel()
-	if err != nil {
-		s.Fatalf("retrieve channel, %v", err)
-	}
-	d, err := channel.Consume(s.config.Sync.QueueName, "", false, false, false, false, nil)
-	if err != nil {
-		s.Fatal(err)
-	}
-
-	for msg := range d {
-		s.write(msg.Body)
-		err := msg.Ack(false)
-		if err != nil {
-			s.Errorf("确认消息失败")
+	s.connect(time.Second)
+	timer := time.After(time.Second * 5)
+	for s.r == nil {
+		select {
+		case <-timer:
+			if s.r == nil {
+				s.Errorf("connect rabbit failed")
+			}
 		}
 	}
-}
-
-func (s *SyncConsumer) Run2() {
-	r, err := rabbus.New(s.config.Sync.RabbitMQConnection, rabbus.Durable(true),
-		rabbus.Attempts(5),
-		rabbus.Sleep(time.Second*2),
-		rabbus.Threshold(3))
-	if err != nil {
-		s.Fatalf("connection rabbitmq failed: %v", err)
-	}
-
-	defer func() {
-		_ = r.Close()
-	}()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go r.Run(ctx)
-
-	messages, err := r.Listen(rabbus.ListenConfig{
+	messages, err := s.r.Listen(rabbus.ListenConfig{
 		Exchange: s.config.Sync.RabbitMQExchange,
 		Kind:     rabbus.ExchangeFanout,
 		Key:      "",
