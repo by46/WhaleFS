@@ -1991,6 +1991,138 @@
       }
     ]
   },
+  "system.bucket.jcssl": {
+    "name": "jcssl",
+    "type": "bucket",
+    "memo": "供应商店铺LOGO",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif"
+      ]
+    },
+    "sizes": [
+      {
+        "name": "p200",
+        "width": 200,
+        "height": 200,
+        "mode": "stretch"
+      }
+    ],
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.jcsuppliershoplogo": {
+    "name": "jcsuppliershoplogo",
+    "type": "bucket",
+    "memo": "供应商店铺LOGO",
+    "basis": {
+      "alias": "jcssl"
+    }
+  },
+  "system.bucket.jcssb": {
+    "name": "jcssb",
+    "type": "bucket",
+    "memo": "供应商店铺Banner",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif"
+      ]
+    },
+    "sizes": [
+      {
+        "name": "p200",
+        "width": 200,
+        "height": 200,
+        "mode": "stretch"
+      }
+    ],
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.jcsuppliershopbanner": {
+    "name": "jcsuppliershopbanner",
+    "type": "bucket",
+    "memo": "供应商店铺LOGO",
+    "basis": {
+      "alias": "jcssb"
+    }
+  },
+  "system.bucket.jcssc": {
+    "name": "jcssc",
+    "type": "bucket",
+    "memo": "供应商店铺证书",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif"
+      ]
+    },
+    "sizes": [
+      {
+        "name": "p200",
+        "width": 200,
+        "height": 200,
+        "mode": "stretch"
+      }
+    ],
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.jcsuppliershopcertificate": {
+    "name": "jcsuppliershopcertificate",
+    "type": "bucket",
+    "memo": "供应商店铺LOGO",
+    "basis": {
+      "alias": "jcssc"
+    }
+  },
   "system.bucket.tmp": {
     "name": "tmp",
     "type": "bucket",
