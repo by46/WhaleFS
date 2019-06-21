@@ -12,6 +12,8 @@ type Server interface {
 
 	// get meta information
 	GetFileEntity(hash string) (*model.FileMeta, error)
+
+	AuthenticateUser(authToken string) (*model.User, error)
 }
 
 type ParseFileParamsConfig struct {

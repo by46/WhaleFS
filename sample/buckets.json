@@ -1,6 +1,7 @@
 {
   "system.bucket.mro_item": {
     "name": "mro_item",
+    "type": "bucket",
     "memo": "mo bucket",
     "basis": {
       "collection": "general",
@@ -49,6 +50,7 @@
   },
   "system.bucket.mro_ware": {
     "name": "mro_ware",
+    "type": "bucket",
     "memo": "mo bucket",
     "basis": {
       "collection": "general",
@@ -97,6 +99,7 @@
   },
   "system.bucket.mro_basis": {
     "name": "mro_basis",
+    "type": "bucket",
     "memo": "mo bucket",
     "basis": {
       "collection": "general",
@@ -138,6 +141,7 @@
   },
   "system.bucket.mro_order": {
     "name": "mro_order",
+    "type": "bucket",
     "memo": "mo bucket",
     "basis": {
       "collection": "general",
@@ -186,6 +190,7 @@
   },
   "system.bucket.mro_account": {
     "name": "mro_account",
+    "type": "bucket",
     "memo": "mo bucket",
     "basis": {
       "collection": "general",
@@ -234,6 +239,7 @@
   },
   "system.bucket.mro_ec": {
     "name": "mro_ec",
+    "type": "bucket",
     "memo": "新mro商城站点模块上传",
     "basis": {
       "collection": "general",
@@ -282,6 +288,7 @@
   },
   "system.bucket.pdt": {
     "name": "pdt",
+    "type": "bucket",
     "memo": "mo bucket",
     "basis": {
       "collection": "product",
@@ -418,6 +425,7 @@
   },
   "system.bucket.product": {
     "name": "product",
+    "type": "bucket",
     "memo": "产品",
     "basis": {
       "alias": "pdt"
@@ -425,6 +433,7 @@
   },
   "system.bucket.ueditor_upload_files": {
     "name": "ueditor_upload_files",
+    "type": "bucket",
     "memo": "mo bucket",
     "basis": {
       "collection": "general",
@@ -449,6 +458,7 @@
   },
   "system.bucket.ueditor": {
     "name": "ueditor",
+    "type": "bucket",
     "memo": "产品",
     "basis": {
       "alias": "ueditor_upload_files"
@@ -469,6 +479,7 @@
   },
   "system.bucket.avatar_01": {
     "name": "avatar_01",
+    "type": "bucket",
     "memo": "用户头像上传",
     "basis": {
       "collection": "general",
@@ -494,6 +505,7 @@
   },
   "system.bucket.avatar": {
     "name": "avatar",
+    "type": "bucket",
     "memo": "用户头像上传",
     "basis": {
       "collection": "general",
@@ -527,6 +539,7 @@
   },
   "system.bucket.tender": {
     "name": "tender",
+    "type": "bucket",
     "memo": "招标上传",
     "basis": {
       "collection": "trade",
@@ -569,6 +582,7 @@
   },
   "system.bucket.tender_01": {
     "name": "tender_01",
+    "type": "bucket",
     "memo": "招标上传",
     "basis": {
       "collection": "trade",
@@ -611,6 +625,7 @@
   },
   "system.bucket.bond": {
     "name": "bond",
+    "type": "bucket",
     "memo": "退款上传",
     "basis": {
       "collection": "trade",
@@ -653,6 +668,7 @@
   },
   "system.bucket.bond_01": {
     "name": "bond_01",
+    "type": "bucket",
     "memo": "退款上传",
     "basis": {
       "collection": "trade",
@@ -695,6 +711,7 @@
   },
   "system.bucket.contract": {
     "name": "contract",
+    "type": "bucket",
     "memo": "合同上传",
     "basis": {
       "collection": "trade",
@@ -737,6 +754,7 @@
   },
   "system.bucket.contract_01": {
     "name": "contract_01",
+    "type": "bucket",
     "memo": "合同上传",
     "basis": {
       "collection": "trade",
@@ -779,6 +797,7 @@
   },
   "system.bucket.eInvoice": {
     "name": "eInvoice",
+    "type": "bucket",
     "memo": "电子发票上传",
     "basis": {
       "collection": "trade",
@@ -806,6 +825,7 @@
   },
   "system.bucket.eInvoice_01": {
     "name": "eInvoice_01",
+    "type": "bucket",
     "memo": "电子发票上传",
     "basis": {
       "collection": "trade",
@@ -833,6 +853,7 @@
   },
   "system.bucket.icon": {
     "name": "icon",
+    "type": "bucket",
     "memo": "品类图标上传",
     "basis": {
       "collection": "general",
@@ -860,6 +881,7 @@
   },
   "system.bucket.banner": {
     "name": "banner",
+    "type": "bucket",
     "memo": "品类Banner上传",
     "basis": {
       "collection": "general",
@@ -887,6 +909,7 @@
   },
   "system.bucket.banner_01": {
     "name": "banner_01",
+    "type": "bucket",
     "memo": "品类Banner上传",
     "basis": {
       "collection": "general",
@@ -914,6 +937,7 @@
   },
   "system.bucket.mall": {
     "name": "mall",
+    "type": "bucket",
     "memo": "企业商城上传",
     "basis": {
       "collection": "general",
@@ -956,6 +980,7 @@
   },
   "system.bucket.mall_01": {
     "name": "mall_01",
+    "type": "bucket",
     "memo": "企业商城上传",
     "basis": {
       "collection": "general",
@@ -998,6 +1023,7 @@
   },
   "system.bucket.mall_photobuy": {
     "name": "mall_photobuy",
+    "type": "bucket",
     "memo": "拍照购上传",
     "basis": {
       "collection": "general",
@@ -1040,6 +1066,7 @@
   },
   "system.bucket.mall_productimport": {
     "name": "mall_productimport",
+    "type": "bucket",
     "memo": "商品导入上传",
     "basis": {
       "collection": "general",
@@ -1065,6 +1092,7 @@
   },
   "system.bucket.supplier": {
     "name": "supplier",
+    "type": "bucket",
     "memo": "友商宝上传",
     "basis": {
       "collection": "general",
@@ -1116,6 +1144,7 @@
   },
   "system.bucket.supplier_01": {
     "name": "supplier_01",
+    "type": "bucket",
     "memo": "友商宝上传",
     "basis": {
       "collection": "general",
@@ -1167,6 +1196,7 @@
   },
   "system.bucket.weixin": {
     "name": "weixin",
+    "type": "bucket",
     "memo": "微信图片上传",
     "basis": {
       "collection": "general",
@@ -1195,6 +1225,7 @@
   },
   "system.bucket.ibuild": {
     "name": "ibuild",
+    "type": "bucket",
     "memo": "智慧工地上传图片",
     "basis": {
       "collection": "general",
@@ -1229,6 +1260,7 @@
   },
   "system.bucket.ibuild_01": {
     "name": "ibuild_01",
+    "type": "bucket",
     "memo": "智慧工地上传图片",
     "basis": {
       "collection": "general",
@@ -1263,6 +1295,7 @@
   },
   "system.bucket.ibuild-image": {
     "name": "ibuild-image",
+    "type": "bucket",
     "memo": "产品",
     "basis": {
       "alias": "pdt"
@@ -1270,6 +1303,7 @@
   },
   "system.bucket.ibuild-cover-image": {
     "name": "ibuild-cover-image",
+    "type": "bucket",
     "memo": "智慧工地上传项目封面图",
     "basis": {
       "alias": "pdt"
@@ -1277,6 +1311,7 @@
   },
   "system.bucket.goods-receipt": {
     "name": "goods-receipt",
+    "type": "bucket",
     "memo": "收获系统上传图片",
     "basis": {
       "alias": "pdt"
@@ -1284,6 +1319,7 @@
   },
   "system.bucket.ibuild-DroneStrike-imgOrVideo": {
     "name": "ibuild-DroneStrike-imgOrVideo",
+    "type": "bucket",
     "memo": "智慧工地项目无人机航拍图片或视频",
     "basis": {
       "alias": "pdt"
@@ -1291,6 +1327,7 @@
   },
   "system.bucket.ibuild-BigScreen-imgOrVideo": {
     "name": "ibuild-BigScreen-imgOrVideo",
+    "type": "bucket",
     "memo": "智慧工地项目大屏图片或视频",
     "basis": {
       "alias": "pdt"
@@ -1298,6 +1335,7 @@
   },
   "system.bucket.ibuild-video": {
     "name": "ibuild-video",
+    "type": "bucket",
     "memo": "智慧工地项目大屏图片或视频",
     "basis": {
       "collection": "general",
@@ -1331,6 +1369,7 @@
   },
   "system.bucket.ibuild-video_01": {
     "name": "ibuild-video_01",
+    "type": "bucket",
     "memo": "智慧工地项目大屏图片或视频",
     "basis": {
       "collection": "general",
@@ -1364,6 +1403,7 @@
   },
   "system.bucket.xionganSteel": {
     "name": "xionganSteel",
+    "type": "bucket",
     "memo": "智慧工地 雄安钢构",
     "basis": {
       "collection": "general",
@@ -1390,6 +1430,7 @@
   },
   "system.bucket.ibuild_xionganSteel": {
     "name": "ibuild_xionganSteel",
+    "type": "bucket",
     "memo": "智慧工地 雄安钢构",
     "basis": {
       "collection": "general",
@@ -1416,6 +1457,7 @@
   },
   "system.bucket.ibuild_file": {
     "name": "ibuild_file",
+    "type": "bucket",
     "memo": "智慧工地附件",
     "basis": {
       "collection": "general",
@@ -1459,6 +1501,7 @@
   },
   "system.bucket.ibuild_basis": {
     "name": "ibuild_basis",
+    "type": "bucket",
     "memo": "智慧工地附件",
     "basis": {
       "collection": "general",
@@ -1499,6 +1542,7 @@
   },
   "system.bucket.ibuild_app": {
     "name": "ibuild_app",
+    "type": "bucket",
     "memo": "智慧工地",
     "basis": {
       "collection": "general",
@@ -1531,6 +1575,7 @@
   },
   "system.bucket.sm-image": {
     "name": "sm-image",
+    "type": "bucket",
     "memo": "资产管理系统",
     "basis": {
       "collection": "general",
@@ -1558,6 +1603,7 @@
   },
   "system.bucket.pf": {
     "name": "pf",
+    "type": "bucket",
     "memo": "评分系统附件",
     "basis": {
       "collection": "general",
@@ -1612,6 +1658,7 @@
   },
   "system.bucket.productcenter": {
     "name": "productcenter",
+    "type": "bucket",
     "memo": "材料中心上传",
     "basis": {
       "collection": "general",
@@ -1637,6 +1684,7 @@
   },
   "system.bucket.jinfu": {
     "name": "jinfu",
+    "type": "bucket",
     "memo": "jinfu上传",
     "basis": {
       "collection": "general",
@@ -1679,6 +1727,7 @@
   },
   "system.bucket.mohurd_picture": {
     "name": "mohurd_picture",
+    "type": "bucket",
     "memo": "住建部官网图片上传",
     "basis": {
       "collection": "general",
@@ -1707,6 +1756,7 @@
   },
   "system.bucket.mohurd_video": {
     "name": "mohurd_video",
+    "type": "bucket",
     "memo": "住建部官网视频上传",
     "basis": {
       "collection": "general",
@@ -1737,6 +1787,7 @@
   },
   "system.bucket.mohurd_file": {
     "name": "mohurd_file",
+    "type": "bucket",
     "memo": "住建部官网文件上传",
     "basis": {
       "collection": "general",
@@ -1757,6 +1808,7 @@
   },
   "system.bucket.mohurd_ueditor": {
     "name": "mohurd_ueditor",
+    "type": "bucket",
     "memo": "住建部富文本编辑器上传",
     "basis": {
       "collection": "general",
@@ -1787,6 +1839,7 @@
   },
   "system.bucket.mohurd_ueditor_upload": {
     "name": "mohurd_ueditor_upload",
+    "type": "bucket",
     "memo": "住建部富文本编辑器上传",
     "basis": {
       "collection": "general",
@@ -1807,6 +1860,7 @@
   },
   "system.bucket.ibuild_notify_attachment": {
     "name": "ibuild_notify_attachment",
+    "type": "bucket",
     "memo": "智慧工地消息通知服务上传",
     "basis": {
       "collection": "general",
@@ -1850,6 +1904,7 @@
   },
   "system.bucket.benjamin": {
     "name": "benjamin",
+    "type": "bucket",
     "memo": "本地测试",
     "basis": {
       "collection": "",
@@ -1938,6 +1993,7 @@
   },
   "system.bucket.tmp": {
     "name": "tmp",
+    "type": "bucket",
     "memo": "临时bucket",
     "basis": {
       "collection": "tmp",
@@ -1958,6 +2014,7 @@
   },
   "system.bucket.home": {
     "name": "home",
+    "type": "bucket",
     "memo": "本地内置目录, 用于支持whalefs本身运行",
     "basis": {
       "collection": "",

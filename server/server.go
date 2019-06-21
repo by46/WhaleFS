@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -138,17 +139,29 @@ func (s *Server) install() {
 
 	s.app.HTTPErrorHandler = s.HTTPErrorHandler
 
+	s.app.Use(middleware.Recover())
+
 	s.app.Use(middleware.Logger())
 
 	s.app.Use(middleware2.InjectServer())
 
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},
-		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST},
+		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST, echo.PUT, echo.DELETE},
 		ExposeHeaders: []string{"X-Request-Id"},
-		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno", "content-type"},
+		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno", "content-type", "Authorization"},
 		MaxAge:        60 * 30,
 	}))
+
+	s.app.Use(middleware2.InjectUser(middleware2.AuthUserConfig{
+		Server: s,
+		Skipper: func(context echo.Context) bool {
+			return !(strings.HasPrefix(context.Request().URL.Path, "/api/users") ||
+				strings.HasPrefix(context.Request().URL.Path, "/api/buckets") ||
+				context.Request().URL.Path == "/api/logout")
+		},
+	}))
+
 	methods := []string{
 		http.MethodHead,
 		http.MethodGet,
@@ -165,8 +178,20 @@ func (s *Server) install() {
 	s.app.GET("/tasks", s.checkTask)
 	s.app.GET("/metrics", s.metric)
 	s.app.POST("/demo", s.demo)
+
+	s.app.GET("/api/users", s.listUser)
+	s.app.POST("/api/users", s.addUser)
+	s.app.PUT("/api/users", s.updateUser)
+	s.app.DELETE("/api/users/*", s.deleteUser)
+
 	s.app.GET("/api/buckets", s.listBucket)
-	s.app.POST("/api/buckets", s.updateBucket)
+	s.app.PUT("/api/buckets", s.updateBucket)
+	s.app.DELETE("/api/buckets/*", s.deleteBucket)
+	s.app.POST("/api/buckets", s.addBucket)
+
+	s.app.POST("/api/login", s.login)
+	s.app.POST("/api/logout", s.logout)
+
 	s.app.POST("/UploadHandler.ashx", s.legacyUploadFile)
 	s.app.POST("/BatchDownloadHandler.ashx", s.legacyBatchDownload)
 	s.app.Match(methods, "/DownloadSaveServerHandler.ashx", s.legacyUploadByRemote)
@@ -175,6 +200,7 @@ func (s *Server) install() {
 	s.app.Match(methods, "/ApiUploadHandler.ashx", s.legacyApiUpload)
 	s.app.Match(methods, "/BatchMergePdfHandler.ashx", s.legacyMergePDF)
 	s.app.Match(methods, "/SliceUploadHandler.ashx", s.legacySliceUpload)
+
 	s.app.Match(methods, "/*", s.file)
 }
 
@@ -184,4 +210,32 @@ func (s *Server) ListenAndServe() {
 	if err := s.app.Start(address); err != nil {
 		s.Logger.Fatalf("Listen error %v\n", err)
 	}
+}
+
+func (s *Server) AuthenticateUser(authToken string) (*model.User, error) {
+	t := &model.Token{}
+	err := s.BucketMeta.Get(prefixToken+authToken, t)
+	if err != nil {
+		if err == common.ErrKeyNotFound {
+			return nil, echo.NewHTTPError(http.StatusUnauthorized)
+		}
+		return nil, echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	if t.Expires.Before(time.Now()) {
+		return nil, echo.NewHTTPError(http.StatusUnauthorized)
+	}
+
+	u := &model.User{}
+	err = s.BucketMeta.Get(t.UserId, u)
+	if err != nil {
+		if err == common.ErrKeyNotFound {
+			return nil, echo.NewHTTPError(http.StatusNotFound)
+		}
+		return nil, echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	return u, nil
+}
+
+func (s *Server) getCurrentUser(ctx echo.Context) *model.User {
+	return ctx.Get("user").(*model.User)
 }

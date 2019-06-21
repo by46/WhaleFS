@@ -119,6 +119,31 @@ func (m *metaClient) SubListAppend(key, path string, value interface{}, cas uint
 }
 
 func (m *metaClient) SubSet(key, path string, value interface{}, cas uint64) (err error) {
-	_, err = m.Bucket.MutateIn(key, 0, 0).Upsert(path, value, true).Execute()
-	return errors.WithStack(err)
+	_, err = m.Bucket.MutateIn(key, gocb.Cas(cas), 0).Upsert(path, value, true).Execute()
+	return err
+}
+
+func (m *metaClient) GetBucketsByNames(bucketNames []string) (gocb.QueryResults, error) {
+	cond := ""
+	for _, name := range bucketNames {
+		cond = cond + "'" + name + "',"
+	}
+	cond = strings.TrimSuffix(cond, ",")
+
+	n1sql := "SELECT meta(basis).id, meta(basis).cas, basis FROM basis WHERE type = 'bucket' AND name IN [" + cond + "]"
+
+	query := gocb.NewN1qlQuery(n1sql)
+	return m.ExecuteN1qlQuery(query, nil)
+}
+
+func (m *metaClient) GetAllBuckets() (gocb.QueryResults, error) {
+	n1sql := "SELECT meta(basis).id, meta(basis).cas, basis FROM basis WHERE type = 'bucket'"
+	query := gocb.NewN1qlQuery(n1sql)
+	return m.ExecuteN1qlQuery(query, nil)
+}
+
+func (m *metaClient) GetAllUsers() (gocb.QueryResults, error) {
+	n1sql := "SELECT meta(basis).id, meta(basis).cas, basis FROM basis WHERE type = 'user'"
+	query := gocb.NewN1qlQuery(n1sql)
+	return m.ExecuteN1qlQuery(query, nil)
 }

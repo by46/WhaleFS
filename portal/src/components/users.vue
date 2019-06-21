@@ -2,7 +2,7 @@
     <div>
         <el-button class="pull-right" type="primary" @click="onAdd">新增</el-button>
         <el-table
-                :data="bucketData"
+                :data="userData"
                 style="width: 100%">
             <el-table-column
                     prop="id"
@@ -34,14 +34,14 @@
                 </template>
             </el-table-column>
         </el-table>
-        <el-dialog title="编辑bucket" :visible.sync="dialogBucketVisible">
+        <el-dialog title="编辑user" :visible.sync="dialogUserVisible">
             <div v-if="!isEdit">
-                <el-input v-model="newBucketId" placeholder="请输入bucket id"></el-input>
+                <el-input v-model="newBucketId" placeholder="请输入user id"></el-input>
             </div>
-            <vue-json-editor v-model="editBucket" :show-btns="false" mode="code"
+            <vue-json-editor v-model="editUser" :show-btns="false" mode="code"
                              @json-change="onJsonChange"></vue-json-editor>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogBucketVisible = false">取 消</el-button>
+                <el-button @click="dialogUserVisible = false">取 消</el-button>
                 <el-button type="primary" @click="onSave(isEdit?editRow.id:newBucketId)">确 定</el-button>
             </div>
         </el-dialog>
@@ -53,16 +53,16 @@
   import vueJsonEditor from 'vue-json-editor'
 
   export default {
-    name: "buckets",
+    name: "users",
     components: {
       vueJsonEditor
     },
     data() {
       return {
-        bucketData: [],
-        editBucket: {},
+        userData: [],
+        editUser: {},
         editRow: {},
-        dialogBucketVisible: false,
+        dialogUserVisible: false,
         isEdit: false,
         newBucketId: null
       }
@@ -70,27 +70,27 @@
     methods: {
       loadData() {
         var self = this
-        this.$http.get("/api/buckets")
+        this.$http.get("/api/users")
           .then(function (response) {
-            self.bucketData = response.data;
+            self.userData = response.data;
           }).catch(function (error) {
           self.$message(error.response.data.message)
         })
       },
       onEdit(row) {
         this.isEdit = true
-        this.dialogBucketVisible = true
+        this.dialogUserVisible = true
         this.editRow = row
-        this.editBucket = row.basis
+        this.editUser = row.basis
       },
       onSave(id) {
         var self = this
-        this.dialogBucketVisible = false
+        this.dialogUserVisible = false
         if (this.isEdit) {
-          this.$http.put("/api/buckets", {
+          this.$http.put("/api/users", {
             "id": id,
             "version": this.editRow.version,
-            "basis": this.editBucket
+            "basis": this.editUser
           }).then(function () {
             self.$message("修改成功")
             self.loadData()
@@ -98,10 +98,10 @@
             self.$message(error.response.data.message)
           })
         } else {
-          this.$http.post("/api/buckets", {
+          this.$http.post("/api/users", {
             "id": id,
             "version": "",
-            "basis": this.editBucket
+            "basis": this.editUser
           }).then(function () {
             self.$message("创建成功")
             self.loadData()
@@ -111,17 +111,17 @@
         }
       },
       onJsonChange(value) {
-        this.editBucket = value
+        this.editUser = value
       },
       onAdd() {
         this.isEdit = false
-        this.dialogBucketVisible = true
-        this.editBucket = {}
+        this.dialogUserVisible = true
+        this.editUser = {}
         this.editRow = {}
       },
       onDelete(row) {
         var self = this
-        this.$http.delete(`/api/buckets/${row.id}`)
+        this.$http.delete(`/api/users/${row.id}`)
           .then(function () {
             self.$message("删除成功")
             self.loadData()
