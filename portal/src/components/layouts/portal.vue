@@ -59,7 +59,7 @@
       methods: {
         onLogout() {
           var self = this
-          this.$http.post(this.BASE_API_URL + "/api/logout", {})
+          this.$http.post("/api/logout", {})
             .then(function () {
               window.localStorage.removeItem("user")
               self.$router.push({ path: '/login'})

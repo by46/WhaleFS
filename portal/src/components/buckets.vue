@@ -70,7 +70,7 @@
     methods: {
       loadData() {
         var self = this
-        this.$http.get(this.BASE_API_URL + "/api/buckets")
+        this.$http.get("/api/buckets")
           .then(function (response) {
             self.bucketData = response.data;
           }).catch(function (error) {
@@ -87,7 +87,7 @@
         var self = this
         this.dialogBucketVisible = false
         if (this.isEdit) {
-          this.$http.put(this.BASE_API_URL + "/api/buckets", {
+          this.$http.put("/api/buckets", {
             "id": id,
             "version": this.editRow.version,
             "basis": this.editBucket
@@ -98,7 +98,7 @@
             self.$message(error.response.data.message)
           })
         } else {
-          this.$http.post(this.BASE_API_URL + "/api/buckets", {
+          this.$http.post("/api/buckets", {
             "id": id,
             "version": "",
             "basis": this.editBucket
@@ -121,7 +121,7 @@
       },
       onDelete(row) {
         var self = this
-        this.$http.delete(this.BASE_API_URL + `/api/buckets/${row.id}`)
+        this.$http.delete(`/api/buckets/${row.id}`)
           .then(function () {
             self.$message("删除成功")
             self.loadData()

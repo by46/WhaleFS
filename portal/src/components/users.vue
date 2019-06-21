@@ -70,7 +70,7 @@
     methods: {
       loadData() {
         var self = this
-        this.$http.get(this.BASE_API_URL + "/api/users")
+        this.$http.get("/api/users")
           .then(function (response) {
             self.userData = response.data;
           }).catch(function (error) {
@@ -87,7 +87,7 @@
         var self = this
         this.dialogUserVisible = false
         if (this.isEdit) {
-          this.$http.put(this.BASE_API_URL + "/api/users", {
+          this.$http.put("/api/users", {
             "id": id,
             "version": this.editRow.version,
             "basis": this.editUser
@@ -98,7 +98,7 @@
             self.$message(error.response.data.message)
           })
         } else {
-          this.$http.post(this.BASE_API_URL + "/api/users", {
+          this.$http.post("/api/users", {
             "id": id,
             "version": "",
             "basis": this.editUser
@@ -121,7 +121,7 @@
       },
       onDelete(row) {
         var self = this
-        this.$http.delete(this.BASE_API_URL + `/api/users/${row.id}`)
+        this.$http.delete(`/api/users/${row.id}`)
           .then(function () {
             self.$message("删除成功")
             self.loadData()

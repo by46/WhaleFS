@@ -103,7 +103,7 @@
         this.$refs.loginForm.validate(valid => {
           if (valid) {
             this.loading = true
-            this.axios.post(this.BASE_API_URL + '/api/login', this.loginForm)
+            this.axios.post('/api/login', this.loginForm)
               .then((resp) => {
                 window.localStorage.setItem('user', JSON.stringify(resp.data))
                 this.$router.push({ path: '/portal', query: this.otherQuery })
