@@ -41,12 +41,8 @@ func (s *SyncProducer) Run() {
 }
 
 func (s *SyncProducer) send(entity *model.SyncFileEntity) {
-	content, err := json.Marshal(entity)
-	if err != nil {
-		s.Errorf("marshal entity failed: %v", err)
-		s.recorder.Error(entity)
-		return
-	}
+	var err error
+	content, _ := json.Marshal(entity)
 	if s.ch != nil {
 		err = s.ch.Publish("",
 			s.config.Sync.QueueName,
@@ -61,7 +57,7 @@ func (s *SyncProducer) send(entity *model.SyncFileEntity) {
 		}
 		s.Errorf("send message failed: %v", err)
 	}
-	s.recorder.Error(entity)
+	s.recorder.Error(string(content))
 }
 
 func (s *SyncProducer) channel() *Channel {

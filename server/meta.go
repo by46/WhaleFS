@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 )
@@ -40,7 +41,7 @@ func (s *Server) GetFileEntityFromLegacy(hash string) (*model.FileMeta, error) {
 		s.Logger.Errorf("download file failed %v", err)
 		return nil, common.ErrKeyNotFound
 	}
-	if fileContext.File.Digest == common.DefaultImageDigest {
+	if fileContext.File.Digest == constant.DefaultImageDigest {
 		return nil, common.ErrKeyNotFound
 	}
 	context := &middleware.ExtendContext{nil, fileContext}

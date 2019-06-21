@@ -89,3 +89,14 @@ func TestSyncMap(t *testing.T) {
 	assert.Equal(t, "benjamin", value)
 	assert.True(t, loaded)
 }
+
+func TestRange(t *testing.T){
+	sizes := make([]string, 0)
+	for _, size := range sizes{
+		fmt.Printf("hello %s", size)
+	}
+	sizes = nil
+	for _, size := range sizes{
+		fmt.Printf("hello %s", size)
+	}
+}

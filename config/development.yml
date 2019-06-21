@@ -26,7 +26,8 @@ Log:
   Level: debug
 Sync:
   Enable: true
-  DFSHost: 192.168.1.9:8089
+  DFSHost: localhost:8089
   RabbitMQConnection: amqp://guest:guest@localhost:5672/
-  QueueName: whale-fs
+  RabbitMQExchange: /whale-fs
+  RabbitMQQueue: whale-fs
   LegacyFSRoot: /Users/benjamin.c.yan/dfs/legacyfs

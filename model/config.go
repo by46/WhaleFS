@@ -28,6 +28,8 @@ type SyncConfig struct {
 	Enable             bool `default:"false"`
 	DFSHost            string
 	RabbitMQConnection string
+	RabbitMQExchange   string `default:"whale-fs"`
+	RabbitMQQueue      string `default:"whale-fs"`
 	QueueName          string `default:"whale-fs"`
 	LegacyFSRoot       string
 }

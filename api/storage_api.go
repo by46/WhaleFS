@@ -18,20 +18,15 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
-)
-
-const (
-	MimeSize     = 512
-	QueryNameTTL = "ttl"
-	FIDSep       = "|"
 )
 
 var (
 	MimeGuessBuffPool = sync.Pool{
 		New: func() interface{} {
-			return make([]byte, MimeSize)
+			return make([]byte, constant.MimeSize)
 		},
 	}
 )
@@ -78,7 +73,7 @@ func NewStorageClient(masters []string) common.Storage {
 
 func (c *storageClient) Download(fid string) (io.ReadCloser, http.Header, error) {
 	if strings.Contains(fid, "|") {
-		return c.downloadChunks(strings.Split(fid, FIDSep))
+		return c.downloadChunks(strings.Split(fid, constant.FIDSep))
 	}
 	volumeId, _, _, err := parseFileId(fid)
 	if err != nil {
@@ -159,7 +154,7 @@ func (c *storageClient) Upload(option *common.UploadOption, mimeType string, bod
 
 	needle := &model.Needle{
 		FID:          fid.FID,
-		ETag:         strings.Trim(resp.Header.Get(utils.HeaderETag), `"`),
+		ETag:         strings.Trim(resp.Header.Get(constant.HeaderETag), `"`),
 		LastModified: time.Now().UTC().Unix(),
 		Size:         size + int64(preReadSize),
 		Mime:         mimeType,
@@ -174,7 +169,7 @@ func (c *storageClient) downloadChunks(fids []string) (io.ReadCloser, http.Heade
 func (c *storageClient) uploadUrl(option *common.UploadOption, fid FileID) string {
 	query := make(url.Values)
 	if option.TTL != "" {
-		query.Set(QueryNameTTL, option.TTL.String())
+		query.Set(constant.QueryNameTTL, option.TTL.String())
 	}
 	u, _ := url.Parse(fid.String())
 	u.RawQuery = query.Encode()

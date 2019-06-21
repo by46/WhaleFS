@@ -27,5 +27,5 @@ func runSync(cmd *cobra.Command, args []string) {
 		panic(fmt.Errorf("Load config fatal: %s\n", err))
 	}
 	consumer := rabbitmq.NewConsumer(config)
-	consumer.Run()
+	consumer.Run2()
 }

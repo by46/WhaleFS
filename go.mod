@@ -19,8 +19,11 @@ require (
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_golang v0.9.3
+	github.com/rafaeljesus/rabbus v2.3.0+incompatible
+	github.com/rafaeljesus/retry-go v0.0.0-20171214204623-5981a380a879 // indirect
 	github.com/robfig/cron v1.1.0
 	github.com/sirupsen/logrus v1.4.1
+	github.com/sony/gobreaker v0.4.1 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

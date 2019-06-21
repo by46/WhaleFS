@@ -17,6 +17,7 @@ import (
 
 	"github.com/by46/whalefs/api"
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/rabbitmq"
 	middleware2 "github.com/by46/whalefs/server/middleware"
@@ -113,7 +114,7 @@ func NewServer() *Server {
 		BucketMeta:            bucketMeta,
 		ChunkDao:              chuckDao,
 		Logger:                logger,
-		Version:               common.VERSION,
+		Version:               constant.VERSION,
 		buckets:               &sync.Map{},
 		overlays:              &sync.Map{},
 		TaskBucketName:        config.TaskFileBucketName,

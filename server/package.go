@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
 )
@@ -19,7 +20,7 @@ func Package(
 	pkgType := pkgFileInfo.GetPkgType()
 
 	var tw interface{}
-	if pkgType == utils.Zip {
+	if pkgType == constant.Zip {
 		tw = zip.NewWriter(w)
 	} else {
 		tw = tar.NewWriter(w)
@@ -45,7 +46,7 @@ func Package(
 			Reader: body,
 		}
 
-		if pkgType == utils.Zip {
+		if pkgType == constant.Zip {
 			writer := tw.(*zip.Writer)
 			err = utils.ZipUnit(writer, pkgUnitEntity)
 		} else {

@@ -6,13 +6,6 @@ import (
 	"fmt"
 )
 
-const (
-	CodeFileNotExists   = "FileNotExists"
-	CodeBucketNotExists = "BucketNotExists"
-	CodeForbidden       = "Forbidden"
-	CodeLimit           = "Limit"
-)
-
 var (
 	ErrVolumeNotFound = errors.New("Volume not found")
 	ErrFileNotFound   = errors.New("File not found")

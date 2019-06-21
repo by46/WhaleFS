@@ -21,6 +21,7 @@ import (
 	"github.com/labstack/echo"
 
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
@@ -59,7 +60,7 @@ func (s *Server) legacySupportOSS(ctx echo.Context, key string) string {
 		if size == "" {
 			size = s.Config.Basis.SizeDefault
 		}
-		key = fmt.Sprintf("/%s/%s%s", common.BucketPdt, size, key)
+		key = fmt.Sprintf("/%s/%s%s", constant.BucketPdt, size, key)
 	}
 	return key
 }
@@ -366,7 +367,7 @@ func (s *Server) legacySliceUploadChunk(ctx echo.Context, identity string) error
 
 	meta := &model.PartMeta{Parts: make(model.Parts, 0)}
 	if err := s.Meta.Get(key, meta); err != nil {
-		if err = s.Meta.SetTTL(key, meta, TTLChunk); err != nil {
+		if err = s.Meta.SetTTL(key, meta, constant.TTLChunk); err != nil {
 			return errors.WithStack(err)
 		}
 	}
@@ -403,8 +404,8 @@ func (s *Server) legacySliceUploadComplete(ctx echo.Context, appName, identity s
 
 	fileName := ctx.QueryParam("FileName")
 	relativePath := ctx.QueryParam("RelativePath")
-	relativePath = strings.ReplaceAll(relativePath, "\\", model.Separator)
-	fileKey := path.Join(model.Separator, appName, relativePath, fileName)
+	relativePath = strings.ReplaceAll(relativePath, "\\", constant.Separator)
+	fileKey := path.Join(constant.Separator, appName, relativePath, fileName)
 
 	meta := partMeta.AsFileMeta()
 	meta.RawKey = fileKey

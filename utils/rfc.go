@@ -6,16 +6,15 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/by46/whalefs/constant"
 )
 
-const (
-	RFC1123 = "Mon, 02 Jan 2006 15:04:05 GMT"
-)
 
 var (
 	bufferPool = &sync.Pool{
 		New: func() interface{} {
-			return make([]byte, 0, len(RFC1123))
+			return make([]byte, 0, len(constant.RFC1123))
 		},
 	}
 )
@@ -23,12 +22,12 @@ var (
 func TimeToRFC822(dt time.Time) string {
 	buf := bufferPool.Get().([]byte)
 	defer bufferPool.Put(buf)
-	buf = dt.AppendFormat(buf, RFC1123)
+	buf = dt.AppendFormat(buf, constant.RFC1123)
 	return string(buf)
 }
 
 func RFC822ToTime(value string) (time.Time, error) {
-	return time.Parse(RFC1123, value)
+	return time.Parse(constant.RFC1123, value)
 }
 
 func TimestampToRFC822(second int64) string {

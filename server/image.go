@@ -12,14 +12,9 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
-)
-
-const (
-	ModeFit       = "fit"
-	ModeStretch   = "stretch"
-	ModeThumbnail = "thumbnail"
 )
 
 var (
@@ -45,7 +40,7 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 		return nil, err
 	}
 	switch size.Mode {
-	case ModeFit:
+	case constant.ModeFit:
 		newImg := imaging.Fit(img, size.Width, size.Height, imaging.Lanczos)
 		if !img.Bounds().Eq(newImg.Bounds()) {
 			var c color.Color = image.White
@@ -57,7 +52,7 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 		} else {
 			img = newImg
 		}
-	case ModeStretch:
+	case constant.ModeStretch:
 		img = imaging.Resize(img, size.Width, size.Height, imaging.Lanczos)
 	default:
 		img = imaging.Thumbnail(img, size.Width, size.Height, imaging.Lanczos)

@@ -2,16 +2,21 @@
 package rabbitmq
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/rafaeljesus/rabbus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
 )
@@ -41,7 +46,6 @@ func NewConsumer(config *model.Config) *SyncConsumer {
 }
 
 func (s *SyncConsumer) Run() {
-
 	conn, err := Dial(s.config.Sync.RabbitMQConnection)
 	if err != nil {
 		s.Fatalf("connect rabbitmq failed, %v", err)
@@ -64,12 +68,53 @@ func (s *SyncConsumer) Run() {
 		}
 	}
 }
+
+func (s *SyncConsumer) Run2() {
+	r, err := rabbus.New(s.config.Sync.RabbitMQConnection, rabbus.Durable(true),
+		rabbus.Attempts(5),
+		rabbus.Sleep(time.Second*2),
+		rabbus.Threshold(3))
+	if err != nil {
+		s.Fatalf("connection rabbitmq failed: %v", err)
+	}
+
+	defer func() {
+		_ = r.Close()
+	}()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go r.Run(ctx)
+
+	messages, err := r.Listen(rabbus.ListenConfig{
+		Exchange: s.config.Sync.RabbitMQExchange,
+		Kind:     rabbus.ExchangeFanout,
+		Key:      "",
+		Queue:    s.config.Sync.RabbitMQQueue,
+	})
+	if err != nil {
+		s.Fatalf("add listen handler error: %v", err)
+	}
+	defer close(messages)
+
+	for message := range messages {
+		s.write(message.Body)
+		err := message.Ack(false)
+		if err != nil {
+			s.Errorf("ack message failed: %v", err)
+		}
+	}
+}
+
 func (s *SyncConsumer) normalUrl(entity *model.SyncFileEntity) []*pathPair {
+	if strings.TrimSpace(entity.Url) == "" {
+		return nil
+	}
 	pairs := make([]*pathPair, 0)
-	if !strings.Contains(entity.Url, model.Separator) {
+	if !strings.Contains(entity.Url, constant.Separator) {
 		entity.Url = fmt.Sprintf("pdt/Original/%s", entity.Url)
 	}
-	relativePath := strings.ReplaceAll(entity.Url, model.Separator, PathSeparator)
+	relativePath := strings.ReplaceAll(entity.Url, constant.Separator, PathSeparator)
 	pairs = append(pairs, &pathPair{
 		url:  entity.Url,
 		path: relativePath,
@@ -78,10 +123,10 @@ func (s *SyncConsumer) normalUrl(entity *model.SyncFileEntity) []*pathPair {
 		return pairs
 	}
 	for _, size := range entity.Sizes {
-		tmp := strings.TrimLeft(utils.PathReplace(entity.Url, 1, size), model.Separator)
+		tmp := strings.TrimLeft(utils.PathReplace(entity.Url, 1, size), constant.Separator)
 		pairs = append(pairs, &pathPair{
 			url:  tmp,
-			path: strings.ReplaceAll(tmp, model.Separator, PathSeparator),
+			path: strings.ReplaceAll(tmp, constant.Separator, PathSeparator),
 		})
 	}
 	return pairs
@@ -91,20 +136,30 @@ func (s *SyncConsumer) write(content []byte) {
 	entity := new(model.SyncFileEntity)
 	err := json.Unmarshal(content, entity)
 	if err != nil {
-		s.Errorf("反序列化消息失败 %v", err)
+		msg := content
+		if len(msg) > 1024 {
+			msg = msg[:1024]
+		}
+		s.Errorf("反序列化消息失败:%v, message: %v", err, string(msg))
 		return
 	}
 
 	pairs := s.normalUrl(entity)
+	skip := false
 	for _, pair := range pairs {
-		s.writeFile(pair)
+		if skip {
+			s.recorder.Errorf("ignore, %s", pair.url)
+			continue
+		}
+		skip = s.writeFile(pair)
 	}
 
 }
-func (s *SyncConsumer) writeFile(pair *pathPair) {
+
+func (s *SyncConsumer) writeFile(pair *pathPair) (skip bool) {
 	fullPath := filepath.Join(s.config.Sync.LegacyFSRoot, pair.path)
 	if utils.FileExists(fullPath) {
-		// TODO(benjamin): process exists
+		s.recorder.Errorf("exists, %s", pair.url)
 		return
 	}
 
@@ -125,10 +180,20 @@ func (s *SyncConsumer) writeFile(pair *pathPair) {
 		_ = response.Close()
 	}()
 
+	if response.StatusCode != http.StatusOK {
+		s.recorder.Errorf("failed, %s", pair.url)
+		return
+	}
+
+	if strings.Contains(response.Header.Get(constant.HeaderXWhaleFSFlags), constant.FlagDefaultImage) {
+		s.recorder.Errorf("ignore, %s", pair.url)
+		return true
+	}
+
 	file, err := os.Create(fullPath)
 	if err != nil {
 		s.Logger.Errorf("create file %s failed: %v", pair.url, err)
-		s.recorder.Error(pair.url)
+		s.recorder.Errorf("denies, %s", pair.url)
 		return
 	}
 	defer func() {
@@ -141,4 +206,5 @@ func (s *SyncConsumer) writeFile(pair *pathPair) {
 		s.recorder.Error(pair.url)
 		return
 	}
+	return
 }

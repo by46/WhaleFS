@@ -8,6 +8,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type LineFormatter struct {
+}
+
+func (l *LineFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	return []byte(entry.Message + "\n"), nil
+}
+
 func buildRecorder(home, name string) *logrus.Logger {
 	logger := logrus.New()
 	if err := os.MkdirAll(home, os.ModePerm); err != nil {
@@ -21,6 +28,6 @@ func buildRecorder(home, name string) *logrus.Logger {
 		os.Exit(-1)
 	}
 	logger.Out = output
-	logger.SetFormatter(&logrus.JSONFormatter{})
+	logger.SetFormatter(&LineFormatter{})
 	return logger
 }
