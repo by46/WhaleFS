@@ -8,14 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-)
 
-const (
-	ExtendKeyMaxAge            = "max-age"
-	OverlayPositionTopRight    = "TopRight"
-	OverlayPositionTopLeft     = "TopLeft"
-	OverlayPositionBottomRight = "BottomRight"
-	OverlayPositionBottomLeft  = "BottomLeft"
+	"github.com/by46/whalefs/constant"
 )
 
 var (
@@ -96,13 +90,13 @@ type ImageOverlay struct {
 
 func (o *ImageOverlay) Init() {
 	switch o.PositionString {
-	case OverlayPositionTopLeft:
+	case constant.OverlayPositionTopLeft:
 		o.Position = PositionTopLeft
-	case OverlayPositionTopRight:
+	case constant.OverlayPositionTopRight:
 		o.Position = PositionTopRight
-	case OverlayPositionBottomLeft:
+	case constant.OverlayPositionBottomLeft:
 		o.Position = PositionBottomLeft
-	case OverlayPositionBottomRight:
+	case constant.OverlayPositionBottomRight:
 		o.Position = PositionBottomRight
 	default:
 		content := []byte(o.PositionString)

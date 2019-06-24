@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo"
 
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
@@ -45,7 +46,7 @@ func (s *Server) uploads(ctx echo.Context) (uploads *model.Uploads, err error) {
 		Parts:        []*model.Part{},
 	}
 	key := fmt.Sprintf("chunks:%s", uploadId)
-	if err = s.Meta.SetTTL(key, partMeta, TTLChunk); err != nil {
+	if err = s.Meta.SetTTL(key, partMeta, constant.TTLChunk); err != nil {
 		return nil, err
 	}
 	s.Logger.Info("multi-chunk upload : %s", key)
@@ -127,7 +128,7 @@ func (s *Server) uploadComplete(ctx echo.Context) (entity *model.FileEntity, err
 		meta.Size += serverPart.Size
 		ids = append(ids, serverPart.FID)
 	}
-	meta.FID = strings.Join(ids, FIDSep)
+	meta.FID = strings.Join(ids, constant.FIDSep)
 	if err = s.Meta.SetTTL(meta.RawKey, meta, bucket.Basis.TTL.Expiry()); err != nil {
 		return nil, err
 	}

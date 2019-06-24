@@ -48,3 +48,8 @@ func TestPathLastSegment(t *testing.T) {
 	assert.Equal(t, "test", PathLastSegment("/test"))
 	assert.Equal(t, "test", PathLastSegment("/benjamin/test"))
 }
+
+func TestPathReplace(t *testing.T) {
+	assert.Equal(t, "/pdt/p120/file.txt", PathReplace("/pdt/Original/file.txt", 1, "p120"))
+	assert.Equal(t, "/pdt/p120/file.txt", PathReplace("pdt/Original/file.txt", 1, "p120"))
+}

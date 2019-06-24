@@ -4,15 +4,12 @@ import (
 	"math"
 	"strconv"
 	"strings"
-)
 
-const (
-	Fraction    = 0.000001
-	LiteralTrue = "true"
+	"github.com/by46/whalefs/constant"
 )
 
 func Float64Equal(x, y float64) bool {
-	return math.Abs(math.Dim(x, y)) <= Fraction
+	return math.Abs(math.Dim(x, y)) <= constant.Fraction
 }
 
 func RatioEval(ratio string) *float64 {
@@ -42,5 +39,5 @@ func ToInt32(value string) int32 {
 
 func ToBool(value string) bool {
 	value = strings.ToLower(value)
-	return value == LiteralTrue
+	return value == constant.LiteralTrue
 }

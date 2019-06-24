@@ -5,13 +5,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
-)
-
-const (
-	QueryNameCollection  = "collection"
-	QueryNameReplication = "replication"
-	QueryNameTTL         = "ttl"
 )
 
 type UploadOption struct {
@@ -24,13 +19,13 @@ func (o *UploadOption) Encode() string {
 	query := make(url.Values)
 
 	if o.Collection != "" {
-		query.Set(QueryNameCollection, o.Collection)
+		query.Set(constant.QueryNameCollection, o.Collection)
 	}
 	if o.Replication != "" {
-		query.Set(QueryNameReplication, o.Replication)
+		query.Set(constant.QueryNameReplication, o.Replication)
 	}
 	if o.TTL != "" {
-		query.Set(QueryNameTTL, o.TTL.String())
+		query.Set(constant.QueryNameTTL, o.TTL.String())
 	}
 	return query.Encode()
 }

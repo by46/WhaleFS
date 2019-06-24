@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
@@ -189,7 +190,7 @@ func (s *Server) head(ctx echo.Context) error {
 	response.Header().Set(echo.HeaderContentType, entity.MimeType)
 	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))
 	response.Header().Set(echo.HeaderLastModified, utils.TimestampToRFC822(entity.LastModified))
-	response.Header().Set(utils.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
+	response.Header().Set(constant.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
 	response.WriteHeader(http.StatusNoContent)
 	return nil
 }
@@ -199,10 +200,12 @@ func (s *Server) delete(ctx echo.Context) (err error) {
 }
 
 func (s *Server) uploadFile(ctx echo.Context) (err error) {
+	context := ctx.(*middleware.ExtendContext)
 	entity, err := s.uploadFileInternal(ctx)
 	if err != nil {
 		return err
 	}
+	s.sendMessage(entity, context.FileContext.Bucket)
 	return ctx.JSON(http.StatusOK, entity)
 }
 
@@ -310,8 +313,8 @@ func (s *Server) download(ctx echo.Context) (err error) {
 	entity := context.FileContext.Meta
 
 	if maxAge := bucket.MaxAge(); maxAge != nil {
-		ctx.Response().Header().Add(utils.HeaderExpires, entity.HeaderExpires(*maxAge))
-		ctx.Response().Header().Add(utils.HeaderCacheControl, entity.HeaderISOExpires(*maxAge))
+		ctx.Response().Header().Add(constant.HeaderExpires, entity.HeaderExpires(*maxAge))
+		ctx.Response().Header().Add(constant.HeaderCacheControl, entity.HeaderISOExpires(*maxAge))
 	}
 	if !s.Config.Debug && s.freshCheck(ctx, entity) {
 		ctx.Response().WriteHeader(http.StatusNotModified)
@@ -333,13 +336,13 @@ func (s *Server) download(ctx echo.Context) (err error) {
 	response.Header().Set(echo.HeaderContentType, entity.MimeType)
 	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))
 	response.Header().Set(echo.HeaderLastModified, utils.TimestampToRFC822(entity.LastModified))
-	response.Header().Set(utils.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
+	response.Header().Set(constant.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
 	if context.FileContext.AttachmentName != "" {
 		response.Header().Set(echo.HeaderContentDisposition, utils.Name2Disposition(ctx.Request().UserAgent(), context.FileContext.AttachmentName))
 	}
 
 	// support gzip
-	if entity.Size >= GzipLimit && entity.IsPlain() && s.shouldGzip(ctx) {
+	if entity.Size >= constant.GzipLimit && entity.IsPlain() && s.shouldGzip(ctx) {
 		return s.compress(ctx, body)
 	}
 	if _, err = io.Copy(response, body); err != nil {
@@ -365,17 +368,19 @@ func (s *Server) downloadFile(ctx echo.Context) (io.Reader, error) {
 }
 
 func (s *Server) downloadDefaultImage(ctx echo.Context) error {
+	// TODO(benjamin): 考虑是否需要处理http cache的情况
 	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileContext.Bucket
 	r, err := s.downloadFileByFullName(bucket.Basis.DefaultImage)
 	if err != nil {
-		s.Logger.Errorf("download defualt image failed %v", err)
+		s.Logger.Errorf("download default image failed %v", err)
 		ctx.Response().WriteHeader(http.StatusNotFound)
 		return nil
 	}
 	defer func() {
 		_ = r.Close()
 	}()
+	ctx.Response().Header().Add(constant.HeaderXWhaleFSFlags, constant.FlagDefaultImage)
 	_, err = io.Copy(ctx.Response(), r)
 	return err
 }
@@ -405,7 +410,7 @@ func (s *Server) freshCheck(ctx echo.Context, entity *model.FileMeta) bool {
 			return true
 		}
 	}
-	if etag := ctx.Request().Header.Get(utils.HeaderIfNoneMatch); etag != "" {
+	if etag := ctx.Request().Header.Get(constant.HeaderIfNoneMatch); etag != "" {
 		for _, value := range strings.Split(etag, ",") {
 			value = strings.TrimSpace(value)
 			value = strings.Trim(value, `"`)

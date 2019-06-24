@@ -8,11 +8,13 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
+
+	"github.com/by46/whalefs/constant"
 )
 
 func (s *Server) shouldGzip(ctx echo.Context) bool {
 	header := ctx.Request().Header.Get(echo.HeaderAcceptEncoding)
-	return strings.Contains(header, GzipScheme)
+	return strings.Contains(header, constant.GzipScheme)
 }
 
 func (s *Server) compress(ctx echo.Context, reader io.Reader) error {
@@ -31,7 +33,7 @@ func (s *Server) compress(ctx echo.Context, reader io.Reader) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	response.Header().Set(echo.HeaderContentEncoding, GzipScheme)
+	response.Header().Set(echo.HeaderContentEncoding, constant.GzipScheme)
 	response.Header().Add(echo.HeaderVary, echo.HeaderContentEncoding)
 	response.Header().Set(echo.HeaderContentLength, string(buff.Len()))
 	if _, err = io.Copy(response.Writer, buff); err != nil {

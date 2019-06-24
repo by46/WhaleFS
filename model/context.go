@@ -13,10 +13,6 @@ import (
 	"github.com/by46/whalefs/utils"
 )
 
-const (
-	Separator = "/"
-)
-
 type FileContext struct {
 	Key            string
 	ObjectName     string // 去掉Bucket之后的Key路径

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
+
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -73,7 +75,7 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 
 	pkgType := packageEntity.GetPkgType()
 
-	if pkgType == utils.Tar {
+	if pkgType == constant.Tar {
 		response.Header().Set(echo.HeaderContentType, "application/tar")
 	} else {
 		response.Header().Set(echo.HeaderContentType, "application/zip")

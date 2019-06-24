@@ -18,7 +18,9 @@ import (
 
 	"github.com/by46/whalefs/api"
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
+	"github.com/by46/whalefs/rabbitmq"
 	middleware2 "github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
 )
@@ -40,6 +42,7 @@ type Server struct {
 	TaskFileSizeThreshold int64
 	I18nBundle            *i18n.Bundle
 	LocalizerMap          map[string]*i18n.Localizer
+	rabbitmqCh            chan<- *model.SyncFileEntity
 }
 
 func BuildConfig() (*model.Config, error) {
@@ -112,7 +115,7 @@ func NewServer() *Server {
 		BucketMeta:            bucketMeta,
 		ChunkDao:              chuckDao,
 		Logger:                logger,
-		Version:               common.VERSION,
+		Version:               constant.VERSION,
 		buckets:               &sync.Map{},
 		overlays:              &sync.Map{},
 		TaskBucketName:        config.TaskFileBucketName,
@@ -122,6 +125,13 @@ func NewServer() *Server {
 		LocalizerMap:          localizerMap,
 	}
 	srv.install()
+
+	if config.Sync.Enable {
+		rabbitmqCh := make(chan *model.SyncFileEntity, 100)
+		srv.rabbitmqCh = rabbitmqCh
+		producer := rabbitmq.NewProducer(config, rabbitmqCh)
+		go producer.Run()
+	}
 	return srv
 }
 

@@ -11,14 +11,8 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
-)
 
-const (
-	HeaderETag         = "Etag"
-	HeaderIfNoneMatch  = "If-None-Match"
-	HeaderExpires      = "Expires"
-	HeaderCacheControl = "Cache-Control"
-	ErrorResponseSize  = 512
+	"github.com/by46/whalefs/constant"
 )
 
 var (
@@ -48,7 +42,7 @@ func (r *Response) Error() error {
 	if r.StatusCode >= http.StatusOK && r.StatusCode < http.StatusBadRequest {
 		return nil
 	}
-	buf := make([]byte, ErrorResponseSize)
+	buf := make([]byte, constant.ErrorResponseSize)
 	n, _ := r.body.Read(buf)
 
 	return errors.Errorf("status: %d, message: %s", r.StatusCode, string(buf[:n]))

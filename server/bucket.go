@@ -6,11 +6,12 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 )
 
 func (s *Server) GetBucket(name string) (*model.Bucket, error) {
-	key := fmt.Sprintf("%s.%s", KeyBucket, name)
+	key := fmt.Sprintf("%s.%s", constant.KeyBucket, name)
 	value, exists := s.buckets.Load(key)
 	if exists {
 		return value.(*model.Bucket), nil
@@ -27,9 +28,9 @@ func (s *Server) parseBucketAndFileKey(value string) (bucket *model.Bucket, key 
 	if value == "" {
 		return
 	}
-	value = strings.TrimLeft(value, model.Separator)
+	value = strings.TrimLeft(value, constant.Separator)
 	key = value
-	segments := strings.Split(value, model.Separator)
+	segments := strings.Split(value, constant.Separator)
 	if len(segments) == 0 {
 		return
 	}
@@ -44,7 +45,7 @@ func (s *Server) parseBucketAndFileKey(value string) (bucket *model.Bucket, key 
 		sizeName := segments[1]
 		size := bucket.GetSize(sizeName)
 		if size != nil {
-			key = strings.Join(append([]string{bucketName}, segments[2:]...), model.Separator)
+			key = strings.Join(append([]string{bucketName}, segments[2:]...), constant.Separator)
 		}
 	}
 	key = "/" + key

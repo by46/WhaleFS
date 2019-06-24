@@ -207,3 +207,9 @@ POST /benjamin/demo/hello.jpg?uploadId=uuid1
 whalefs.exe migrate --location="D:\application\ImageServer" --target="192.168.1.9:8000" --includes="banner,banner_01"
 whalefs.exe migrate --location="D:\application\ImageServer" --target="192.168.1.9:8000" --includes="bond,bond_01,contract,contract_01,eInvoice,eInvoice_01"
 whalefs.exe migrate --location="D:\application\ImageServer" --target="192.168.1.9:8000" --includes="ibuild,ibuild_01"
+
+
+192.168.110.81:5672,192.168.110.84:5672
+spring.rabbitmq.virtual-host = /blockchain
+spring.rabbitmq.username = ifs_admin
+spring.rabbitmq.password = ifs@123

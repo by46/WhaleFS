@@ -8,11 +8,6 @@ import (
 	"time"
 )
 
-const (
-	Zip = "zip"
-	Tar = "tar"
-)
-
 type PackageUnitEntity struct {
 	Reader io.ReadCloser
 	Size   int64

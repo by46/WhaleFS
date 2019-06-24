@@ -7,12 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/utils"
 )
 
-const (
-	ProductBucketName = "pdt"
-)
 
 // 用于存储缩略图信息
 type ThumbnailMeta struct {
@@ -72,11 +70,11 @@ func (f *FileMeta) IsImage() bool {
 
 func (f *FileMeta) AsEntity(bucketName, fileName string) *FileEntity {
 	aliasBucketName, objectName := utils.PathRemoveSegment(f.RawKey, 0)
-	key := fmt.Sprintf("%s%s", bucketName, objectName)
-	if ProductBucketName == aliasBucketName {
-		key = strings.TrimLeft(objectName, Separator)
+	key := fmt.Sprintf("%s%s", aliasBucketName, objectName)
+	if constant.BucketPdt == aliasBucketName {
+		key = strings.TrimLeft(objectName, constant.Separator)
 	} else if f.IsRandomName {
-		key = fmt.Sprintf("%s/Original%s", bucketName, objectName)
+		key = fmt.Sprintf("%s/Original%s", aliasBucketName, objectName)
 	}
 	return &FileEntity{
 		Key:      key,
