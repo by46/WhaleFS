@@ -62,6 +62,9 @@ func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error
 			// 完成multi-chunk上传
 			fileContext.UploadId = uploadId
 		}
+		if utils.QueryExists(values, "check") {
+			fileContext.Check = true
+		}
 	} else if method == http.MethodHead || method == http.MethodGet {
 		fileContext.AttachmentName = ctx.QueryParam("attachmentName")
 		key = s.legacySupportOSS(ctx, key)
@@ -144,6 +147,13 @@ func (s *Server) file(ctx echo.Context) (err error) {
 				return err
 			} else {
 				return ctx.JSON(http.StatusOK, entity)
+			}
+		}
+		if fileContext.Check {
+			if result, err := s.digestCheck(context); err != nil {
+				return err
+			} else {
+				return ctx.JSON(http.StatusOK, result)
 			}
 		}
 		if fileContext.UploadId != "" && fileContext.PartNumber != 0 {
@@ -287,6 +297,7 @@ func (s *Server) saveChunk(ctx echo.Context, sha1 string, entity *model.FileMeta
 	chunk := new(model.Chunk)
 	chunk.Fid = entity.FID
 	chunk.Etag = entity.ETag
+	chunk.Size = entity.Size
 	if entity.Height > 0 && entity.Width > 0 {
 		chunk.Width, chunk.Height = entity.Width, entity.Height
 	}

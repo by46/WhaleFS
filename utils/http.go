@@ -23,7 +23,7 @@ const (
 
 var (
 	client = &http.Client{
-		Timeout: 30 * time.Second,
+		Timeout: 120 * time.Second,
 	}
 )
 

@@ -27,6 +27,7 @@ type FileContext struct {
 	IsRandomName   bool // 是否自动生成文件名
 	ExtractFile    bool
 	Uploads        bool
+	Check          bool
 	PartNumber     int32
 	Bucket         *Bucket
 	Meta           *FileMeta
