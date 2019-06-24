@@ -1,11 +1,33 @@
-Host: :8080
+Host: :8089
+LegacyFS: http://imagetest.yzw.cn.qa:8000
+Meta: http://whalefs:3vxtMJHTI!IDRGrW@192.168.220.65:8091/whalefs
+BucketMeta: http://whalefs:3vxtMJHTI!IDRGrW@192.168.220.65:8091/basis
+ChunkMeta: http://whalefs:3vxtMJHTI!IDRGrW@192.168.220.65:8091/chunks
+TaskBucket: http://whalefs:3vxtMJHTI!IDRGrW@192.168.220.65:8091/tasks
+TaskFileBucketName: benjamin
+TaskFileSizeThreshold: 1073741824
+HttpClientBase: http://localhost:8089
+TempFileDir: ./tmp/
+Basis:
+  BucketHome: home
+  CollectionTmp: tmp
+  CollectionTmpReplication: 000
+  CollectionTmpTTL: 7d
+  CollectionShare: mass
+  CollectionShareReplication: 100
+  SizeDefault: p200
 Storage:
   Cluster:
-    - 127.0.0.1:9001
-    - 127.0.0.1:9002
-    - 127.0.0.1:9003
-Meta: couchbase://scpodb01:8091/default
-BucketMeta: couchbase://scpodb01:8091/buckets
+    - 192.168.220.65:9333
+    - 192.168.220.65:9334
+    - 192.168.220.66:9333
 Log:
   Home: logs
   Level: debug
+Sync:
+  Enable: true
+  DFSHost: localhost:8089
+  RabbitMQConnection: amqp://guest:guest@localhost:5672/
+  RabbitMQExchange: /whale-fs
+  RabbitMQQueue: whale-fs
+  LegacyFSRoot: /Users/benjamin.c.yan/dfs/legacyfs

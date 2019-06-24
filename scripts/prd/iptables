@@ -1,0 +1,19 @@
+# seaweed
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 9333:9335 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 19333:19335 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 18081:18084 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 28081:28084 -j ACCEPT
+# couchbase port
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 4369 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 8091:8094 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 9100:9105 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 9998:9999 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 11207 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 11209:11211 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 11214:11215 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 18091:18093 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 21100:21299 -j ACCEPT
+
+
+4369, 8091 to 8094, 9100 to 9105, 9998, 9999, 11207, 11209 to 11211,
+11214, 11215, 18091 to 18093, and from 21100 to 21299
