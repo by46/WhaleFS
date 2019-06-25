@@ -33,7 +33,7 @@ func RatioEval(ratio string) *float64 {
 }
 
 func ToInt32(value string) int32 {
-	n, _ := strconv.ParseInt(value, 10, 4)
+	n, _ := strconv.ParseInt(value, 10, 32)
 	return int32(n)
 }
 

@@ -46,6 +46,7 @@ func (s *Server) digestCheck(ctx echo.Context) (result *checkResult, err error) 
 		part := &model.Part{
 			PartNumber: int32(digest.ChunkNo),
 			FID:        chunk.Fid,
+			Size:       chunk.Size,
 		}
 		result.Parts = append(result.Parts, part)
 		if err = s.Meta.SubListAppend(chunkKey, "parts", part, 0); err != nil {
