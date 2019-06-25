@@ -2018,9 +2018,9 @@
     },
     "sizes": [
       {
-        "name": "p200",
-        "width": 200,
-        "height": 200,
+        "name": "p140",
+        "width": 140,
+        "height": 140,
         "mode": "stretch"
       }
     ],
@@ -2062,9 +2062,9 @@
     },
     "sizes": [
       {
-        "name": "p200",
-        "width": 200,
-        "height": 200,
+        "name": "p1920",
+        "width": 1920,
+        "height": 1920,
         "mode": "stretch"
       }
     ],
@@ -2106,9 +2106,9 @@
     },
     "sizes": [
       {
-        "name": "p200",
-        "width": 200,
-        "height": 200,
+        "name": "p180",
+        "width": 180,
+        "height": 180,
         "mode": "stretch"
       }
     ],
@@ -2121,6 +2121,50 @@
     "memo": "供应商店铺LOGO",
     "basis": {
       "alias": "jcssc"
+    }
+  },
+  "system.bucket.jcssp": {
+    "name": "jcssp",
+    "type": "bucket",
+    "memo": "集采供应商店铺商品上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif"
+      ]
+    },
+    "sizes": [
+      {
+        "name": "p216",
+        "width": 216,
+        "height": 216,
+        "mode": "stretch"
+      }
+    ],
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.jcsupplierpdt": {
+    "name": "jcsupplierpdt",
+    "type": "bucket",
+    "memo": "集采供应商店铺商品上传",
+    "basis": {
+      "alias": "jcssp"
     }
   },
   "system.bucket.tmp": {
