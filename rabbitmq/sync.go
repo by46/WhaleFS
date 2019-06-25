@@ -51,14 +51,9 @@ func (s *RabbitMQ) connect(delay time.Duration) {
 		go s.connect(delay * 2)
 		return
 	}
-
-	defer func() {
-		_ = r.Close()
-	}()
 	s.r = r
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := context.Background()
 
 	go func() {
 		err := r.Run(ctx)

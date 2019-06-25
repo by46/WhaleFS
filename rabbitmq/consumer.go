@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/rafaeljesus/rabbus"
 	"github.com/sirupsen/logrus"
 
@@ -64,7 +65,7 @@ func (s *SyncConsumer) Run() {
 		Queue:    s.config.Sync.RabbitMQQueue,
 	})
 	if err != nil {
-		s.Fatalf("add listen handler error: %v", err)
+		s.Fatalf("add listen handler error: %v", errors.WithStack(err))
 	}
 	defer close(messages)
 

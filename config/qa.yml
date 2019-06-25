@@ -1,0 +1,33 @@
+Host: :8088
+LegacyFS: http://imagetest.yzw.cn.qa:8000
+Meta: http://whalefs:123456@192.168.1.9:8091/whalefs
+BucketMeta: http://whalefs:123456@192.168.1.9:8091/basis
+ChunkMeta: http://whalefs:123456@192.168.1.9:8091/chunks
+TaskBucket: http://whalefs:123456@192.168.1.9:8091/tasks
+TaskFileBucketName: benjamin
+TaskFileSizeThreshold: 1073741824
+HttpClientBase: http://localhost:8089
+TempFileDir: ./tmp/
+Basis:
+  BucketHome: home
+  CollectionTmp: tmp
+  CollectionTmpReplication: 000
+  CollectionTmpTTL: 7d
+  CollectionShare: mass
+  CollectionShareReplication: 100
+  SizeDefault: p200
+Storage:
+  Cluster:
+    - 192.168.1.9:9333
+    - 192.168.1.9:9334
+    - 192.168.1.9:9335
+Log:
+  Home: logs
+  Level: debug
+Sync:
+  Enable: true
+  DFSHost: 192.168.1.9:6081
+  RabbitMQConnection: amqp://admin:admin@172.16.0.131:5672/
+  RabbitMQExchange: /whale-fs
+  RabbitMQQueue: whale-fs
+  LegacyFSRoot: D:\application\ImageServer
