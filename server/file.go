@@ -205,7 +205,13 @@ func (s *Server) delete(ctx echo.Context) (err error) {
 
 func (s *Server) uploadFile(ctx echo.Context) (err error) {
 	context := ctx.(*middleware.ExtendContext)
-	entity, err := s.uploadFileInternal(ctx)
+	fileContext := context.FileContext
+	var entity *model.FileEntity
+	if fileContext.File.Size > constant.ChunkSize {
+		entity, err = s.uploadLargeFile(context)
+	} else {
+		entity, err = s.uploadFileInternal(ctx)
+	}
 	if err != nil {
 		return err
 	}
