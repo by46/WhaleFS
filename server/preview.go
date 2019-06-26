@@ -15,15 +15,46 @@ import (
 	"os"
 )
 
-func (s *Server) generatePreviewImg(ctx echo.Context, chunk io.ReadCloser) (*model.FileMeta, error) {
-	defer func() {
-		err := chunk.Close()
+func (s *Server) fetchPreviewImg(ctx echo.Context) error {
+	context := ctx.(*middleware.ExtendContext)
+	bucket := context.FileContext.Bucket
+	entity := context.FileContext.Meta
+
+	if entity.PreviewImg == nil {
+		body, _, err := s.Storage.Download(entity.FID)
 		if err != nil {
-			s.Logger.Error(err)
+			return err
 		}
-	}()
+		defer func() { body.Close() }()
+
+		tmp := byteBufferPool.Get().([]byte)
+		defer byteBufferPool.Put(tmp)
+
+		_, err = body.Read(tmp)
+		if err != nil && err != io.EOF {
+			return errors.Wrap(err, "读取文件内容失败")
+		}
+		previewImgChunkMeta, err := s.generatePreviewImg(ctx, bytes.NewBuffer(tmp))
+		if err != nil {
+			return err
+		}
+		entity.PreviewImg = &model.PreviewImgMeta{
+			ThumbnailMeta: model.ThumbnailMeta{
+				FID:  previewImgChunkMeta.FID,
+				Size: previewImgChunkMeta.Size,
+			},
+			MimeType: previewImgChunkMeta.MimeType,
+		}
+		if err = s.Meta.SetTTL(entity.RawKey, entity, bucket.Basis.TTL.Expiry()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Server) generatePreviewImg(ctx echo.Context, chunk io.Reader) (*model.FileMeta, error) {
 	filename := uuid.New().String()
-	filename = fmt.Sprintf("/Users/mark.c.jiang/Code/workspace/whalefs/tmp/%s", filename)
+	filename = fmt.Sprintf("/tmp/%s", filename)
 
 	file, err := os.Create(filename)
 	defer func() {
