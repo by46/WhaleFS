@@ -121,3 +121,11 @@ func NormalMimeType(mimeType string) string {
 	}
 	return media
 }
+
+func IsVideo(mimeType string) bool {
+	if mimeType == "" {
+		return false
+	}
+	mimeType = strings.ToLower(mimeType)
+	return strings.HasPrefix(mimeType, "video/")
+}
