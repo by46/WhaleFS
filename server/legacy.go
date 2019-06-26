@@ -91,6 +91,17 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	}
 	fileContext.File.WaterMark = utils.Params(ctx, "watermarkPic")
 	context := &middleware.ExtendContext{ctx, fileContext}
+	if fileContext.File.Size > constant.ChunkSize {
+		entity, err := s.uploadLargeFile(context)
+		if err != nil {
+			inner, success := err.(*echo.HTTPError)
+			if success {
+				inner.Code = http.StatusOK
+			}
+			return err
+		}
+		return ctx.JSON(http.StatusOK, entity)
+	}
 
 	err = s.uploadFile(context)
 	if err != nil {

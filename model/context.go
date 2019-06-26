@@ -103,6 +103,11 @@ func (f *FileContext) parseFileContentFromRemote(source string) error {
 	return err
 }
 
+func (f *FileContext) ParseFileContentFromBytes(buf []byte) (err error) {
+	f.File, err = f.buildFileContent(buf, nil, "")
+	return
+}
+
 func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader, filename string) (file *FileContent, err error) {
 	file = new(FileContent)
 	file.Headers = headers

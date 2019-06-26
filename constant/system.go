@@ -13,4 +13,5 @@ const (
 	GzipLimit            = 5 << 10          // 5K
 	TTLChunk             = 60 * 60 * 24 * 7 //7 days
 	FIDSep               = "|"
+	ChunkSize            = 1024 * 1024 * 16 // 16M
 )
