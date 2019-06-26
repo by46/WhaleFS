@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/labstack/echo"
@@ -17,6 +18,20 @@ import (
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
+)
+
+const (
+	BufferSize   = 4 * 1024 // 4M
+	ParamPreview = "preview"
+	ParamSize    = "size"
+)
+
+var (
+	byteBufferPool = &sync.Pool{
+		New: func() interface{} {
+			return make([]byte, BufferSize)
+		},
+	}
 )
 
 func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error) {
@@ -330,6 +345,22 @@ func (s *Server) download(ctx echo.Context) (err error) {
 		ctx.Response().WriteHeader(http.StatusNotModified)
 		return
 	}
+
+	queryParams := ctx.Request().URL.Query()
+	if utils.IsVideo(entity.MimeType) && utils.QueryExists(queryParams, ParamPreview) {
+		err := s.fetchPreviewImg(ctx)
+		if err != nil {
+			return nil
+		}
+		entity.FID = entity.PreviewImg.FID
+		entity.MimeType = entity.PreviewImg.MimeType
+		entity.Size = entity.PreviewImg.Size
+		if utils.QueryExists(queryParams, ParamSize) {
+			size := queryParams.Get(ParamSize)
+			context.FileContext.Size = bucket.GetSize(size)
+		}
+	}
+
 	body, err := s.downloadFile(ctx)
 	if err != nil {
 		if err == common.ErrFileNotFound {
