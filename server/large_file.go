@@ -27,12 +27,13 @@ func (s *Server) uploadLargeFile(ctx echo.Context) (entity *model.FileEntity, er
 
 	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileContext.Bucket
-	key := context.FileContext.Key
 	content := bytes.NewReader(context.FileContext.File.Content)
 
 	fileContext := &model.FileContext{
-		Bucket: bucket,
-		Key:    key,
+		Bucket:     bucket,
+		Key:        context.FileContext.Key,
+		ObjectName: context.FileContext.ObjectName,
+		BucketName: context.FileContext.BucketName,
 	}
 	r, _ := http.NewRequest("POST", "", nil)
 	r.Header.Set(echo.HeaderContentType, context.FileContext.File.MimeType)
