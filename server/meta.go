@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
@@ -45,8 +47,16 @@ func (s *Server) GetFileEntityFromLegacy(hash string) (*model.FileMeta, error) {
 		return nil, common.ErrKeyNotFound
 	}
 	context := &middleware.ExtendContext{nil, fileContext}
-	if _, err := s.uploadFileInternal(context); err != nil {
-		return nil, common.ErrKeyNotFound
+	if fileContext.File.Size > constant.ChunkSize {
+		_, err := s.uploadLargeFile(context)
+		if err != nil {
+			s.Logger.Errorf("upload large file", errors.WithStack(err))
+			return nil, common.ErrKeyNotFound
+		}
+	} else {
+		if _, err := s.uploadFileInternal(context); err != nil {
+			return nil, common.ErrKeyNotFound
+		}
 	}
 	err := s.Meta.Get(hash, entity)
 	return entity, err
