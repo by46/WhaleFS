@@ -91,6 +91,17 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	}
 	fileContext.File.WaterMark = utils.Params(ctx, "watermarkPic")
 	context := &middleware.ExtendContext{ctx, fileContext}
+	if fileContext.File.Size > constant.ChunkSize {
+		entity, err := s.uploadLargeFile(context)
+		if err != nil {
+			inner, success := err.(*echo.HTTPError)
+			if success {
+				inner.Code = http.StatusOK
+			}
+			return err
+		}
+		return ctx.JSON(http.StatusOK, entity)
+	}
 
 	err = s.uploadFile(context)
 	if err != nil {
@@ -130,13 +141,15 @@ func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
 // DownloadHandler.ashx
 func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 	key := ctx.QueryParam("FilePath")
-	key = utils.PathNormalize(key)
+
 	attachmentName := ctx.QueryParam("FileName")
 	//shouldMark := utils.ToBool(ctx.QueryParam("Mark"))
 
 	if utils.IsRemote(key) {
 		return s.legacyDownloadFileByRemote(ctx)
 	}
+
+	key = utils.PathNormalize(key)
 	bucket, key, size := s.parseBucketAndFileKey(key)
 
 	if bucket == nil {
@@ -210,7 +223,11 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 
 	var totalSize int64
 	for _, item := range packageEntity.Items {
-		entity, err := s.GetFileEntity(item.RawKey)
+		bucket, key, _ := s.parseBucketAndFileKey(item.RawKey)
+		if bucket == nil {
+			return returnMessage(ctx, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...), "")
+		}
+		entity, err := s.GetFileEntity(utils.PathNormalize(key))
 		if err != nil {
 			if err == common.ErrKeyNotFound {
 				return returnMessage(ctx, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...), "")

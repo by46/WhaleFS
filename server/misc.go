@@ -11,8 +11,8 @@ func (s *Server) sendMessage(entity *model.FileEntity, bucket *model.Bucket) {
 			sizes = append(sizes, size.Name)
 		}
 		s.rabbitmqCh <- &model.SyncFileEntity{
-			Url: entity.Url,
-			Sizes:sizes,
+			Url:   entity.Url,
+			Sizes: sizes,
 		}
 	}
 }

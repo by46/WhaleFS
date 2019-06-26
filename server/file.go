@@ -165,7 +165,11 @@ func (s *Server) file(ctx echo.Context) (err error) {
 			}
 		}
 		if fileContext.UploadId != "" {
-			if entity, err := s.uploadComplete(context); err != nil {
+			parts := make([]*model.Part, 0)
+			if err = ctx.Bind(&parts); err != nil {
+				return errors.WithStack(err)
+			}
+			if entity, err := s.uploadComplete(context, parts); err != nil {
 				return err
 			} else {
 				return ctx.JSON(http.StatusOK, entity)

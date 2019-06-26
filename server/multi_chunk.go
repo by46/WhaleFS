@@ -88,15 +88,10 @@ func (s *Server) uploadPart(ctx echo.Context) (part *model.Part, err error) {
 }
 
 // 完成multi-chunk上传任务
-func (s *Server) uploadComplete(ctx echo.Context) (entity *model.FileEntity, err error) {
+func (s *Server) uploadComplete(ctx echo.Context, parts model.Parts) (entity *model.FileEntity, err error) {
 	context := ctx.(*middleware.ExtendContext)
 	bucket := context.FileContext.Bucket
 	var cas uint64
-
-	parts := make([]*model.Part, 0)
-	if err = ctx.Bind(&parts); err != nil {
-		return nil, err
-	}
 
 	uploadId := context.FileContext.UploadId
 	key := fmt.Sprintf("chunks:%s", uploadId)
