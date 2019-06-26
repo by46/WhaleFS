@@ -7,7 +7,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/labstack/echo"
@@ -18,20 +17,6 @@ import (
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
-)
-
-const (
-	BufferSize   = 4 * 1024 // 4M
-	ParamPreview = "preview"
-	ParamSize    = "size"
-)
-
-var (
-	byteBufferPool = &sync.Pool{
-		New: func() interface{} {
-			return make([]byte, BufferSize)
-		},
-	}
 )
 
 func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error) {

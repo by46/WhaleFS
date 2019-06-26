@@ -13,6 +13,21 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"sync"
+)
+
+const (
+	BufferSize   = 16 * 1024 * 1024
+	ParamPreview = "preview"
+	ParamSize    = "size"
+)
+
+var (
+	byteBufferPool = &sync.Pool{
+		New: func() interface{} {
+			return make([]byte, BufferSize)
+		},
+	}
 )
 
 func (s *Server) fetchPreviewImg(ctx echo.Context) error {
@@ -30,11 +45,12 @@ func (s *Server) fetchPreviewImg(ctx echo.Context) error {
 		tmp := byteBufferPool.Get().([]byte)
 		defer byteBufferPool.Put(tmp)
 
-		_, err = body.Read(tmp)
+		buffer := bytes.NewBuffer(nil)
+		_, err = io.CopyN(buffer, body, BufferSize)
 		if err != nil && err != io.EOF {
 			return errors.Wrap(err, "读取文件内容失败")
 		}
-		previewImgChunkMeta, err := s.generatePreviewImg(ctx, bytes.NewBuffer(tmp))
+		previewImgChunkMeta, err := s.generatePreviewImg(ctx, buffer)
 		if err != nil {
 			return err
 		}
