@@ -1,4 +1,4 @@
-Host: :8088
+Host: :8089
 LegacyFS: http://imagetest.yzw.cn.qa:8000
 Meta: http://whalefs:123456@192.168.1.9:8091/whalefs
 BucketMeta: http://whalefs:123456@192.168.1.9:8091/basis
