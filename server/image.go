@@ -216,22 +216,22 @@ func (s *Server) encode(ctx echo.Context, img image.Image) (*bytes.Buffer, error
 
 	buff := bytes.NewBuffer(nil)
 
-	fmt := imaging.JPEG
+	format := imaging.JPEG
 	opts := []imaging.EncodeOption{}
 	switch entity.MimeType {
 	case "image/png":
-		fmt = imaging.PNG
+		format = imaging.PNG
 	case "image/gif":
-		fmt = imaging.GIF
+		format = imaging.GIF
 	case "image/bmp":
-		fmt = imaging.BMP
+		format = imaging.BMP
 	case "image/tiff":
-		fmt = imaging.TIFF
+		format = imaging.TIFF
 	default:
-		fmt = imaging.JPEG
+		format = imaging.JPEG
 		opts = append(opts, imaging.JPEGQuality(75))
 	}
-	if err := imaging.Encode(buff, img, fmt, opts...); err != nil {
+	if err := imaging.Encode(buff, img, format, opts...); err != nil {
 		return nil, errors.WithStack(err)
 	}
 	entity.Size = int64(buff.Len())
