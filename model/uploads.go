@@ -38,6 +38,7 @@ type PartMeta struct {
 	MimeType     string `json:"mimeType"`
 	IsRandomName bool   `json:"is_random_name"`
 	Parts        Parts  `json:"parts"`
+	ThumbnailKey string `json:"thumbnailKey,omitempty"`
 }
 
 func (p *PartMeta) AsFileMeta() *FileMeta {

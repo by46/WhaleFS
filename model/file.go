@@ -11,7 +11,6 @@ import (
 	"github.com/by46/whalefs/utils"
 )
 
-
 // 用于存储缩略图信息
 type ThumbnailMeta struct {
 	FID  string `json:"fid,omitempty"`
@@ -19,23 +18,29 @@ type ThumbnailMeta struct {
 	Size int64  `json:"size,omitempty"`
 }
 
+type PreviewImgMeta struct {
+	ThumbnailMeta
+	MimeType string `json:"mime_type,omitempty"`
+}
+
 type Thumbnails map[string]*ThumbnailMeta
 
 // 用于存储在数据库中的文件元数据信息
 type FileMeta struct {
-	RawKey       string     `json:"raw_key,omitempty"`
-	Url          string     `json:"url,omitempty"`
-	FID          string     `json:"fid,omitempty"`
-	MimeType     string     `json:"mime_type,omitempty"`
-	ThumbnailFID string     `json:"thumbnail_fid,omitempty"`
-	ETag         string     `json:"etag,omitempty"`
-	LastModified int64      `json:"last_modified,omitempty"`
-	Size         int64      `json:"size,omitempty"`
-	Width        int        `json:"width,omitempty"`
-	Height       int        `json:"height,omitempty"`
-	Thumbnails   Thumbnails `json:"thumbnails,omitempty"`
-	IsRandomName bool       `json:"is_random_name,omitempty"`
-	WaterMark    string     `json:"water_mark,omitempty"`
+	RawKey       string          `json:"raw_key,omitempty"`
+	Url          string          `json:"url,omitempty"`
+	FID          string          `json:"fid,omitempty"`
+	MimeType     string          `json:"mime_type,omitempty"`
+	ThumbnailFID string          `json:"thumbnail_fid,omitempty"`
+	ETag         string          `json:"etag,omitempty"`
+	LastModified int64           `json:"last_modified,omitempty"`
+	Size         int64           `json:"size,omitempty"`
+	Width        int             `json:"width,omitempty"`
+	Height       int             `json:"height,omitempty"`
+	Thumbnails   Thumbnails      `json:"thumbnails,omitempty"`
+	IsRandomName bool            `json:"is_random_name,omitempty"`
+	WaterMark    string          `json:"water_mark,omitempty"`
+	PreviewImg   *PreviewImgMeta `json:"preview_img,omitempty"`
 }
 
 func (f *FileMeta) LastModifiedTime() time.Time {

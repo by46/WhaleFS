@@ -124,6 +124,26 @@ func (s *Server) uploadComplete(ctx echo.Context, parts model.Parts) (entity *mo
 		ids = append(ids, serverPart.FID)
 	}
 	meta.FID = strings.Join(ids, constant.FIDSep)
+
+	if utils.IsVideo(meta.MimeType) {
+		serverPart, _ := mapping[1]
+		body, _, err := s.Storage.Download(serverPart.FID)
+		if err != nil {
+			return nil, err
+		}
+		previewImgChunkMeta, err := s.generatePreviewImg(ctx, body)
+		if err != nil {
+			return nil, err
+		}
+		meta.PreviewImg = &model.PreviewImgMeta{
+			ThumbnailMeta: model.ThumbnailMeta{
+				FID:  previewImgChunkMeta.FID,
+				Size: previewImgChunkMeta.Size,
+			},
+			MimeType: previewImgChunkMeta.MimeType,
+		}
+	}
+
 	if err = s.Meta.SetTTL(meta.RawKey, meta, bucket.Basis.TTL.Expiry()); err != nil {
 		return nil, err
 	}
