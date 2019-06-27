@@ -34,10 +34,10 @@ type userInfo struct {
 }
 
 type basisInfo struct {
-	Id      string      `json:"id"`
-	Cas     uint64      `json:"cas,omitempty"`
-	Version string      `json:"version"`
-	Basis   interface{} `json:"basis,omitempty"`
+	Id      string        `json:"id"`
+	Cas     uint64        `json:"cas,omitempty"`
+	Version string        `json:"version"`
+	Basis   *model.Bucket `json:"basis,omitempty"`
 }
 
 func (s *Server) listBucket(ctx echo.Context) error {
@@ -84,7 +84,7 @@ func (s *Server) addBucket(ctx echo.Context) error {
 		bucket.Id = prefixBucket + bucket.Id
 	}
 
-	var b interface{}
+	b := new(map[string]interface{})
 	err := s.BucketMeta.Get(bucket.Id, b)
 	if err == nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "bucket 已经存在")
@@ -93,23 +93,16 @@ func (s *Server) addBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	basis := bucket.Basis.(map[string]interface{})
-	value, ok := basis["type"]
-	if ok {
-		if value.(string) != typeBucket {
-			return echo.NewHTTPError(http.StatusBadRequest, "type 不是 bucket")
-		}
-	} else {
-		basis["type"] = typeBucket
+	if bucket.Basis.Type != typeBucket {
+		return echo.NewHTTPError(http.StatusBadRequest, "type 不是 bucket")
 	}
 
-	name, ok := basis["name"]
-	if ok {
-		if strings.TrimPrefix(bucket.Id, prefixBucket) != strings.TrimPrefix(name.(string), prefixBucket) {
-			return echo.NewHTTPError(http.StatusBadRequest, "name 与 bucket id 不符")
-		}
-	} else {
-		basis["name"] = strings.TrimPrefix(bucket.Id, prefixBucket)
+	if strings.TrimPrefix(bucket.Id, prefixBucket) != strings.TrimPrefix(bucket.Basis.Name, prefixBucket) {
+		return echo.NewHTTPError(http.StatusBadRequest, "name 与 bucket id 不符")
+	}
+
+	if bucket.Basis.Basis == nil || bucket.Basis.Basis.Collection == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "bucket collection 必须设置")
 	}
 
 	if err := s.BucketMeta.Set(bucket.Id, bucket.Basis); err != nil {
@@ -142,9 +135,12 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
 	}
 
-	var b interface{}
-	cas, err := s.BucketMeta.GetWithCas(bucket.Id, b)
+	preBucketMeta := new(model.Bucket)
+	cas, err := s.BucketMeta.GetWithCas(bucket.Id, preBucketMeta)
 	if err != nil {
+		if err == common.ErrFileNotFound {
+			return echo.NewHTTPError(http.StatusNotFound)
+		}
 		s.Logger.Errorf("数据库操作失败 %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
@@ -152,23 +148,20 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusConflict, "bucket 已被其他用户修改，请刷新重试")
 	}
 
-	basis := bucket.Basis.(map[string]interface{})
-	value, ok := basis["type"]
-	if ok {
-		if value != typeBucket {
-			return echo.NewHTTPError(http.StatusBadRequest, "type 不是 bucket")
-		}
-	} else {
-		basis["type"] = typeBucket
+	if bucket.Basis.Type != typeBucket {
+		return echo.NewHTTPError(http.StatusBadRequest, "type 不是 bucket")
 	}
 
-	name, ok := basis["name"]
-	if ok {
-		if strings.TrimPrefix(bucket.Id, prefixBucket) != strings.TrimPrefix(name.(string), prefixBucket) {
-			return echo.NewHTTPError(http.StatusBadRequest, "name 与 bucket id 不符")
-		}
-	} else {
-		basis["name"] = strings.TrimPrefix(bucket.Id, prefixBucket)
+	if bucket.Basis.Name != preBucketMeta.Name {
+		return echo.NewHTTPError(http.StatusBadRequest, "bucket name 不能改变")
+	}
+
+	if bucket.Basis.Basis == nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "bucket basis 必须存在")
+	}
+
+	if preBucketMeta.Basis.Collection != bucket.Basis.Basis.Collection {
+		return echo.NewHTTPError(http.StatusBadRequest, "bucket collection 不能改变")
 	}
 
 	if err := s.BucketMeta.Set(bucket.Id, bucket.Basis); err != nil {
@@ -236,7 +229,11 @@ func (s *Server) login(ctx echo.Context) error {
 	var user = &model.User{}
 	err := s.BucketMeta.Get(prefixUser+reqUser.Name, user)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound)
+		if err == common.ErrFileNotFound {
+			return echo.NewHTTPError(http.StatusNotFound)
+		}
+		s.Logger.Errorf("数据库操作失败 %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	sha1, err := utils.Sha1(reqUser.Password)

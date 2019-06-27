@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	BufferSize   = 16 * 1024 * 1024
+	BufferSize   = 4 * 1024 * 1024
 	ParamPreview = "preview"
 	ParamSize    = "size"
 )
