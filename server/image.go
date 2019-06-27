@@ -136,7 +136,7 @@ func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err er
 				s.Logger.Errorf("上传预处理图片失败 %+v", err)
 			} else {
 				meta.ThumbnailFID = prepareThumbnailMeta.FID
-				if err := s.Meta.Set(meta.RawKey, meta); err != nil {
+				if err := s.Meta.SubSet(meta.RawKey, "thumbnail_fid", prepareThumbnailMeta.FID, 0); err != nil {
 					s.Logger.Errorf("更新文件元数据失败 %+v", err)
 				}
 			}
