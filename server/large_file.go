@@ -4,21 +4,12 @@ import (
 	"bytes"
 	"io"
 	"net/http"
-	"sync"
 
 	"github.com/labstack/echo"
 
 	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/server/middleware"
-)
-
-var (
-	ChunkBuffPool = sync.Pool{
-		New: func() interface{} {
-			return make([]byte, constant.ChunkSize)
-		},
-	}
 )
 
 func (s *Server) uploadLargeFile(ctx echo.Context) (entity *model.FileEntity, err error) {
@@ -35,7 +26,7 @@ func (s *Server) uploadLargeFile(ctx echo.Context) (entity *model.FileEntity, er
 		ObjectName: context.FileContext.ObjectName,
 		BucketName: context.FileContext.BucketName,
 	}
-	r, _ := http.NewRequest("POST", "", nil)
+	r, _ := http.NewRequest(http.MethodPost, "", nil)
 	r.Header.Set(echo.HeaderContentType, context.FileContext.File.MimeType)
 	fakeCtx := s.app.NewContext(r, nil)
 	fakeContext := &middleware.ExtendContext{fakeCtx, fileContext}
