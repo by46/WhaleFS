@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
 	"github.com/by46/whalefs/utils"
 	"github.com/google/uuid"
@@ -25,8 +26,6 @@ const (
 
 	roleAdmin  = "admin"
 	roleNormal = "normal"
-
-	bucketLastUpdateAt = "system.bucket.last_update_at"
 )
 
 type userInfo struct {
@@ -115,7 +114,10 @@ func (s *Server) addBucket(ctx echo.Context) error {
 	bucketName := strings.TrimPrefix(bucket.Id, prefixBucket)
 	err = s.BucketMeta.SubListAppend(prefixUser+u.Name, "buckets", bucketName, 0)
 
-	if err = s.BucketMeta.Set(bucketLastUpdateAt, time.Now().Unix()); err != nil {
+	ts := &model.Timestamp{
+		BucketUpdate: time.Now().Unix(),
+	}
+	if err = s.BucketMeta.Set(constant.KeyTimeStamp, ts); err != nil {
 		s.Logger.Errorf("数据库操作失败 %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
@@ -176,7 +178,10 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	if err = s.BucketMeta.Set(bucketLastUpdateAt, time.Now().Unix()); err != nil {
+	ts := &model.Timestamp{
+		BucketUpdate: time.Now().Unix(),
+	}
+	if err = s.BucketMeta.Set(constant.KeyTimeStamp, ts); err != nil {
 		s.Logger.Errorf("数据库操作失败 %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
@@ -228,7 +233,10 @@ func (s *Server) deleteBucket(ctx echo.Context) error {
 		break
 	}
 
-	if err = s.BucketMeta.Set(bucketLastUpdateAt, time.Now().Unix()); err != nil {
+	ts := &model.Timestamp{
+		BucketUpdate: time.Now().Unix(),
+	}
+	if err = s.BucketMeta.Set(constant.KeyTimeStamp, ts); err != nil {
 		s.Logger.Errorf("数据库操作失败 %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
