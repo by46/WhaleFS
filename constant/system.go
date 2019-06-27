@@ -9,6 +9,7 @@ const (
 	QueryNameTTL         = "ttl"
 	MimeSize             = 512
 	KeyBucket            = "system.bucket"
+	KeyTimeStamp         = "system.timestamp"
 	GzipScheme           = "gzip"
 	GzipLimit            = 5 << 10          // 5K
 	TTLChunk             = 60 * 60 * 24 * 7 //7 days

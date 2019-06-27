@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/pkg/errors"
 
@@ -50,4 +51,8 @@ func (s *Server) parseBucketAndFileKey(value string) (bucket *model.Bucket, key 
 	}
 	key = "/" + key
 	return
+}
+
+func (s *Server) clearBucket() {
+	s.buckets = &sync.Map{}
 }
