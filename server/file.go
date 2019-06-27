@@ -72,10 +72,6 @@ func (s *Server) uploadByBody(ctx echo.Context) (err error) {
 	return s.uploadFile(context)
 }
 
-func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
-	return err
-}
-
 // 通过URL下载文件
 func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
 	fileContext := new(model.FileContext)
