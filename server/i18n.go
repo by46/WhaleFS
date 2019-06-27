@@ -16,6 +16,7 @@ const (
 	MsgIdMergePdfFailed       = "mergePdfFailed"
 	MsgIdMissFileIdentity     = "missFileIdentity"
 	MsgIdStartPositionNotSet  = "startPositionNotSet"
+	MsgIdUploadInvalidForm    = "uploadInvalidForm"
 )
 
 var config = &i18n.LocalizeConfig{}

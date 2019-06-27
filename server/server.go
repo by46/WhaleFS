@@ -149,8 +149,15 @@ func (s *Server) install() {
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST, echo.PUT, echo.DELETE},
 		ExposeHeaders: []string{"X-Request-Id"},
-		AllowHeaders:  []string{"X-Request-Id", "X-Requested-With", "X_Requested_With", "X-Requested-LangCode", "projectsysno", "content-type", "Authorization"},
-		MaxAge:        60 * 30,
+		AllowHeaders: []string{"X-Request-Id",
+			"X-Requested-With",
+			"X_Requested_With",
+			"X-Requested-LangCode",
+			"projectsysno",
+			"content-type",
+			"Authorization",
+			constant.HeaderVia},
+		MaxAge: 60 * 30,
 	}))
 
 	s.app.Use(middleware2.InjectUser(middleware2.AuthUserConfig{
@@ -169,6 +176,10 @@ func (s *Server) install() {
 		http.MethodPut,
 		http.MethodDelete,
 	}
+	methodsNew := []string{
+		http.MethodPost,
+		http.MethodDelete,
+	}
 
 	s.app.GET("/faq.htm", s.faq)
 	s.app.POST("/packageDownload", s.packageDownload)
@@ -177,6 +188,7 @@ func (s *Server) install() {
 	s.app.GET("/favicon.ico", s.favicon)
 	s.app.GET("/tasks", s.checkTask)
 	s.app.GET("/metrics", s.metric)
+	s.app.HEAD("/status.html", s.status)
 
 	s.app.GET("/api/users", s.listUser)
 	s.app.POST("/api/users", s.addUser)
@@ -200,7 +212,11 @@ func (s *Server) install() {
 	s.app.Match(methods, "/BatchMergePdfHandler.ashx", s.legacyMergePDF)
 	s.app.Match(methods, "/SliceUploadHandler.ashx", s.legacySliceUpload)
 
-	s.app.Match(methods, "/*", s.file)
+	s.app.POST("/", s.uploadByForm)
+	s.app.PUT("/*", s.uploadByBody)
+	s.app.GET("/*", s.downloadByUrl)
+
+	s.app.Match(methodsNew, "/*", s.file)
 }
 
 func (s *Server) ListenAndServe() {
