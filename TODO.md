@@ -26,15 +26,15 @@
  13. 提供SDK(Java, C#) - p1
  19. 通过外部URL上传资源 - p1 - done
  2. 简单部署 - done
- 7. 支持大文件断点续传
+ 7. 支持大文件断点续传 - done
  12. 支持目录(目前需要讨论需求) - done
- 14. 视频处理(按照帧数来截图)
+ 14. 视频处理(按照帧数来截图) - done
  15. 在线预览PDF,WORD,EXCEL,图片视频
- 16. 支持秒传功能
+ 16. 支持秒传功能 - done
  17. 文件索引支持模糊查找
  18. 权限控制(access key)
  20. 支持文件过期 - done
- 21. 简单portal(管理bucket, 系统运行状态监控, 简单运维工作)
+ 21. 简单portal(管理bucket, 系统运行状态监控, 简单运维工作) - done?
  22. 支持linux 文件系统原生挂载
 
 
@@ -47,12 +47,12 @@
 7. 错误提示多语言 - done
 8. 水印支持文字
 9. migrate 迁移支持大文件
-10. multi-chunk file etag 如何生成
-11. 支持默认图
+10. multi-chunk file etag 如何生成 - done
+11. 支持默认图 - done
 12. 支持单图多水印
 13. 如果通过remote 下载时, 如果文件过大,需要转换为multi-chunks
 14. 接口兼容问题(handler存在多个系统中时, 有可能失败) - done
-15. bucket 更新接口
+15. bucket 更新接口 - done
 16. resize cache 如何过期
 
 
