@@ -30,4 +30,67 @@ PRD环境使用的是一个外部域名， 可以直接访问
 
 API接口有两部分组成：
 
-- 老集采系统原来接口， 目前
+- 老集采系统原来接口， 目前已经基本兼容
+- 新系统的接口， 主要是增强原有文件系统的一些未显示的功能
+
+
+
+### 上传（表单上传）
+
+since: 1.0.0
+
+上传请求格式, 需要构建一个表单，内容如下
+
+```text
+POST / HTTP/1.1
+Host: 192.168.1.9:8089
+Content-Length: 386
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryFRIRSZsF3BVUQlU9
+
+------WebKitFormBoundaryFRIRSZsF3BVUQlU9
+Content-Disposition: form-data; name="key"
+
+/benjamin
+------WebKitFormBoundaryFRIRSZsF3BVUQlU9
+Content-Disposition: form-data; name="file"; filename="file.txt"
+Content-Type: text/plain
+
+filecontent
+
+------WebKitFormBoundaryFRIRSZsF3BVUQlU9
+Content-Disposition: form-data; name="source"
+
+
+------WebKitFormBoundaryFRIRSZsF3BVUQlU9--
+```
+
+
+
+| 参数   | 默认值 | 是否必须 | 说明                                                         |
+| ------ | ------ | -------- | ------------------------------------------------------------ |
+| key    | N/A    | 是       | 指定上传的文件Key，Key=/<bucket name>/<object name>, 如果未包含object name，object name将由服务器自动生成，<br /> 例如： /benjamin, /benjamin/hello.txt |
+| file   | N/A    | 是       | 文件内容                                                     |
+| source | N/A    | 否       | 由source 指定的url资源作为文件内容,<br /> 例如：https://www.firstarriving.com/wp-content/uploads/2017/02/google-logo-1200x630.jpg |
+
+
+
+### 视频截图
+
+since：1.0.1
+
+该接口主要用于视频文件获取第一帧图像，并返回图片内容。
+
+目前该接口支持格式：mp4，生成的图片支持：jpeg
+
+首先需要上传是视屏文件， 得到视频文件的URL，然后通过如下url就可以获取视屏的截图
+```text
+https://oss.yzw.cn/test/Original/0d27885f-b32e-4a85-ba29-7ccb03a3d572.mp4?preview&size=p200
+```
+
+
+
+| 参数    | 默认值 | 是否必须 | 说明                                                       |
+| ------- | ------ | -------- | ---------------------------------------------------------- |
+| preview | N/A    | 是       | 启用预览模式                                               |
+| size    | N/A    | 否       | 该参数用于图片变化， 来源于bucket提前设置的size，例如：p60 |
+
