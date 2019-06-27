@@ -116,7 +116,7 @@ func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader,
 	file.Content = buf
 	file.Size = int64(len(buf))
 	extension := filepath.Ext(filename)
-	if filename != "" && extension != "" && extension != "ashx" {
+	if filename != "" && extension != "" && extension != ".ashx" {
 		file.FileName = filename
 		file.Extension = extension
 		file.MimeType = utils.MimeTypeByExtension(filename)
