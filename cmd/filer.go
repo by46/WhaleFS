@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
 	"github.com/by46/whalefs/server"
@@ -27,5 +29,7 @@ func init() {
 func executeFiler(cmd *cobra.Command, args []string) {
 	utils.SetupProfiling(filerCpuProfile, filerMemProfile)
 	srv := server.NewServer()
+
+	go srv.SyncConfig(context.TODO())
 	srv.ListenAndServe()
 }
