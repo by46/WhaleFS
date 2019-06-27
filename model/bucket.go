@@ -156,11 +156,12 @@ type Bucket struct {
 	Name           string                   `json:"name"`
 	Memo           string                   `json:"memo"`
 	Basis          *Basis                   `json:"basis"`
-	Extends        [] *ExtendItem           `json:"extends"`
+	Extends        []*ExtendItem            `json:"extends"`
 	LastEditDate   int64                    `json:"last_edit_date"`
 	LastEditUser   string                   `json:"last_edit_user"`
 	Sizes          []*ImageSize             `json:"Sizes"`
 	Limit          *BucketLimit             `json:"limit"`
+	Type           string                   `json:"type"`
 	Overlays       []*ImageOverlay          `json:"overlays"`
 	Overlay        *ImageOverlay            `json:"-"`
 	overlayMapping map[string]*ImageOverlay `json:"-"`
