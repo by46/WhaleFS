@@ -2,8 +2,10 @@ package model
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"mime/multipart"
+	"net/http"
 	"net/textproto"
 	"path/filepath"
 
@@ -54,7 +56,7 @@ func (f *FileContext) ParseFileContentFromRequest(ctx echo.Context) (err error) 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	f.File, err = f.buildFileContent(buf, textproto.MIMEHeader(ctx.Request().Header), "")
+	f.File, err = f.buildFileContent(buf, textproto.MIMEHeader(ctx.Request().Header), ctx.Request().URL.Path)
 	return err
 }
 
@@ -65,7 +67,7 @@ func (f *FileContext) ParseFileContent(url string, formFile *multipart.FileHeade
 	if formFile != nil {
 		return f.parseFileContentFromForm(formFile)
 	}
-	return
+	return fmt.Errorf("error")
 }
 
 func (f *FileContext) parseFileContentFromForm(form *multipart.FileHeader) error {
@@ -113,13 +115,15 @@ func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader,
 	file.Headers = headers
 	file.Content = buf
 	file.Size = int64(len(buf))
-	file.FileName = filename
-	file.Extension = filepath.Ext(filename)
-	file.MimeType = utils.MimeTypeByExtension(filename)
-	//file.MimeType = http.DetectContentType(buf)
-	//if file.MimeType == echo.MIMEOctetStream {
-	//	file.MimeType = utils.MimeTypeByExtension(filename)
-	//}
+	extension := filepath.Ext(filename)
+	if filename != "" && extension != "" && extension != "ashx" {
+		file.FileName = filename
+		file.Extension = extension
+		file.MimeType = utils.MimeTypeByExtension(filename)
+	} else {
+		file.MimeType = http.DetectContentType(buf)
+		file.Extension = utils.ExtensionByMimeType(file.MimeType)
+	}
 	file.Digest, err = utils.ContentSha1(bytes.NewReader(buf))
 	if err != nil {
 		return nil, errors.WithMessage(err, "文件内容摘要错误")

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
@@ -18,6 +17,90 @@ import (
 	"github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
 )
+
+// 通过表单上传
+func (s *Server) uploadByForm(ctx echo.Context) (err error) {
+	contentType := ctx.Request().Header.Get(echo.HeaderContentType)
+	if !strings.HasPrefix(contentType, echo.MIMEMultipartForm) {
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdUploadInvalidForm, getLangsFromCtx(ctx)...))
+	}
+	params := new(model.FormParams)
+	if err := ctx.Bind(params); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdUploadInvalidForm, getLangsFromCtx(ctx)...))
+	}
+	if params.Key == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdUploadInvalidForm, getLangsFromCtx(ctx)...))
+	}
+	if params.Source != "" {
+		params.Source = utils.UrlDecode(params.Source)
+	}
+	// TODO(benjamin): 处理tmp file临时文件close问题
+	_, file, err := ctx.Request().FormFile(constant.ParameterFile)
+	if err != nil && err != http.ErrMissingFile {
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdUploadInvalidForm, getLangsFromCtx(ctx)...))
+	}
+	if params.Source == "" && file == nil {
+		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdUploadInvalidForm, getLangsFromCtx(ctx)...))
+	}
+	fileContext := new(model.FileContext)
+	fileContext.Override = params.Override
+	fileContext.Key = params.Key
+	if err := fileContext.ParseFileContent(params.Source, file); err != nil {
+		return err
+	}
+
+	fileContext, err = s.parseBucketAndFixKey(fileContext)
+	if err != nil {
+		return err
+	}
+	context := &middleware.ExtendContext{ctx, fileContext}
+	return s.uploadFile(context)
+}
+
+// 通过HTTP Request Body 上传
+func (s *Server) uploadByBody(ctx echo.Context) (err error) {
+	fileContext := new(model.FileContext)
+	fileContext.Key = ctx.Request().URL.Path
+	if err := fileContext.ParseFileContentFromRequest(ctx); err != nil {
+		return err
+	}
+	fileContext, err = s.parseBucketAndFixKey(fileContext)
+	if err != nil {
+		return err
+	}
+	context := &middleware.ExtendContext{ctx, fileContext}
+	return s.uploadFile(context)
+}
+
+func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
+	return err
+}
+
+// 通过URL下载文件
+func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
+	fileContext := new(model.FileContext)
+	fileContext.Key = ctx.Request().URL.Path
+	fileContext.Key = s.legacySupportOSS(ctx, fileContext.Key)
+	fileContext.AttachmentName = ctx.QueryParam("attachmentName")
+	fileContext, err = s.parseBucketAndFixKey(fileContext)
+	if err != nil {
+		return err
+	}
+	context := &middleware.ExtendContext{ctx, fileContext}
+	bucket := fileContext.Bucket
+	fileContext.ParseImageSize(bucket)
+	fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey())
+	if err != nil {
+		if err == common.ErrKeyNotFound {
+			if bucket.Basis.DefaultImage != "" && utils.IsImageByFileName(fileContext.Key) {
+				return s.downloadDefaultImage(context)
+			}
+			return echo.NewHTTPError(http.StatusNotFound)
+		}
+		return err
+	}
+	return s.download(context)
+}
 
 func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error) {
 	fileContext := new(model.FileContext)
@@ -126,7 +209,7 @@ func (s *Server) file(ctx echo.Context) (err error) {
 
 	method := ctx.Request().Method
 	switch method {
-	case http.MethodHead, http.MethodGet:
+	case http.MethodGet:
 		fileContext.ParseImageSize(bucket)
 		fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey())
 		if err != nil {
@@ -138,42 +221,42 @@ func (s *Server) file(ctx echo.Context) (err error) {
 			}
 			return err
 		}
-		if method == http.MethodHead {
-			return s.head(context)
-		}
 		return s.download(context)
 	case http.MethodPost:
 		if fileContext.Uploads {
-			if entity, err := s.uploads(context); err != nil {
+			entity, err := s.uploads(context)
+			if err != nil {
 				return err
-			} else {
-				return ctx.JSON(http.StatusOK, entity)
 			}
+			return ctx.JSON(http.StatusOK, entity)
+
 		}
 		if fileContext.Check {
-			if result, err := s.digestCheck(context); err != nil {
+			result, err := s.digestCheck(context);
+			if err != nil {
 				return err
-			} else {
-				return ctx.JSON(http.StatusOK, result)
 			}
+			return ctx.JSON(http.StatusOK, result)
+
 		}
 		if fileContext.UploadId != "" && fileContext.PartNumber != 0 {
-			if entity, err := s.uploadPart(context); err != nil {
+			entity, err := s.uploadPart(context);
+			if err != nil {
 				return err
-			} else {
-				return ctx.JSON(http.StatusOK, entity)
 			}
+			return ctx.JSON(http.StatusOK, entity)
+
 		}
 		if fileContext.UploadId != "" {
 			parts := make([]*model.Part, 0)
 			if err = ctx.Bind(&parts); err != nil {
 				return errors.WithStack(err)
 			}
-			if entity, err := s.uploadComplete(context, parts); err != nil {
+			entity, err := s.uploadComplete(context, parts);
+			if err != nil {
 				return err
-			} else {
-				return ctx.JSON(http.StatusOK, entity)
 			}
+			return ctx.JSON(http.StatusOK, entity)
 		}
 		return s.uploadFile(context)
 	case http.MethodDelete:
@@ -201,6 +284,28 @@ func (s *Server) head(ctx echo.Context) error {
 
 func (s *Server) delete(ctx echo.Context) (err error) {
 	return http.ErrNotSupported
+}
+
+func (s *Server) parseBucketAndFixKey(fileContext *model.FileContext) (*model.FileContext, error) {
+	key := utils.PathNormalize(fileContext.Key)
+
+	bucketName, objectName := utils.PathRemoveSegment(key, 0)
+	if bucketName == "" {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
+	}
+
+	bucket, err := s.getBucketByName(bucketName)
+	if err != nil {
+		return nil, err
+	}
+	key = fmt.Sprintf("/%s%s", bucket.Name, objectName)
+	fileContext.Key = key
+	if len(key) > len(bucketName)+2 {
+		fileContext.ObjectName = key[len(bucketName)+2:]
+	}
+	fileContext.BucketName = bucketName
+	fileContext.Bucket = bucket
+	return fileContext, nil
 }
 
 func (s *Server) uploadFile(ctx echo.Context) (err error) {
@@ -409,20 +514,6 @@ func (s *Server) downloadDefaultImage(ctx echo.Context) error {
 	ctx.Response().Header().Add(constant.HeaderXWhaleFSFlags, constant.FlagDefaultImage)
 	_, err = io.Copy(ctx.Response(), r)
 	return err
-}
-
-func (s *Server) form(ctx echo.Context) (*multipart.FileHeader, error) {
-	form, err := ctx.MultipartForm()
-	if err != nil {
-		return nil, err
-	}
-	for _, v := range form.File {
-		if v == nil {
-			continue
-		}
-		return v[0], nil
-	}
-	return nil, nil
 }
 
 func (s *Server) freshCheck(ctx echo.Context, entity *model.FileMeta) bool {

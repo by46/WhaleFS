@@ -11,3 +11,7 @@ const (
 	ErrorResponseSize   = 512
 	RFC1123             = "Mon, 02 Jan 2006 15:04:05 GMT"
 )
+
+const (
+	ParameterFile = "file"
+)

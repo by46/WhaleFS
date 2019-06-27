@@ -176,6 +176,10 @@ func (s *Server) install() {
 		http.MethodPut,
 		http.MethodDelete,
 	}
+	methodsNew := []string{
+		http.MethodPost,
+		http.MethodDelete,
+	}
 
 	s.app.GET("/faq.htm", s.faq)
 	s.app.POST("/packageDownload", s.packageDownload)
@@ -208,7 +212,11 @@ func (s *Server) install() {
 	s.app.Match(methods, "/BatchMergePdfHandler.ashx", s.legacyMergePDF)
 	s.app.Match(methods, "/SliceUploadHandler.ashx", s.legacySliceUpload)
 
-	s.app.Match(methods, "/*", s.file)
+	s.app.POST("/", s.uploadByForm)
+	s.app.PUT("/*", s.uploadByBody)
+	s.app.GET("/*", s.downloadByUrl)
+
+	s.app.Match(methodsNew, "/*", s.file)
 }
 
 func (s *Server) ListenAndServe() {
