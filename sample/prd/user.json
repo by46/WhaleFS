@@ -1,0 +1,108 @@
+[
+  {
+    "username": "mro",
+    "password": "7c4a8d09ca3762af61e59520943dc26494f8941b",
+    "buckets": [
+      "mro_item",
+      "mro_ware",
+      "mro_basis",
+      "mro_order",
+      "mro_ec",
+      "mro_account"
+    ],
+    "type": "user",
+    "tokens": [
+    ],
+    "role": "normal"
+  },
+  {
+    "username": "jicai",
+    "password": "7c4a8d09ca3762af61e59520943dc26494f8941b",
+    "buckets": [
+      "pdt",
+      "product",
+      "ueditor_upload_files",
+      "ueditor",
+      "avatar_01",
+      "avatar",
+      "tender",
+      "tender_01",
+      "bond",
+      "bond_01",
+      "contract",
+      "contract_01",
+      "eInvoice",
+      "eInvoice_01",
+      "icon",
+      "banner",
+      "banner_01",
+      "mall",
+      "mall_01",
+      "mall_photobuy",
+      "mall_productimport",
+      "supplier",
+      "supplier_01",
+      "weixin",
+      "goods-receipt"
+    ],
+    "type": "user",
+    "tokens": [
+    ],
+    "role": "normal"
+  },
+  {
+    "username": "ibuild",
+    "password": "7c4a8d09ca3762af61e59520943dc26494f8941b",
+    "buckets": [
+      "ibuild",
+      "ibuild_01",
+      "ibuild-image",
+      "ibuild-cover-image",
+      "xionganSteel",
+      "ibuild-DroneStrike-imgOrVideo",
+      "ibuild-BigScreen-imgOrVideo",
+      "ibuild-video",
+      "ibuild-video_01",
+      "ibuild_xionganSteel",
+      "ibuild_file",
+      "ibuild_basis",
+      "ibuild_app",
+      "sm-image",
+      "pf",
+      "productcenter",
+      "mohurd_picture",
+      "mohurd_file",
+      "mohurd_ueditor",
+      "mohurd_ueditor_upload",
+      "ibuild_notify_attachment"
+    ],
+    "type": "user",
+    "tokens": [
+    ],
+    "role": "normal"
+  },
+  {
+    "username": "jinfu",
+    "password": "7c4a8d09ca3762af61e59520943dc26494f8941b",
+    "buckets": [
+      "jinfu"
+    ],
+    "type": "user",
+    "tokens": [
+    ],
+    "role": "normal"
+  },
+  {
+    "username": "test",
+    "password": "7c4a8d09ca3762af61e59520943dc26494f8941b",
+    "buckets": [
+      "benjamin",
+      "home",
+      "test123"
+    ],
+    "type": "user",
+    "tokens": [
+    ],
+    "role": "normal"
+  }
+]

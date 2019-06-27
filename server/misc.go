@@ -2,8 +2,10 @@ package server
 
 import (
 	"context"
+	"net/http"
 	"time"
 
+	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/constant"
@@ -45,4 +47,8 @@ func (s *Server) SyncConfig(ctx context.Context) {
 		s.clearBucket()
 		ts.BucketUpdate = current.BucketUpdate
 	}
+}
+
+func (s *Server) status(ctx echo.Context) error {
+	return ctx.NoContent(http.StatusNoContent)
 }
