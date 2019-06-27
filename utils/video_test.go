@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetFrame(t *testing.T) {
-	buffer := GetFrame("/Users/mark.c.jiang/Downloads/hiit.mp4", 1, 0, 0)
+	buffer := GetFrame("/Users/mark.c.jiang/Downloads/hiit.mp4", 1)
 	file, err := os.Create("/Users/mark.c.jiang/Downloads/hiit.jpg")
 	if err != nil {
 		panic(err)

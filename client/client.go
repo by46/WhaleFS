@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	BufferSize = 4 * 1024         // 4M
+	BufferSize = 4 * 1024 * 1024  // 4M
 	ChunkSize  = 16 * 1024 * 1024 // 16M
 )
 

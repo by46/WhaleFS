@@ -90,13 +90,25 @@ func TestSyncMap(t *testing.T) {
 	assert.True(t, loaded)
 }
 
-func TestRange(t *testing.T){
+func TestRange(t *testing.T) {
 	sizes := make([]string, 0)
-	for _, size := range sizes{
+	for _, size := range sizes {
 		fmt.Printf("hello %s", size)
 	}
 	sizes = nil
-	for _, size := range sizes{
+	for _, size := range sizes {
 		fmt.Printf("hello %s", size)
 	}
+}
+
+func TestPanicAndRecover(t *testing.T) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("error: %v", err)
+		}
+	}()
+
+	var a *A
+	//panic(a)
+	fmt.Printf("tricky: %v %v", a == nil, a.Name)
 }
