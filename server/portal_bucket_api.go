@@ -82,15 +82,22 @@ func (s *Server) getBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
 	}
 
-	b := new(map[string]interface{})
-	err := s.BucketMeta.Get(bucketId, b)
+	b := new(model.Bucket)
+	cas, err := s.BucketMeta.GetWithCas(bucketId, b)
 	if err != nil {
 		if err == common.ErrKeyNotFound {
 			return echo.NewHTTPError(http.StatusBadRequest, "bucket 不存在")
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
-	err = ctx.JSON(http.StatusOK, b)
+
+	result := &basisInfo{
+		Id:      prefixBucket + b.Name,
+		Version: strconv.FormatUint(cas, 10),
+		Basis:   b,
+	}
+
+	err = ctx.JSON(http.StatusOK, result)
 	return nil
 }
 

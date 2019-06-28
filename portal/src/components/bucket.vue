@@ -229,7 +229,6 @@
 
 <script>
   import LteBox from './lte-box'
-  import _ from 'lodash'
 
   export default {
     name: 'bucket',
