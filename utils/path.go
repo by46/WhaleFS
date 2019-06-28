@@ -2,6 +2,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -82,4 +83,27 @@ func NameWithoutExtension(name string) string {
 		name = name[:len(name)-len(ext)]
 	}
 	return name
+}
+
+func fileCharSum(filename string, odd bool) int {
+	sum := 0
+	for i, c := range filename {
+		if odd {
+			if i&1 == 1 {
+				sum += int(c) * i
+			}
+		} else {
+			sum += int(c)
+		}
+	}
+	return sum
+}
+
+func SubFolderByFileName(filename string) string {
+	filename = strings.ToLower(filename)
+	level1 := string(fileCharSum(filename, false)%26 + 65)
+	sum := fileCharSum(filename, true)
+	level2 := fmt.Sprintf("%02d", sum%100)
+	level3 := fmt.Sprintf("%02X", sum%256)
+	return filepath.Join(level1, level2, level3, filename)
 }
