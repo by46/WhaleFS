@@ -72,6 +72,89 @@ func (s *Server) uploadByBody(ctx echo.Context) (err error) {
 	return s.uploadFile(context)
 }
 
+// 通过chunks 上传
+func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
+	fileContext := new(model.FileContext)
+	fileContext.Key = ctx.Request().URL.Path
+	// 解析multi-chunk参数
+	values := ctx.Request().URL.Query()
+	partNumber := values.Get("partNumber")
+	uploadId := values.Get("uploadId")
+	if utils.QueryExists(values, "uploads") {
+		// 初始化multi-chunk解析参数
+		fileContext.Uploads = true
+	} else if partNumber != "" && uploadId != "" {
+		// 解析单个chunk上传参数
+		fileContext.PartNumber = utils.ToInt32(partNumber)
+		fileContext.UploadId = uploadId
+		_ = fileContext.ParseFileContentFromRequest(ctx)
+	} else if uploadId != "" {
+		// 完成multi-chunk上传
+		fileContext.UploadId = uploadId
+	}
+	if utils.QueryExists(values, "check") {
+		fileContext.Check = true
+	}
+	fileContext, err = s.parseBucketAndFixKey(fileContext)
+	if err != nil {
+		return err
+	}
+	context := &middleware.ExtendContext{ctx, fileContext}
+	if fileContext.Uploads {
+		entity, err := s.uploads(context)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(http.StatusOK, entity)
+
+	}
+	if fileContext.Check {
+		result, err := s.digestCheck(context);
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(http.StatusOK, result)
+
+	}
+	if fileContext.UploadId != "" && fileContext.PartNumber != 0 {
+		entity, err := s.uploadPart(context);
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(http.StatusOK, entity)
+
+	}
+	if fileContext.UploadId != "" {
+		parts := make([]*model.Part, 0)
+		if err = ctx.Bind(&parts); err != nil {
+			return errors.WithStack(err)
+		}
+		entity, err := s.uploadComplete(context, parts);
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(http.StatusOK, entity)
+	}
+	return echo.ErrMethodNotAllowed
+}
+
+// 删除chunks 上传
+func (s *Server) deleteChunks(ctx echo.Context) (err error) {
+	fileContext := new(model.FileContext)
+	fileContext.Key = ctx.Request().URL.Path
+	fileContext, err = s.parseBucketAndFixKey(fileContext)
+	if err != nil {
+		return err
+	}
+	context := &middleware.ExtendContext{ctx, fileContext}
+	values := ctx.Request().URL.Query()
+	fileContext.UploadId = values.Get("uploadId")
+	if fileContext.UploadId != "" {
+		return s.uploadAbort(context)
+	}
+	return echo.ErrMethodNotAllowed
+}
+
 // 通过URL下载文件
 func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
 	fileContext := new(model.FileContext)
@@ -98,6 +181,7 @@ func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
 	return s.download(context)
 }
 
+// obsolete
 func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error) {
 	fileContext := new(model.FileContext)
 
@@ -195,6 +279,7 @@ func (s *Server) getBucketByName(name string) (*model.Bucket, error) {
 	return bucket, nil
 }
 
+// obsolete
 func (s *Server) file(ctx echo.Context) (err error) {
 	fileContext, err := s.prepareFileContext(ctx)
 	if err != nil {
@@ -265,6 +350,7 @@ func (s *Server) file(ctx echo.Context) (err error) {
 	return echo.ErrMethodNotAllowed
 }
 
+// obsolete
 func (s *Server) head(ctx echo.Context) error {
 	context := ctx.(*middleware.ExtendContext)
 	entity := context.FileContext.Meta
