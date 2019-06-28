@@ -101,7 +101,8 @@ func (s *SyncConsumer) normalUrl(entity *model.SyncFileEntity) []*pathPair {
 	}
 	for _, size := range entity.Sizes {
 		tmp := strings.Replace(url, "/Original/", fmt.Sprintf("/%s/", size), 1)
-		tmp2 := ReReplaceOriginal.ReplaceAllString(relativePath, fmt.Sprintf("$1/%s/$2", size))
+		//tmp2 := ReReplaceOriginal.ReplaceAllString(relativePath, fmt.Sprintf("$1/%s/$2", size))
+		tmp2 := strings.Replace(relativePath, "Original", size, 1)
 		pairs = append(pairs, &pathPair{
 			url:  tmp,
 			path: tmp2,
@@ -137,7 +138,7 @@ func (s *SyncConsumer) write(content []byte) {
 func (s *SyncConsumer) writeFile(pair *pathPair) (skip bool) {
 	fullPath := filepath.Join(s.config.Sync.LegacyFSRoot, pair.path)
 	if utils.FileExists(fullPath) {
-		s.recorder.Errorf("exists, %s", pair.url)
+		s.recorder.Errorf("exists, %s %s", pair.url, pair.path)
 		return
 	}
 
@@ -159,19 +160,19 @@ func (s *SyncConsumer) writeFile(pair *pathPair) (skip bool) {
 	}()
 
 	if response.StatusCode != http.StatusOK {
-		s.recorder.Errorf("failed, %s", pair.url)
+		s.recorder.Errorf("failed, %s %s", pair.url, pair.path)
 		return
 	}
 
 	if strings.Contains(response.Header.Get(constant.HeaderXWhaleFSFlags), constant.FlagDefaultImage) {
-		s.recorder.Errorf("ignore, %s", pair.url)
+		s.recorder.Errorf("ignore, %s %s", pair.url, pair.path)
 		return true
 	}
 
 	file, err := os.Create(fullPath)
 	if err != nil {
 		s.Logger.Errorf("create file %s failed: %v", pair.url, err)
-		s.recorder.Errorf("denies, %s", pair.url)
+		s.recorder.Errorf("denies, %s %s", pair.url, pair.path)
 		return
 	}
 	defer func() {
@@ -181,7 +182,7 @@ func (s *SyncConsumer) writeFile(pair *pathPair) (skip bool) {
 	}()
 	if _, err := io.Copy(file, response); err != nil {
 		s.Logger.Errorf("write file %s failed: %v", pair.url, err)
-		s.recorder.Error(pair.url)
+		s.recorder.Error("error, %s %s", pair.url, pair.path)
 		return
 	}
 	return
