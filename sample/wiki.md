@@ -3,21 +3,18 @@
 目前分布式文件系统有两套环境: QA 和 PRD
 
 ### QA
-服务地址： http://image.jc.yzw.cn.qa:8000
-老JC服务地址： http://imagetest.yzw.cn.qa:8000
+服务地址： http://oss.yzw.cn.qa
 
 由于这几个域名都是自定义域名，所以需要在你的local DNS中添加解析规则
 
 Windows：C:\Windows\system32\drivers\etc\hosts, 规则如下：
 ```text
-172.16.0.253 image.jc.yzw.cn.qa
-172.16.0.253 imagetest.yzw.cn.qa
+172.16.0.143 oss.yzw.cn.qa
 ```
 
 MacOS: /etc/hosts, 规则如下：
 ```text
-172.16.0.253 image.jc.yzw.cn.qa
-172.16.0.253 imagetest.yzw.cn.qa
+172.16.0.143 oss.yzw.cn.qa
 ```
 
 ### PRD
