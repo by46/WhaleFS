@@ -84,6 +84,7 @@ func (s *SyncConsumer) normalUrl(entity *model.SyncFileEntity) []*pathPair {
 	}
 	pairs := make([]*pathPair, 0)
 	if !strings.Contains(entity.Url, constant.Separator) {
+		entity.Url = utils.SubFolderByFileName(entity.Url)
 		entity.Url = fmt.Sprintf("pdt/Original/%s", entity.Url)
 	}
 	relativePath := strings.ReplaceAll(entity.Url, constant.Separator, PathSeparator)
