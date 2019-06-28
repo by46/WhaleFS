@@ -300,7 +300,11 @@
             self.$message.success('修改成功')
           })
           .catch(err => {
-            self.$message.error('修改失败', err.message)
+            let msg = '修改失败'
+            if (err.response) {
+              msg = err.response.data.message
+            }
+            self.$message.error(msg)
           })
         } else {
           self.$http.post(`/api/buckets`, {id: this.entity.name, basis: this.entity})
@@ -337,7 +341,7 @@
       let self = this
       self.$http.get('/api/mimetypes')
       .then(({data}) => {
-        self.mimes = data.sort()
+        self.mimes = _.uniq(data.sort())
       })
       if (name) {
         self.$http.get(`/api/buckets/${name}`)
