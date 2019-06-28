@@ -192,6 +192,7 @@ func (s *Server) install() {
 	s.app.DELETE("/api/users/*", s.deleteUser)
 
 	s.app.GET("/api/buckets", s.listBucket)
+	s.app.GET("/api/buckets/*", s.getBucket)
 	s.app.PUT("/api/buckets", s.updateBucket)
 	s.app.DELETE("/api/buckets/*", s.deleteBucket)
 	s.app.POST("/api/buckets", s.addBucket)
