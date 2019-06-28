@@ -53,7 +53,7 @@
   import vueJsonEditor from 'vue-json-editor'
 
   export default {
-    name: "buckets",
+    name: 'buckets',
     components: {
       vueJsonEditor
     },
@@ -70,40 +70,41 @@
     methods: {
       loadData() {
         var self = this
-        this.$http.get("/api/buckets")
-          .then(function (response) {
-            self.bucketData = response.data;
-          }).catch(function (error) {
+        this.$http.get('/api/buckets')
+        .then(function (response) {
+          self.bucketData = response.data;
+        }).catch(function (error) {
           self.$message(error.response.data.message)
         })
       },
       onEdit(row) {
-        this.isEdit = true
-        this.dialogBucketVisible = true
-        this.editRow = row
-        this.editBucket = row.basis
+        // this.isEdit = true
+        // this.dialogBucketVisible = true
+        // this.editRow = row
+        // this.editBucket = row.basis
+        this.$router.push({name: 'bucket', query: {id: row.id}})
       },
       onSave(id) {
         var self = this
         this.dialogBucketVisible = false
         if (this.isEdit) {
-          this.$http.put("/api/buckets", {
-            "id": id,
-            "version": this.editRow.version,
-            "basis": this.editBucket
+          this.$http.put('/api/buckets', {
+            'id': id,
+            'version': this.editRow.version,
+            'basis': this.editBucket
           }).then(function () {
-            self.$message("修改成功")
+            self.$message('修改成功')
             self.loadData()
           }).catch(function (error) {
             self.$message(error.response.data.message)
           })
         } else {
-          this.$http.post("/api/buckets", {
-            "id": id,
-            "version": "",
-            "basis": this.editBucket
+          this.$http.post('/api/buckets', {
+            'id': id,
+            'version': '',
+            'basis': this.editBucket
           }).then(function () {
-            self.$message("创建成功")
+            self.$message('创建成功')
             self.loadData()
           }).catch(function (error) {
             self.$message(error.response.data.message)
@@ -114,18 +115,15 @@
         this.editBucket = value
       },
       onAdd() {
-        this.isEdit = false
-        this.dialogBucketVisible = true
-        this.editBucket = {}
-        this.editRow = {}
+        this.$router.push({name: 'bucket'})
       },
       onDelete(row) {
         var self = this
         this.$http.delete(`/api/buckets/${row.id}`)
-          .then(function () {
-            self.$message("删除成功")
-            self.loadData()
-          }).catch(function (error) {
+        .then(function () {
+          self.$message('删除成功')
+          self.loadData()
+        }).catch(function (error) {
           self.$message(error.response.data.message)
         })
       }

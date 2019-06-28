@@ -4,13 +4,14 @@ import ElementUI from 'element-ui'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
+import 'element-ui/lib/theme-chalk/index.css'
+import '@/less/all.less'
+
 import App from './App.vue'
 import router from '@/router'
 
-import 'element-ui/lib/theme-chalk/index.css'
-
 Vue.use(VueRouter)
-Vue.use(ElementUI, {size: 'small'})
+Vue.use(ElementUI, {size: 'mini'})
 Vue.use(VueAxios, axios)
 
 Vue.config.productionTip = false

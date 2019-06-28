@@ -45,31 +45,31 @@
 </template>
 
 <script>
-    export default {
-      name: "portal",
-      data() {
-        return {
-          username: '',
-        }
+  export default {
+    name: 'portal',
+    data() {
+      return {
+        username: '',
+      }
+    },
+    mounted: function () {
+      let user = JSON.parse(window.localStorage.getItem('user'))
+      this.username = user.username
+    },
+    methods: {
+      onLogout() {
+        var self = this
+        this.$http.post('/api/logout', {})
+        .then(function () {
+          window.localStorage.removeItem('user')
+          self.$router.push({path: '/login'})
+        })
       },
-      mounted: function () {
-        let user = JSON.parse(window.localStorage.getItem('user'))
-        this.username = user.username
-      },
-      methods: {
-        onLogout() {
-          var self = this
-          this.$http.post("/api/logout", {})
-            .then(function () {
-              window.localStorage.removeItem("user")
-              self.$router.push({ path: '/login'})
-            })
-        },
-        onLogin() {
-          this.$router.push({ path: '/login'})
-        }
+      onLogin() {
+        this.$router.push({path: '/login'})
       }
     }
+  }
 </script>
 
 <style scoped>

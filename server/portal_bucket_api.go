@@ -2,17 +2,19 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/by46/whalefs/common"
-	"github.com/by46/whalefs/constant"
-	"github.com/by46/whalefs/model"
-	"github.com/by46/whalefs/utils"
-	"github.com/google/uuid"
-	"github.com/labstack/echo"
-	"gopkg.in/couchbase/gocb.v1"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo"
+	"gopkg.in/couchbase/gocb.v1"
+
+	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
+	"github.com/by46/whalefs/model"
+	"github.com/by46/whalefs/utils"
 )
 
 const (
@@ -74,8 +76,7 @@ func (s *Server) listBucket(ctx echo.Context) error {
 func (s *Server) getBucket(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 
-	bucketId := strings.TrimPrefix(ctx.Request().URL.Path, "/api/buckets/")
-
+	bucketId := ctx.Param("id")
 	bucketName := strings.TrimPrefix(bucketId, prefixBucket)
 	if u.Role != roleAdmin && !utils.Exists(u.Buckets, bucketName) {
 		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
@@ -214,8 +215,7 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 func (s *Server) deleteBucket(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 
-	bucketId := strings.TrimPrefix(ctx.Request().URL.Path, "/api/buckets/")
-
+	bucketId := ctx.Param("id")
 	if !strings.HasPrefix(bucketId, prefixBucket) {
 		bucketId = prefixBucket + bucketId
 	}
