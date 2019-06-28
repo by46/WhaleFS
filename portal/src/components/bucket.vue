@@ -173,7 +173,7 @@
                 <el-table
                         :data="entity.overlays" style="width: 100%">
                     <el-table-column
-                            label="默认/名称"
+                            label="名称"
                             width="150">
                         <template slot-scope="{row}">
                             <el-input v-model="row.name"></el-input>
@@ -202,7 +202,19 @@
                     <el-table-column
                             label="图片">
                         <template slot-scope="{row}">
-                            <el-input v-model="row.image"></el-input>
+                            <el-upload
+                                    class="avatar-uploader"
+                                    action="string"
+                                    :http-request="onUploadImg(row)"
+                                    :limit="1"
+                                    :show-file-list="false"
+                                    :on-success="handleAvatarSuccess(row)"
+                                    :before-upload="beforeAvatarUpload">
+                                <img v-if="imageUrl(row.image)"
+                                     :src="imageUrl(row.image)"
+                                     class="avatar">
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -214,7 +226,7 @@
                     </el-table-column>
                     <el-table-column label="操作" width="200px">
                         <template slot-scope="{$index}">
-                            <el-button type="text" @clic="onOverlayDelete($index)">删除</el-button>
+                            <el-button type="text" @click="onOverlayDelete($index)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -230,6 +242,7 @@
 <script>
   import LteBox from './lte-box'
   import _ from 'lodash'
+  import uuidv4 from 'uuid/v4'
 
   export default {
     name: 'bucket',
@@ -281,6 +294,16 @@
             'image': '7,15154f3ef7',
             'opacity': 0.8
           }]
+        }
+      }
+    },
+    computed: {
+      imageUrl() {
+        return image => {
+          if (!image) {
+            return ''
+          }
+          return `http://oss.yzw.cn.qa/home/overlay/${image}`
         }
       }
     },
@@ -337,6 +360,24 @@
       onOverlayDelete(index) {
         this.entity.overlays.splice(index, 1)
       },
+      handleAvatarSuccess(row) {
+        return (res, file) => {
+          this.clearFiles()
+          row.imageUrl = URL.createObjectURL(file.raw)
+        }
+      },
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error('Avatar picture must be JPG format!');
+        }
+        if (!isLt2M) {
+          this.$message.error('Avatar picture size can not exceed 2MB!');
+        }
+        return isJPG && isLt2M;
+      },
       load(id) {
         let name = id || this.$route.query['id']
         let self = this
@@ -359,6 +400,23 @@
             this.$message.error('获取Bucket信息失败')
           })
         }
+      },
+      onUploadImg(row) {
+        let self = this
+        return (item) => {
+          let extension = item.file.name.split('.').pop();
+          let formData = new FormData()
+          let filename = uuidv4()
+          formData.append('file', item.file)
+          formData.append('key', `/home/overlay/${filename}.${extension}`)
+          this.$http.post('http://oss.yzw.cn.qa', formData)
+          .then(response => {
+            row.image = response.data.title
+          })
+          .catch(() => {
+            self.$message.error('上传文件失败')
+          })
+        }
       }
     },
     mounted() {
@@ -366,3 +424,31 @@
     }
   }
 </script>
+<style>
+    .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .avatar-uploader .el-upload:hover {
+        border-color: #409EFF;
+    }
+
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+        display: block;
+    }
+</style>
