@@ -82,7 +82,7 @@
         // this.dialogBucketVisible = true
         // this.editRow = row
         // this.editBucket = row.basis
-        this.$router.push({name: 'bucket', query: {id: row.id}})
+        this.$router.push({name: 'bucket', query: {id: row.id, version: row.version}})
       },
       onSave(id) {
         var self = this

@@ -114,7 +114,7 @@
                     <el-form-item label="Mime" prop="limit.mime_types">
                         <el-select v-model="entity.limit.mime_types" multiple placeholder="Select" style="width:100%;">
                             <el-option
-                                    v-for="item in options"
+                                    v-for="item in mimes"
                                     :key="item"
                                     :label="item"
                                     :value="item">
@@ -229,6 +229,7 @@
 
 <script>
   import LteBox from './lte-box'
+  import _ from 'lodash'
 
   export default {
     name: 'bucket',
@@ -236,6 +237,7 @@
     data() {
       return {
         isModify: false,
+        mimes: [],
         options: ['text/plain', 'image/jpeg'],
         replications: [
           {label: '无备份', value: '000'},
@@ -288,7 +290,12 @@
       onSave() {
         let self = this
         if (self.isModify) {
-          self.$http.put(`/api/buckets/${this.entity.name}`, this.entity)
+          let body = {
+            id: this.entity.name,
+            version: this.$route.query['version'],
+            basis: this.entity
+          }
+          self.$http.put(`/api/buckets`, body)
           .then(() => {
             self.$message.success('修改成功')
           })
@@ -328,6 +335,10 @@
     mounted() {
       let name = this.$route.query['id']
       let self = this
+      self.$http.get('/api/mimetypes')
+      .then(({data}) => {
+        self.mimes = data.sort()
+      })
       if (name) {
         self.$http.get(`/api/buckets/${name}`)
         .then(response => {
