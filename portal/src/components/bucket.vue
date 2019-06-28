@@ -229,6 +229,7 @@
 
 <script>
   import LteBox from './lte-box'
+  import _ from 'lodash'
 
   export default {
     name: 'bucket',
@@ -236,6 +237,7 @@
     data() {
       return {
         isModify: false,
+        version: '',
         mimes: [],
         options: ['text/plain', 'image/jpeg'],
         replications: [
@@ -291,12 +293,13 @@
         if (self.isModify) {
           let body = {
             id: this.entity.name,
-            version: this.$route.query['version'],
+            version: self.version,
             basis: this.entity
           }
           self.$http.put(`/api/buckets`, body)
           .then(() => {
             self.$message.success('修改成功')
+            self.load(`system.bucket.${self.entity.name}`)
           })
           .catch(err => {
             let msg = '修改失败'
@@ -309,7 +312,7 @@
           self.$http.post(`/api/buckets`, {id: this.entity.name, basis: this.entity})
           .then(() => {
             self.$message.success('新增成功')
-            self.$router.push({name: 'bucket', query: {id: `system.bucket.${self.entity.name}`}})
+            self.load(`system.bucket.${self.entity.name}`)
           })
           .catch(err => {
             self.$message.error('新增失败', err.message)
@@ -333,29 +336,33 @@
       },
       onOverlayDelete(index) {
         this.entity.overlays.splice(index, 1)
+      },
+      load(id) {
+        let name = id || this.$route.query['id']
+        let self = this
+        self.$http.get('/api/mimetypes')
+        .then(({data}) => {
+          self.mimes = _.uniq(data.sort())
+        })
+        if (name) {
+          self.$http.get(`/api/buckets/${name}`)
+          .then(response => {
+            self.version = response.data.version
+            self.entity = response.data.basis
+            self.entity.overlays = self.entity.overlays || []
+            self.entity.sizes = self.entity.sizes || []
+            self.basis = self.basis || {}
+            self.limit = self.limit || {}
+            self.isModify = true
+          })
+          .catch(() => {
+            this.$message.error('获取Bucket信息失败')
+          })
+        }
       }
     },
     mounted() {
-      let name = this.$route.query['id']
-      let self = this
-      self.$http.get('/api/mimetypes')
-      .then(({data}) => {
-        self.mimes = _.uniq(data.sort())
-      })
-      if (name) {
-        self.$http.get(`/api/buckets/${name}`)
-        .then(response => {
-          self.entity = response.data
-          self.entity.overlays = self.entity.overlays || []
-          self.entity.sizes = self.entity.sizes || []
-          self.basis = self.basis || {}
-          self.limit = self.limit || {}
-          self.isModify = true
-        })
-        .catch(() => {
-          this.$message.error('获取Bucket信息失败')
-        })
-      }
+      this.load()
     }
   }
 </script>
