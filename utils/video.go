@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 	"strconv"
 )
@@ -14,8 +15,8 @@ func GetFrame(filename string, index int) *bytes.Buffer {
 
 	cmd.Stdout = buf
 
-	if cmd.Run() != nil {
-		panic("could not generate frame")
+	if err := cmd.Run(); err != nil {
+		panic(fmt.Sprintf("could not generate frame: %v", err))
 	}
 
 	return buf
