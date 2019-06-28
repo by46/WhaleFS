@@ -71,6 +71,28 @@ func (s *Server) listBucket(ctx echo.Context) error {
 	return err
 }
 
+func (s *Server) getBucket(ctx echo.Context) error {
+	u := s.getCurrentUser(ctx)
+
+	bucketId := strings.TrimPrefix(ctx.Request().URL.Path, "/api/buckets/")
+
+	bucketName := strings.TrimPrefix(bucketId, prefixBucket)
+	if u.Role != roleAdmin && !utils.Exists(u.Buckets, bucketName) {
+		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
+	}
+
+	b := new(map[string]interface{})
+	err := s.BucketMeta.Get(bucketId, b)
+	if err != nil {
+		if err == common.ErrKeyNotFound {
+			return echo.NewHTTPError(http.StatusBadRequest, "bucket 不存在")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	err = ctx.JSON(http.StatusOK, b)
+	return nil
+}
+
 func (s *Server) addBucket(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 
