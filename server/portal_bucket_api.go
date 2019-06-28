@@ -355,3 +355,7 @@ func (s *Server) logout(ctx echo.Context) error {
 
 	return nil
 }
+
+func (s *Server) listMimeTypes(ctx echo.Context) error {
+	return ctx.JSON(http.StatusOK, utils.MimeTypes)
+}
