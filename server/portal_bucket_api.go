@@ -163,7 +163,7 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 	}
 
 	bucketName := strings.TrimPrefix(bucket.Id, prefixBucket)
-	if !utils.Exists(u.Buckets, bucketName) {
+	if u.Role != roleAdmin && !utils.Exists(u.Buckets, bucketName) {
 		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
 	}
 
