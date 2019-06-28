@@ -7,7 +7,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -22,7 +24,8 @@ import (
 )
 
 var (
-	PathSeparator = string(os.PathSeparator)
+	PathSeparator     = string(os.PathSeparator)
+	ReReplaceOriginal = regexp.MustCompile("(^.*?)[\\//]Original[\\//](.*)")
 )
 
 type pathPair struct {
@@ -83,23 +86,25 @@ func (s *SyncConsumer) normalUrl(entity *model.SyncFileEntity) []*pathPair {
 		return nil
 	}
 	pairs := make([]*pathPair, 0)
-	if !strings.Contains(entity.Url, constant.Separator) {
-		entity.Url = utils.SubFolderByFileName(entity.Url)
-		entity.Url = fmt.Sprintf("pdt/Original/%s", entity.Url)
-	}
+	url := entity.Url
 	relativePath := strings.ReplaceAll(entity.Url, constant.Separator, PathSeparator)
+	if !strings.Contains(url, constant.Separator) {
+		url = path.Join("pdt", "Original", url)
+		relativePath = filepath.Join("pdt", "Original", utils.SubFolderByFileName(entity.Url))
+	}
 	pairs = append(pairs, &pathPair{
-		url:  entity.Url,
+		url:  url,
 		path: relativePath,
 	})
 	if len(entity.Sizes) < 0 {
 		return pairs
 	}
 	for _, size := range entity.Sizes {
-		tmp := strings.TrimLeft(utils.PathReplace(entity.Url, 1, size), constant.Separator)
+		tmp := strings.Replace(url, "/Original/", fmt.Sprintf("/%s/", size), 1)
+		tmp2 := ReReplaceOriginal.ReplaceAllString(relativePath, fmt.Sprintf("$1/%s/$2", size))
 		pairs = append(pairs, &pathPair{
 			url:  tmp,
-			path: strings.ReplaceAll(tmp, constant.Separator, PathSeparator),
+			path: tmp2,
 		})
 	}
 	return pairs
