@@ -71,6 +71,7 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	if bucketName == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdBucketNameNotCorrect, getLangsFromCtx(ctx)...))
 	}
+	bucketName = strings.ToLower(bucketName)
 	bucket, err := s.getBucketByName(bucketName)
 	if err != nil {
 		return err
