@@ -41,6 +41,8 @@ func (s *Server) thumbnail(ctx echo.Context, r io.Reader) (io.Reader, error) {
 	}
 	switch size.Mode {
 	case constant.ModeFit:
+		img = imaging.Fit(img, size.Width, size.Height, imaging.Lanczos)
+	case constant.ModePadding:
 		newImg := imaging.Fit(img, size.Width, size.Height, imaging.Lanczos)
 		if !img.Bounds().Eq(newImg.Bounds()) {
 			var c color.Color = image.White
