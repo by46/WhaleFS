@@ -124,10 +124,7 @@ func (s *Server) uploadComplete(ctx echo.Context, parts model.Parts) (entity *mo
 		ids = append(ids, serverPart.FID)
 	}
 	meta.FID = strings.Join(ids, constant.FIDSep)
-	meta.ETag, _ = utils.Sha1(meta.FID)
-	if meta.ETag != "" {
-		meta.ETag = meta.ETag[:14]
-	}
+	meta.ETag = utils.Sha1WithLength(meta.FID, constant.LengthEtag)
 
 	if err = s.Meta.SetTTL(meta.RawKey, meta, bucket.Basis.TTL.Expiry()); err != nil {
 		return nil, err

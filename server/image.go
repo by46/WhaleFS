@@ -110,7 +110,7 @@ func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err er
 		if reader, _, err := s.Storage.Download(meta.ThumbnailFID); err != nil {
 			s.Logger.Errorf("下载预处理图片失败 %+v", err)
 		} else if img, err := imaging.Decode(reader); err != nil {
-			s.Logger.Errorf("解析预处理图片失败 %+v", err)
+			s.Logger.Errorf("解析预处理图片失败 %+v", errors.WithStack(err))
 		} else {
 			return img, nil
 		}
@@ -126,7 +126,6 @@ func (s *Server) prepare(ctx echo.Context, r io.Reader) (img image.Image, err er
 		if err != nil {
 			s.Logger.Errorf("生成预处理图片失败 %+v", err)
 		} else {
-			// TODO(benjamin): 把所有缩略图生成到临时collection中
 			option := &common.UploadOption{
 				Collection:  s.Config.Basis.CollectionTmp,
 				Replication: s.Config.Basis.CollectionTmpReplication,
@@ -183,7 +182,6 @@ func (s *Server) uploadThumbnail(ctx echo.Context, r io.Reader) {
 	meta := context.FileContext.Meta
 	size := context.FileContext.Size
 
-	// TODO(benjamin): 过期时间
 	option := &common.UploadOption{
 		Collection:  s.Config.Basis.CollectionTmp,
 		Replication: s.Config.Basis.CollectionTmpReplication,
@@ -199,9 +197,8 @@ func (s *Server) uploadThumbnail(ctx echo.Context, r io.Reader) {
 		ETag: needle.ETag,
 		Size: needle.Size,
 	}
-	// TODO(benjamin): save meta
 	if err := s.Meta.SubSet(meta.RawKey, fmt.Sprintf("thumbnails.%s", size.Name), thumbnailMeta, 0); err != nil {
-		s.Logger.Warnf("更新缩略图失败 %s, %v", meta.RawKey, err)
+		s.Logger.Warnf("更新缩略图失败 %s, %v", meta.RawKey, errors.WithStack(err))
 	} else {
 		if meta.Thumbnails == nil {
 			meta.Thumbnails = make(model.Thumbnails)

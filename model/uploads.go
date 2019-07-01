@@ -4,6 +4,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/utils"
 )
 
@@ -56,7 +57,6 @@ func (p *PartMeta) AsFileMeta() *FileMeta {
 	meta.Size = size
 	meta.MimeType = p.MimeType
 	meta.LastModified = utils.Timestamp()
-	// TODO(Benjamin): etag
-	// meta.ETag = "TODO"
+	meta.ETag = utils.Sha1WithLength(meta.FID, constant.LengthEtag)
 	return meta
 }
