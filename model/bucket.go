@@ -159,7 +159,7 @@ type Bucket struct {
 	Extends        []*ExtendItem            `json:"extends"`
 	LastEditDate   int64                    `json:"last_edit_date"`
 	LastEditUser   string                   `json:"last_edit_user"`
-	Sizes          []*ImageSize             `json:"Sizes"`
+	Sizes          []*ImageSize             `json:"sizes"`
 	Limit          *BucketLimit             `json:"limit"`
 	Type           string                   `json:"type"`
 	Overlays       []*ImageOverlay          `json:"overlays"`
