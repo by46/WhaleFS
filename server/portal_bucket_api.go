@@ -228,7 +228,7 @@ func (s *Server) deleteBucket(ctx echo.Context) error {
 	}
 
 	bucketName := strings.TrimPrefix(bucketId, prefixBucket)
-	if !utils.Exists(u.Buckets, bucketName) {
+	if u.Role != roleAdmin && !utils.Exists(u.Buckets, bucketName) {
 		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
 	}
 
