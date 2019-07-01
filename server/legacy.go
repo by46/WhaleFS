@@ -180,6 +180,7 @@ func (s *Server) legacyDownloadFileByRemote(ctx echo.Context) error {
 	return err
 }
 
+// BatchDownloadHandler.ashx
 func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	downloadZipFile := new(DownloadZipFile)
 	if err := ctx.Bind(downloadZipFile); err != nil {

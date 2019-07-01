@@ -30,7 +30,26 @@ API接口有两部分组成：
 - 老集采系统原来接口， 目前已经基本兼容
 - 新系统的接口， 主要是增强原有文件系统的一些未显示的功能
 
+### UploadHandler.ashx
+上传接口
 
+### DownloadSaveServerHandler.ashx
+通过URL下载文件并保存到系统中
+
+### DownloadHandler.ashx
+下载接口
+
+### ApiUploadHandler.ashx
+应该是指定上传到tender app里面
+
+### BatchMergePdfHandler.ashx
+多个PDF合并成一个PDF
+
+### SliceUploadHandler.ashx
+分块上传大文件
+
+### BatchDownloadHandler.ashx 
+批量下载文件，生成tar或这zip格式的文件
 
 ### 上传（表单上传）
 
