@@ -38,15 +38,21 @@ type SyncConsumer struct {
 	common.Logger
 	recorder *logrus.Logger
 	*RabbitMQ
+	baseUrl string
 }
 
 func NewConsumer(config *model.Config) *SyncConsumer {
 	logger := utils.BuildLogger(config.Log.Home, config.Log.Level)
+	url := config.Sync.DFSHost
+	if strings.HasPrefix(config.Sync.DFSHost, "http://") == false && strings.HasPrefix(config.Sync.DFSHost, "https://") == false {
+		url = fmt.Sprintf("http://%s", config.Sync.DFSHost)
+	}
 	return &SyncConsumer{
 		config:   config,
 		Logger:   logger,
 		recorder: buildRecorder(config.Log.Home, "files.log"),
 		RabbitMQ: New(config, logger),
+		baseUrl:  url,
 	}
 }
 
@@ -148,7 +154,7 @@ func (s *SyncConsumer) writeFile(pair *pathPair) (skip bool) {
 		s.recorder.Error(pair.url)
 		return
 	}
-	url := fmt.Sprintf("http://%s/%s", s.config.Sync.DFSHost, pair.url)
+	url := fmt.Sprintf("%s/%s", s.baseUrl, pair.url)
 	response, err := utils.Get(url, nil)
 
 	if err != nil {

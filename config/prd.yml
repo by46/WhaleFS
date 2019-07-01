@@ -26,8 +26,8 @@ Log:
   Level: warning
 Sync:
   Enable: false
-  DFSHost: localhost:8089
+  DFSHost: https://oss.yzw.cn
   RabbitMQConnection: amqp://ifs_admin:ifs@123@192.168.110.81:5672/
   RabbitMQExchange: /whale-fs
   RabbitMQQueue: whale-fs
-  LegacyFSRoot: /Users/benjamin.c.yan/dfs/legacyfs
+  LegacyFSRoot: F:\image

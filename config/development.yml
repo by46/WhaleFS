@@ -26,7 +26,7 @@ Log:
   Level: debug
 Sync:
   Enable: true
-  DFSHost: localhost:8089
+  DFSHost: http://localhost:8089
   RabbitMQConnection: amqp://guest:guest@localhost:5672/
   RabbitMQExchange: /whale-fs
   RabbitMQQueue: whale-fs
