@@ -1,86 +1,88 @@
 <template>
     <el-container style="height: 100vh; border: 1px solid #eee">
         <el-header class="header">
-            <div class="logo">
-                <img src="../../assets/logo.png" alt="whalefs">
-            </div>
-            <div class="right-header">
-                <div v-if="username != ''">
-                    <span class="user">当前用户: {{ username }}</span>
-                    <el-button style="padding: 0px"
-                               type="text"
-                               @click="onLogout">
-                        退出
-                    </el-button>
+            <el-menu
+                    style="padding-left: 200px;"
+                    class="el-menu-demo"
+                    @select="handleSelect"
+                    mode="horizontal"
+                    background-color="#545c64"
+                    text-color="#fff"
+                    active-text-color="#ffd04b">
+                <el-menu-item index="/portal">Home</el-menu-item>
+                <el-menu-item index="/portal/buckets">Buckets</el-menu-item>
+                <el-menu-item index="/portal/users">Users</el-menu-item>
+                <div class="right-header">
+                    <div v-if="username != ''">
+                        <span class="user">当前用户: {{ username }}</span>
+                        <el-button style="padding: 0px"
+                                   type="text"
+                                   @click="onLogout">
+                            退出
+                        </el-button>
+                    </div>
+                    <div v-else>
+                        <el-button style="padding: 0px"
+                                   type="text"
+                                   @click="onLogin">
+                            登录
+                        </el-button>
+                    </div>
                 </div>
-                <div v-else>
-                    <el-button style="padding: 0px"
-                               type="text"
-                               @click="onLogin">
-                        登录
-                    </el-button>
-                </div>
-            </div>
-        </el-header>
+            </el-menu>
 
+        </el-header>
         <el-container>
-            <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-                <el-menu :router="true" class="totalUl" :default-active="$route.path">
-                    <el-menu-item index="/portal/dashboard"><i class="el-icon-pie-chart"></i>Dashboard</el-menu-item>
-                    <el-menu-item index="/portal/buckets"><i class="el-icon-delete"></i>Buckets</el-menu-item>
-                    <el-menu-item index="/portal/users"><i class="el-icon-user"></i>Users</el-menu-item>
-                </el-menu>
-            </el-aside>
             <el-main>
-                <section class="content">
-                    <transition
-                            name="page"
-                            mode="out-in">
-                        <router-view></router-view>
-                    </transition>
-                </section>
+                <div style="width:800px;margin: auto;">
+                    <section class="content">
+                        <transition
+                                name="page"
+                                mode="out-in">
+                            <router-view></router-view>
+                        </transition>
+                    </section>
+                </div>
             </el-main>
         </el-container>
     </el-container>
 </template>
 
 <script>
-    export default {
-      name: "portal",
-      data() {
-        return {
-          username: '',
-        }
+  export default {
+    name: 'portal',
+    data() {
+      return {
+        username: '',
+      }
+    },
+    mounted: function () {
+      let user = JSON.parse(window.localStorage.getItem('user'))
+      this.username = user.username
+    },
+    methods: {
+      onLogout() {
+        var self = this
+        this.$http.post('/api/logout', {})
+        .then(function () {
+          window.localStorage.removeItem('user')
+          self.$router.push({path: '/login'})
+        })
       },
-      mounted: function () {
-        let user = JSON.parse(window.localStorage.getItem('user'))
-        this.username = user.username
+      onLogin() {
+        this.$router.push({path: '/login'})
       },
-      methods: {
-        onLogout() {
-          var self = this
-          this.$http.post("/api/logout", {})
-            .then(function () {
-              window.localStorage.removeItem("user")
-              self.$router.push({ path: '/login'})
-            })
-        },
-        onLogin() {
-          this.$router.push({ path: '/login'})
-        }
+      handleSelect(key) {
+        this.$router.push({path: key})
       }
     }
+  }
 </script>
 
 <style scoped>
     .header {
-        color: rgba(255, 255, 255, 0.75);
         line-height: 60px;
-        background-color: #24292e;
-    }
-
-    .header div {
-        display: inline;
+        padding: 0;
     }
 
     .totalUl {
@@ -89,6 +91,7 @@
 
     .right-header {
         float: right;
+        padding-right: 30px;
     }
 
     .user {

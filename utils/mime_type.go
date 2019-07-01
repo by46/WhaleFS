@@ -12,6 +12,8 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+var MimeTypes []string
+
 func init() {
 	loadMime()
 }
@@ -38,6 +40,7 @@ func loadMime() {
 				continue
 			}
 			extension, mimeType := strings.TrimSpace(strings.ToLower(segments[0])), strings.TrimSpace(strings.ToLower(segments[1]))
+			MimeTypes = append(MimeTypes, mimeType)
 			_ = mime.AddExtensionType(extension, mimeType)
 		}
 	}
