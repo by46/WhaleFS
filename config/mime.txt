@@ -34,20 +34,7 @@
 .pptx application/vnd.openxmlformats-officedocument.presentationml.presentation
 .xps application/vnd.ms-xpsdocument
 .oxps application/oxps
-.rvt
-.gbim
-.pi
-.pc
 .bin application/octet-stream
-.rfa
-.rte
-.dgn
-.obj
-.ifc
-.cgr
-.pln
-.stp
-.vwx
 .css text/css
 .js text/javascript
 .svg image/svg+xml
