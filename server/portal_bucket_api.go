@@ -136,6 +136,9 @@ func (s *Server) addBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "bucket collection 必须设置")
 	}
 
+	bucket.Basis.LastEditUser = u.Name
+	bucket.Basis.LastEditDate = time.Now().Unix()
+
 	if err := s.BucketMeta.Set(bucket.Id, bucket.Basis); err != nil {
 		s.Logger.Errorf("数据库操作失败 %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
@@ -202,6 +205,9 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 	if preBucketMeta.Basis.Collection != bucket.Basis.Basis.Collection {
 		return echo.NewHTTPError(http.StatusBadRequest, "bucket collection 不能改变")
 	}
+
+	bucket.Basis.LastEditUser = u.Name
+	bucket.Basis.LastEditDate = time.Now().Unix()
 
 	if err := s.BucketMeta.Set(bucket.Id, bucket.Basis); err != nil {
 		s.Logger.Errorf("数据库操作失败 %v", err)
