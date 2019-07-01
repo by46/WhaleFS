@@ -3,6 +3,7 @@ import Portal from '@/components/layouts/portal'
 import Login from '@/components/login'
 import Dashboard from '@/components/dashboard'
 import Buckets from '@/components/buckets'
+import Bucket from '@/components/bucket'
 import Users from '@/components/users'
 
 export default new Router({
@@ -18,19 +19,27 @@ export default new Router({
       name: 'portal',
       component: Portal,
       children:
-        [{
-          path: 'dashboard',
-          name: 'dashboard',
-          component: Dashboard
-        }, {
-          path: 'buckets',
-          name: 'buckets',
-          component: Buckets
-        }, {
-          path: 'users',
-          name: 'users',
-          component: Users
-        }]
+        [
+          {
+            path: 'dashboard',
+            name: 'dashboard',
+            component: Dashboard
+          },
+          {
+            path: 'buckets',
+            name: 'buckets',
+            component: Buckets
+          },
+          {
+            path: 'bucket',
+            name: 'bucket',
+            component: Bucket
+          },
+          {
+            path: 'users',
+            name: 'users',
+            component: Users
+          }]
     },
     {
       path: '/login',

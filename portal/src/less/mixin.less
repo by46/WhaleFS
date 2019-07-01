@@ -1,0 +1,330 @@
+@charset "UTF-8";
+//----------背景 begin-----------
+//主背景
+.bg-main{
+    background: @color-main !important;
+    color: #fff!important;
+    a{
+        color: #fff
+    }
+}
+
+//副背景
+.bg-second{
+    background: @color-second !important;
+    color: #fff!important;
+    a{
+        color: #fff
+    }
+}
+
+//常用背景
+.bg-red{
+    background: @color-red !important;
+    color: #fff!important;
+    a{
+        color: #fff
+    }
+}
+
+.bg-blue{
+    background: @color-blue !important;
+    color: #fff!important;
+    a{
+        color: #fff
+    }
+}
+
+.bg-green{
+    background: @color-green !important;
+    color: #fff!important;
+    a{
+        color: #fff
+    }
+}
+
+.bg-orange{
+    background: @color-orange !important;
+    color: #fff!important;
+    a{
+        color: #fff
+    }
+}
+
+//*尺寸
+//大
+.size-b{
+    height: 50px;
+    line-height: 48px;
+    font-size: 14px;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+//默认
+.size{
+    height: 38px;
+    line-height: 36px;
+    font-size: 14px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+//中
+.size-m{
+    height: 44px;
+    line-height: 42px;
+    font-size: 14px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+//小
+.size-s{
+    height: 32px;
+    line-height: 30px;
+    font-size: 14px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+//**按钮
+//按钮颜色
+.btn-color(@color) {
+    @if @color==@font-color-main {
+        &:not([disabled]){
+            color: @color;
+            background: #ebebeb;
+            border-color: #d4d4d4;
+            &:hover {
+                background: lighten(#ebebeb, 12%);
+                border-color: darken(#ebebeb, 3%);
+            }
+            &:active,
+            &.active {
+                background: lighten(#ebebeb, 5%);
+                border-color: lighten(#ebebeb, 0%);
+                z-index: 1;
+                color: lighten(@font-color-main, 60%)
+            }
+        }
+        &[disabled]{
+            @include btn-disabled(@color);
+        }
+    }
+    @else{
+        &:not([disabled]){
+            color: lighten(@color, 50%);
+            background: @color;
+            border-color: darken(@color, 8%);
+            &:hover {
+                background: lighten(@color, 10%);
+                border-color: darken(@color, 11%);
+            }
+            &:active,
+            &.active {
+                background: darken(@color, 5%);
+                border-color: darken(@color, 14%);
+                z-index: 3;
+                color: lighten(@color, 60%)
+            }
+        }
+        &[disabled]{
+            @include btn-disabled(@color);
+        }
+    }
+    
+}
+//失效按钮
+.btn-disabled(@color){
+    z-index: 1;
+    cursor: not-allowed!important;
+    @if @color==@font-color-main {
+        color: lighten(@color, 50%);
+        background:lighten(#ebebeb, 4%);
+        border-color:lighten(#ebebeb, .4%);
+    }
+    @else{
+        color: lighten(@color, 80%);
+        background:lighten(@color, 20%);
+        border-color:lighten(@color, 15%);
+    }
+}
+//镂空按钮颜色
+.btn-bd-color(@color) {
+    @include btn-color(@color);
+    @if @color==@font-color-second {
+        &:not([disabled]){
+            color: @color;
+            background: transparent;
+            border-color: lighten(@color, 35%);
+            &:hover,
+            &:active,
+            &.active {
+                background: darken(@color, 5%);
+                border-color: darken(@color, 14%);
+                z-index: 3;
+                color: lighten(@color, 50%);
+            }
+        }
+        &[disabled]{
+            @include btn-bd-disabled(@color);
+        }
+    }
+    @else{
+        &:not([disabled]){
+            color: @color;
+            background: transparent;
+            border-color: @color;
+            &:hover,
+            &:active,
+            &.active{
+                color: lighten(@color, 50%);
+            }
+        }
+        &[disabled]{
+            @include btn-bd-disabled(@color);
+        }
+    }
+}
+//失效镂空按钮
+.btn-bd-disabled(@color){
+    cursor: not-allowed;
+    background:transparent;
+    @if @color==@font-color-second {
+        color: lighten(@color, 35%);
+        border-color:lighten(@color, 50%);
+    }
+    @else{
+        color: @color;
+        border-color:lighten(@color, 20%);
+    }
+}
+//**form
+.form-bd(@bd-color) {
+    @if @bd-color==@border-color {
+        border-color: darken(@bd-color, 4%);
+        color: @font-color-main;
+    }
+    @else {
+        border-color: @bd-color;
+        background: #fff;
+        color: @bd-color;
+    }
+    &:hover {
+        border-color: darken(@bd-color, 12%)
+    }
+    &:focus {
+        @if @bd-color==@border-color {
+            @bd-color: @color-main
+        }
+        border-color:@bd-color;
+        box-shadow: 0 0 6px lighten(@bd-color, 30%);
+    }
+}
+
+.form-bg(@bg-color) {
+    border-color: darken(@bg-color, 8%);
+    background-color: lighten(@bg-color, 5%);
+    color: lighten(@bg-color, 50%);
+    &::-webkit-input-placeholder {
+        color: lighten(@bg-color, 35%);
+    }
+    &::-moz-input-placeholder {
+        color: lighten(@bg-color, 35%);
+    }
+    &::-ms-input-placeholder {
+        color: lighten(@bg-color, 35%);
+    }
+    &:hover {
+        border-color: darken(@bg-color, 12%);
+        background-color: lighten(@bg-color, 5%)
+    }
+    &:focus {
+        border-color: darken(@bg-color, 14%);
+        box-shadow: 0 0 10px lighten(@bg-color, 10%);
+        background-color: darken(@bg-color, 2%);
+    }
+}
+
+//**choice颜色
+//choice背景颜色
+.choice-bg(@bg-color) {
+    &>input[type="checkbox"],
+    &>input[type="radio"] {
+        &:not(:disabled) {
+            &~span{
+                &:after {
+                    border-color: darken(@bg-color, 8%);
+                    background-color: lighten(@bg-color, 5%);
+                }
+            }
+            &:hover {
+                &~span {
+                    &:after {
+                        border-color: darken(@bg-color, 12%);
+                        background: lighten(@bg-color, 10%)
+                    }
+                }
+            }
+            &:checked~span{
+                &:before{
+                    color: #fff;
+                }
+            }
+        }
+        
+    }
+}
+//choice边框颜色
+.choice-bd(@bg-color) {
+    &>input[type="checkbox"],
+    &>input[type="radio"] {
+        &:not(:disabled) {
+            &~span{
+                &:after {
+                    border-color: @bg-color;
+                }
+            }
+            &:hover {
+                &~span {
+                    &:after {
+                        border-color: darken(@bg-color, 12%);
+                    }
+                }
+            }
+            &:checked~span{
+                &:before{
+                    color: @bg-color;
+                }
+                &:after{
+                    background: #fff
+                }
+            }
+        }
+        
+    }
+}
+
+//menu颜色
+.menu-bg(@bg-color){
+    border-color: darken(@bg-color,5%);
+    background: @bg-color;
+    ul{
+        border-color:darken(@bg-color,5%);
+        background: @bg-color;
+    }
+    li{
+        >a{
+            color: lighten(@bg-color, 60%)
+        }
+        &:not([disabled]):hover{
+            >a{
+                background: darken(@bg-color,12%)!important;
+            }
+        }
+        &[disabled]{
+            >a{
+                color: lighten(@bg-color, 20%)
+            }
+        }
+        border-color: darken(@bg-color,4%);
+    }
+}

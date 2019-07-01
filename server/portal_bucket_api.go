@@ -2,17 +2,19 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/by46/whalefs/common"
-	"github.com/by46/whalefs/constant"
-	"github.com/by46/whalefs/model"
-	"github.com/by46/whalefs/utils"
-	"github.com/google/uuid"
-	"github.com/labstack/echo"
-	"gopkg.in/couchbase/gocb.v1"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo"
+	"gopkg.in/couchbase/gocb.v1"
+
+	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
+	"github.com/by46/whalefs/model"
+	"github.com/by46/whalefs/utils"
 )
 
 const (
@@ -71,6 +73,34 @@ func (s *Server) listBucket(ctx echo.Context) error {
 	return err
 }
 
+func (s *Server) getBucket(ctx echo.Context) error {
+	u := s.getCurrentUser(ctx)
+
+	bucketId := ctx.Param("id")
+	bucketName := strings.TrimPrefix(bucketId, prefixBucket)
+	if u.Role != roleAdmin && !utils.Exists(u.Buckets, bucketName) {
+		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
+	}
+
+	b := new(model.Bucket)
+	cas, err := s.BucketMeta.GetWithCas(bucketId, b)
+	if err != nil {
+		if err == common.ErrKeyNotFound {
+			return echo.NewHTTPError(http.StatusBadRequest, "bucket 不存在")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	result := &basisInfo{
+		Id:      prefixBucket + b.Name,
+		Version: strconv.FormatUint(cas, 10),
+		Basis:   b,
+	}
+
+	err = ctx.JSON(http.StatusOK, result)
+	return nil
+}
+
 func (s *Server) addBucket(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 
@@ -106,6 +136,9 @@ func (s *Server) addBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "bucket collection 必须设置")
 	}
 
+	bucket.Basis.LastEditUser = u.Name
+	bucket.Basis.LastEditDate = time.Now().Unix()
+
 	if err := s.BucketMeta.Set(bucket.Id, bucket.Basis); err != nil {
 		s.Logger.Errorf("数据库操作失败 %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
@@ -140,7 +173,7 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 	}
 
 	bucketName := strings.TrimPrefix(bucket.Id, prefixBucket)
-	if !utils.Exists(u.Buckets, bucketName) {
+	if u.Role != roleAdmin && !utils.Exists(u.Buckets, bucketName) {
 		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
 	}
 
@@ -173,6 +206,9 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "bucket collection 不能改变")
 	}
 
+	bucket.Basis.LastEditUser = u.Name
+	bucket.Basis.LastEditDate = time.Now().Unix()
+
 	if err := s.BucketMeta.Set(bucket.Id, bucket.Basis); err != nil {
 		s.Logger.Errorf("数据库操作失败 %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
@@ -192,14 +228,13 @@ func (s *Server) updateBucket(ctx echo.Context) error {
 func (s *Server) deleteBucket(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 
-	bucketId := strings.TrimPrefix(ctx.Request().URL.Path, "/api/buckets/")
-
+	bucketId := ctx.Param("id")
 	if !strings.HasPrefix(bucketId, prefixBucket) {
 		bucketId = prefixBucket + bucketId
 	}
 
 	bucketName := strings.TrimPrefix(bucketId, prefixBucket)
-	if !utils.Exists(u.Buckets, bucketName) {
+	if u.Role != roleAdmin && !utils.Exists(u.Buckets, bucketName) {
 		return echo.NewHTTPError(http.StatusForbidden, "用户没有权限操作此bucket")
 	}
 
@@ -332,4 +367,8 @@ func (s *Server) logout(ctx echo.Context) error {
 	}
 
 	return nil
+}
+
+func (s *Server) listMimeTypes(ctx echo.Context) error {
+	return ctx.JSON(http.StatusOK, utils.MimeTypes)
 }

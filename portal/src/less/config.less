@@ -1,0 +1,150 @@
+@charset "UTF-8";
+//==========默认圆角=================
+@round: 2px;
+//==========色调=================
+@color-main: #409EFF; //主色
+@color-second: #e8ffff; //次色
+@border-color: #E1E1E1; //边框颜色
+@border-color-blue:#199ed8;//蓝色边框颜色
+@font-color-main: #0C0C0C; //文字主色
+@font-color-second: #565656; //文字色
+@font-color-auxiliary: #565656; //文字辅助色
+//常用色彩
+@color-red: #F87479; //红色
+@color-blue: #4395FF; //蓝色
+@color-green: #49DE70; //绿色
+@color-orange: #F9B443; //橙色
+//主色
+.color-main {
+    color: @color-main !important;
+}
+
+//副色
+.color-second {
+    color: @color-second !important;
+}
+
+//常用色
+.color-red {
+    color: @color-red !important;
+    transition: .3s;
+}
+
+.color-blue {
+    color: @color-blue !important;
+    transition: .3s;
+}
+
+.color-green {
+    color: @color-green !important;
+    transition: .3s;
+}
+
+.color-orange {
+    color: @color-orange !important;
+    transition: .3s;
+}
+
+a.color-red {
+    &:hover {
+        color: lighten(@color-red, 10%)!important
+    }
+}
+
+a.color-blue {
+    &:hover {
+        color: lighten(@color-blue, 10%)!important
+    }
+}
+
+a.color-green {
+    &:hover {
+        color: lighten(@color-green, 10%)!important
+    }
+}
+
+a.color-orange {
+    &:hover {
+        color: lighten(@color-orange, 10%)!important
+    }
+}
+
+//----------文字 begin-----------
+.font-color-main {
+    color: @font-color-main !important;
+}
+
+.font-color-second {
+    color: @font-color-second !important;
+}
+
+.font-color-auxiliary {
+    color: @font-color-auxiliary !important;
+}
+
+//----------文字 end-------------
+//主背景
+.bg-main {
+    .bg-main;
+}
+
+//副背景
+.bg-second {
+    .bg-second;
+}
+
+//常用背景
+.bg-red {
+    .bg-red;
+}
+
+.bg-blue {
+    .bg-blue;
+}
+
+.bg-green {
+    .bg-green;
+}
+
+.bg-orange {
+    .bg-orange;
+}
+
+//----------背景 end------------
+//主要圆角
+.main-round {
+    border-radius: @round;
+}
+
+//文本框按钮等组件尺寸
+//默认
+.yz-input-text,
+.yz-btn,
+.yz-btn-group>.yz-btn,
+.yz-tool-group-title {
+    .size
+}
+
+//小
+.yz-input-text.yz-input-s,
+.yz-btn.yz-btn-s,
+.yz-btn-group.yz-btn-group-s>.yz-btn,
+.yz-tool-group-title.yz-tool-group-title-s {
+    .size-s
+}
+
+//中
+.yz-input-text.yz-input-m,
+.yz-btn.yz-btn-m,
+.yz-btn-group.yz-btn-group-m>.yz-btn,
+.yz-tool-group-title.yz-tool-group-title-m {
+    .size-m
+}
+
+//大
+.yz-input-text.yz-input-b,
+.yz-btn.yz-btn-b,
+.yz-btn-group.yz-btn-group-b>.yz-btn,
+.yz-tool-group-title.yz-tool-group-title-b {
+    .size-b
+}
