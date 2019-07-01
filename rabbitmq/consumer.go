@@ -74,7 +74,7 @@ func (s *SyncConsumer) Run() {
 		Queue:    s.config.Sync.RabbitMQQueue,
 	})
 	if err != nil {
-		s.Fatalf("add listen handler error: %v", errors.WithStack(err))
+		s.Fatalf("add listen handler error: %+v", errors.WithStack(err))
 	}
 	defer close(messages)
 
@@ -82,7 +82,7 @@ func (s *SyncConsumer) Run() {
 		s.write(message.Body)
 		err := message.Ack(false)
 		if err != nil {
-			s.Errorf("ack message failed: %v", err)
+			s.Errorf("ack message failed: %+v", errors.WithStack(err))
 		}
 	}
 }
@@ -125,7 +125,7 @@ func (s *SyncConsumer) write(content []byte) {
 		if len(msg) > 1024 {
 			msg = msg[:1024]
 		}
-		s.Errorf("反序列化消息失败:%v, message: %v", err, string(msg))
+		s.Errorf("反序列化消息失败:%+v, message: %v", errors.WithStack(err), string(msg))
 		return
 	}
 
@@ -151,14 +151,16 @@ func (s *SyncConsumer) writeFile(pair *pathPair) (skip bool) {
 	parentPath := filepath.Dir(fullPath)
 	err := os.MkdirAll(parentPath, os.ModePerm)
 	if err != nil {
-		s.recorder.Error(pair.url)
+		s.Logger.Errorf("create directory %+v", errors.WithStack(err))
+		s.recorder.Error("error", pair.url)
 		return
 	}
 	url := fmt.Sprintf("%s/%s", s.baseUrl, pair.url)
 	response, err := utils.Get(url, nil)
 
 	if err != nil {
-		s.recorder.Error(pair.url)
+		s.Logger.Errorf("get file from whale-fs failed %s: %+v", url, errors.WithStack(err))
+		s.recorder.Error(pair.url, pair.url, pair.path)
 		return
 	}
 	defer func() {
@@ -166,18 +168,20 @@ func (s *SyncConsumer) writeFile(pair *pathPair) (skip bool) {
 	}()
 
 	if response.StatusCode != http.StatusOK {
+		s.Logger.Errorf("get file from whale-fs failed %s, response status: %d ", url, response.StatusCode)
 		s.recorder.Errorf("failed, %s %s", pair.url, pair.path)
 		return
 	}
 
 	if strings.Contains(response.Header.Get(constant.HeaderXWhaleFSFlags), constant.FlagDefaultImage) {
+		s.Logger.Errorf("sync %s failed, because it's default image ", pair.path)
 		s.recorder.Errorf("ignore, %s %s", pair.url, pair.path)
 		return true
 	}
 
 	file, err := os.Create(fullPath)
 	if err != nil {
-		s.Logger.Errorf("create file %s failed: %v", pair.url, err)
+		s.Logger.Errorf("create file %s failed: %+v", pair.url, errors.WithStack(err))
 		s.recorder.Errorf("denies, %s %s", pair.url, pair.path)
 		return
 	}
@@ -187,8 +191,8 @@ func (s *SyncConsumer) writeFile(pair *pathPair) (skip bool) {
 		}
 	}()
 	if _, err := io.Copy(file, response); err != nil {
-		s.Logger.Errorf("write file %s failed: %v", pair.url, err)
-		s.recorder.Error("error, %s %s", pair.url, pair.path)
+		s.Logger.Errorf("write file %s failed: %+v", pair.url, errors.WithStack(err))
+		s.recorder.Errorf("error, %s %s", pair.url, pair.path)
 		return
 	}
 	return

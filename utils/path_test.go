@@ -59,4 +59,5 @@ func TestSubFolderByFileName(t *testing.T) {
 	assert.Equal(t, "A/01/7D/29d3ddb2-5150-467a-93fb-220d74bf4e13.jpg", SubFolderByFileName("29d3ddb2-5150-467a-93fb-220d74bf4e13.jpg"))
 	assert.Equal(t, "W/15/9B/68da5d5e-4a7e-43fc-b545-2223a03be705.jpg", SubFolderByFileName("68da5d5e-4a7e-43fc-b545-2223a03be705.jpg"))
 	assert.Equal(t, "W/15/0B/15d773f1-b24a-4303-9f7a-702c05a3edb7.jpg", SubFolderByFileName("15d773f1-b24a-4303-9f7a-702c05a3edb7.jpg"))
+	assert.Equal(t, "W/15/0B/15d773f1-b24a-4303-9f7a-702c05a3edb7.jpg", SubFolderByFileName("fa43ced8-7513-40ad-a6c0-97b604479390.jpg"))
 }
