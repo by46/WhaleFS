@@ -11,8 +11,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Portal
+      redirect: '/portal/buckets'
     },
     {
       path: '/portal',
@@ -21,8 +20,8 @@ export default new Router({
       children:
         [
           {
-            path: 'dashboard',
-            name: 'dashboard',
+            path: 'home',
+            name: 'home',
             component: Dashboard
           },
           {

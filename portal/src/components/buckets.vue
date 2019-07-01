@@ -1,6 +1,5 @@
 <template>
     <div>
-        <el-button class="pull-right" type="primary" @click="onAdd">新增</el-button>
         <el-table
                 :data="bucketData"
                 style="width: 100%">
@@ -20,9 +19,11 @@
                 </template>
             </el-table-column>
             <el-table-column
-                    prop=""
                     label="操作"
                     width="180">
+                <template slot="header">
+                    <el-button type="primary" @click="onAdd">新增</el-button>
+                </template>
                 <template slot-scope="{row}">
                     <el-button style="padding: 0px"
                                type="text"
@@ -121,14 +122,24 @@
         this.$router.push({name: 'bucket'})
       },
       onDelete(row) {
-        var self = this
-        this.$http.delete(`/api/buckets/${row.id}`)
-        .then(function () {
-          self.$message('删除成功')
-          self.loadData()
-        }).catch(function (error) {
-          self.$message(error.response.data.message)
+        this.$confirm('Bucket删除之后将不能恢复，是否继续', 'Warning', {
+          confirmButtonText: '继续',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
+        .then(() => {
+          var self = this
+          this.$http.delete(`/api/buckets/${row.id}`)
+          .then(function () {
+            self.$message('删除成功')
+            self.loadData()
+          }).catch(function (error) {
+            self.$message(error.response.data.message)
+          })
+        })
+        .catch(() => {
+        })
+
       }
     },
     mounted() {

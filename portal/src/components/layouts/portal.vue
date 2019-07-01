@@ -1,17 +1,18 @@
 <template>
-    <el-container style="height: 100vh; border: 1px solid #eee">
+    <el-container>
         <el-header class="header">
             <el-menu
                     style="padding-left: 200px;"
+                    :default-active="activeIndex"
                     class="el-menu-demo"
                     @select="handleSelect"
                     mode="horizontal"
                     background-color="#545c64"
                     text-color="#fff"
                     active-text-color="#ffd04b">
-                <el-menu-item index="/portal">Home</el-menu-item>
-                <el-menu-item index="/portal/buckets">Buckets</el-menu-item>
-                <el-menu-item index="/portal/users">Users</el-menu-item>
+                <el-menu-item index="home">Home</el-menu-item>
+                <el-menu-item index="buckets">Buckets</el-menu-item>
+                <el-menu-item index="users">Users</el-menu-item>
                 <div class="right-header">
                     <div v-if="username != ''">
                         <span class="user">当前用户: {{ username }}</span>
@@ -34,15 +35,17 @@
         </el-header>
         <el-container>
             <el-main>
-                <div style="width:800px;margin: auto;">
-                    <section class="content">
-                        <transition
-                                name="page"
-                                mode="out-in">
-                            <router-view></router-view>
-                        </transition>
-                    </section>
-                </div>
+                <el-row>
+                    <el-col :md="16" :offset="4">
+                        <section class="content">
+                            <transition
+                                    name="page"
+                                    mode="out-in">
+                                <router-view></router-view>
+                            </transition>
+                        </section>
+                    </el-col>
+                </el-row>
             </el-main>
         </el-container>
     </el-container>
@@ -53,10 +56,16 @@
     name: 'portal',
     data() {
       return {
+        activeIndex: 'home',
         username: '',
       }
     },
     mounted: function () {
+      if (this.$route.name === 'bucket') {
+        this.activeIndex = 'buckets'
+      } else {
+        this.activeIndex = this.$route.name
+      }
       let user = JSON.parse(window.localStorage.getItem('user'))
       this.username = user.username
     },
@@ -73,7 +82,7 @@
         this.$router.push({path: '/login'})
       },
       handleSelect(key) {
-        this.$router.push({path: key})
+        this.$router.push({name: key})
       }
     }
   }
