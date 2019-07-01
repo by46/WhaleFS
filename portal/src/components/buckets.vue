@@ -5,15 +5,18 @@
                 :data="bucketData"
                 style="width: 100%">
             <el-table-column
-                    prop="id"
-                    label="ID"
+                    prop="name"
+                    label="Name"
                     width="180">
+                <template slot-scope="{row}">
+                    {{row.basis.name}}
+                </template>
             </el-table-column>
             <el-table-column
                     prop="doc"
-                    label="内容">
+                    label="Memo">
                 <template slot-scope="{row}">
-                    {{row.basis}}
+                    {{row.basis.memo}}
                 </template>
             </el-table-column>
             <el-table-column
