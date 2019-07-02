@@ -4,7 +4,7 @@
             <el-tab-pane label="设置" name="settings">
                 <el-form ref="form" :model="entity" label-width="140px" label-suffix=":"
                          :rules="rules">
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-col :md="8">
                             <el-form-item label="Bucket名称" prop="name">
                                 <el-input placeholder="Bucket名称"
@@ -41,7 +41,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-col :md="8">
                             <el-form-item label="别名" prop="basis.alia">
                                 <el-input placeholder="别名"
@@ -58,7 +58,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-col :md="8">
                             <el-form-item label="缓存过期(单位:秒)" prop="basis.expires">
                                 <el-input-number v-model="entity.basis.expires"
@@ -79,7 +79,7 @@
                     </el-row>
 
                     <el-divider content-position="left">限制策略</el-divider>
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-col :md="8">
                             <el-form-item label="文件最小值(单位:字节)" prop="limit.min_size">
                                 <el-input-number placeholder="文件最小值"
@@ -99,7 +99,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-col :md="8">
                             <el-form-item label="图片宽度" prop="limit.width">
                                 <el-input-number placeholder="图片宽度"
@@ -117,7 +117,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-form-item label="Mime" prop="limit.mime_types">
                             <el-select v-model="entity.limit.mime_types" multiple placeholder="Select"
                                        style="width:100%;">
@@ -132,7 +132,7 @@
                     </el-row>
 
                     <el-divider content-position="left">图片变换</el-divider>
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-form-item prop="sizes" label-width="0">
                             <el-table :data="entity.sizes" stripe class="bucket-sizes"
                                       style="width: 100%">
@@ -194,7 +194,7 @@
                     </el-row>
 
                     <el-divider content-position="left">水印</el-divider>
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-form-item prop="overlays" label-width="0">
                             <el-table :data="entity.overlays"
                                       stripe
@@ -270,7 +270,7 @@
                             </el-table>
                         </el-form-item>
                     </el-row>
-                    <el-row :gutter="10" style="margin-top: 20px;">
+                    <el-row  style="margin-top: 20px;">
                         <el-form-item>
                             <el-button type="primary" @click="onSave">保存</el-button>
                             <el-button @click="onReturn">返回</el-button>
@@ -279,7 +279,7 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane label="上传/下载" name="upload">
-                <el-row :gutter="10" style="margin-bottom: 20px;">
+                <el-row  style="margin-bottom: 20px;">
                     <el-alert type="warning"
                               :closable="false">
                         <template slot="title">
@@ -291,7 +291,7 @@
                     </el-alert>
                 </el-row>
                 <el-form :model="upload" label-width="140px" label-suffix=":" :disabled="!isModify">
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-col :md="16">
                             <el-form-item prop="key" label="自定义Key">
                                 <el-input v-model="upload.key" placeholder="Object Key名称，不包含bucket名称"></el-input>
@@ -303,7 +303,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-col :md="8">
                             <el-form-item label="图片尺寸">
                                 <el-select v-model="upload.size">
@@ -329,7 +329,7 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
-                    <el-row :gutter="10">
+                    <el-row >
                         <el-row :md="16">
                             <el-form-item>
                                 <el-upload
@@ -728,9 +728,5 @@
             margin-right: 4px;
 
         }
-    }
-
-    .upload-demo {
-        padding-right: 5px;
     }
 </style>
