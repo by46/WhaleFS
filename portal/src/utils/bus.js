@@ -22,10 +22,6 @@ export default {
     if (!state.configuration) {
       return undefined
     }
-    let item = _.find(state.configuration, item => item.key === key)
-    if (!item) {
-      return undefined
-    }
-    return item.value
+    return _.get(state.configuration, key)
   }
 }

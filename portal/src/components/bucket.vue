@@ -729,4 +729,8 @@
 
         }
     }
+
+    .upload-demo {
+        padding-right: 5px;
+    }
 </style>
