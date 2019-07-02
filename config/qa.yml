@@ -27,7 +27,7 @@ Log:
 Sync:
   Enable: true
   DFSHost: 192.168.1.9:6081
-  RabbitMQConnection: amqp://admin:admin@172.16.0.131:5672/
+  RabbitMQConnection: amqp://admin:admin@172.16.0.131:5672//blockchain
   RabbitMQExchange: /whale-fs
   RabbitMQQueue: whale-fs
   LegacyFSRoot: D:\application\ImageServer

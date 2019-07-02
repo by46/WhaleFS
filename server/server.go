@@ -216,8 +216,6 @@ func (s *Server) install() {
 	s.app.PUT("/*", s.uploadByBody)
 	s.app.POST("/*", s.uploadByChunks)
 	s.app.DELETE("/*", s.deleteChunks)
-
-	//s.app.Match(methodsNew, "/*", s.file)
 }
 
 func (s *Server) ListenAndServe() {
