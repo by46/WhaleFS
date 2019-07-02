@@ -5,7 +5,7 @@ import Dashboard from '@/components/dashboard'
 import Buckets from '@/components/buckets'
 import Bucket from '@/components/bucket'
 import Users from '@/components/users'
-import bus from '@/utils/bus'
+import BusUtil from '@/utils/bus'
 
 const router = new Router({
   mode: 'history',
@@ -49,7 +49,7 @@ const router = new Router({
   ]
 })
 router.beforeEach((to, from, next) => {
-  bus.load()
+  BusUtil.load()
   .then(() => {
     next()
   })

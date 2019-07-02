@@ -6,7 +6,7 @@ const state = {configuration: null}
 export default {
   load() {
     if (state.configuration) {
-      return true
+      return Promise.resolve(true)
     }
     return axios.get('/api/configuration')
     .then(({data}) => {

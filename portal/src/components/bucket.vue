@@ -279,7 +279,30 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane label="上传/下载" name="upload">
-                <el-form :model="upload" label-width="140px" label-suffix=":">
+                <el-row :gutter="10" style="margin-bottom: 20px;">
+                    <el-alert type="warning"
+                              :closable="false">
+                        <template slot="title">
+                            <div style="font-size: 12px; line-height: 24px;">
+                                Bucket创建之后不能立即上传文件， 需要等待几秒同步时间<br/>
+                                只能针对已经存在的Bucket进行上传
+                            </div>
+                        </template>
+                    </el-alert>
+                </el-row>
+                <el-form :model="upload" label-width="140px" label-suffix=":" :disabled="!isModify">
+                    <el-row :gutter="10">
+                        <el-col :md="16">
+                            <el-form-item prop="key" label="自定义Key">
+                                <el-input v-model="upload.key" placeholder="Object Key名称，不包含bucket名称"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :md="8">
+                            <el-form-item prop="override" label-width="0">
+                                <el-checkbox v-model="upload.override">是否允许覆盖</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
                     <el-row :gutter="10">
                         <el-col :md="8">
                             <el-form-item label="图片尺寸">
@@ -311,29 +334,16 @@
                             <el-form-item>
                                 <el-upload
                                         class="upload-demo"
-                                        action="https://jsonplaceholder.typicode.com/posts/"
+                                        action="string"
+                                        :http-request="onUploadFile"
+                                        :file-list="fileList"
                                         list-type="picture">
-                                    <el-button size="small" type="primary">Click to upload</el-button>
-                                    <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 500kb
-                                    </div>
+                                    <el-button size="small" type="primary">点击上传</el-button>
                                 </el-upload>
                             </el-form-item>
                         </el-row>
                     </el-row>
                 </el-form>
-                <el-upload
-                        class="file-uploader"
-                        action="string"
-                        :http-request="onUploadImg()"
-                        :limit="1"
-                        :show-file-list="false"
-                        :on-success="handleAvatarSuccess()"
-                        :before-upload="beforeAvatarUpload">
-                    <img v-if="imageUrl()"
-                         :src="imageUrl()"
-                         class="avatar">
-                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-upload>
 
             </el-tab-pane>
         </el-tabs>
@@ -364,6 +374,7 @@
         }
       }
       return {
+        fileList: [],
         activeName: 'settings',
         rules: {
           name: [
@@ -433,7 +444,9 @@
         },
         upload: {
           size: '',
-          overlay: ''
+          overlay: '',
+          override: false,
+          image: ''
         }
       }
     },
@@ -447,6 +460,14 @@
           let url = bus.get('dfsHost')
           return `${url}/home/overlay/${image}`
         }
+      },
+      fileUrl() {
+        if (!this.upload.image) {
+          return ''
+        }
+
+        let url = bus.get('dfsHost')
+        return `${url}/${this.upload.image}`
       }
     },
     methods: {
@@ -574,28 +595,55 @@
           .then(response => {
             row.image = response.data.title
           })
-          .catch(() => {
-            self.$message.error('上传文件失败')
+          .catch(err => {
+            let msg = '修改失败'
+            if (err.response) {
+              msg = err.response.data.message
+            }
+            self.$message.error(msg)
           })
         }
       },
-      onUploadFile(row) {
+      onUploadFile(item) {
         let self = this
-        return (item) => {
-          let extension = item.file.name.split('.').pop();
-          let formData = new FormData()
-          let filename = uuidv4()
-          let url = bus.get('dfsHost')
-          formData.append('file', item.file)
-          formData.append('key', `/home/overlay/${filename}.${extension}`)
-          this.$http.post(url, formData)
-          .then(response => {
-            row.image = response.data.title
-          })
-          .catch(() => {
-            self.$message.error('上传文件失败')
-          })
+        let extension = item.file.name.split('.').pop();
+        let formData = new FormData()
+        let filename = uuidv4()
+        let url = bus.get('dfsHost')
+        let bucket = self.entity.name
+        let key = _.trim(self.upload.key)
+        if (key) {
+          key = _.trim(key, '/')
+          key = `/${self.entity.name}/${key}`
+        } else {
+          key = `/${bucket}/${filename}.${extension}`
         }
+        formData.append('file', item.file)
+        formData.append('key', key)
+        formData.append('override', self.upload.override)
+        this.$http.post(url, formData)
+        .then(({data}) => {
+          let filename = data.url
+          let obj = undefined
+          let size = self.upload.size || 'Original'
+          if (_.indexOf(filename, '/') < 0) {
+            obj = {name: item.file.name, url: `${url}/pdt/${size}/${filename}`}
+          } else {
+            let segments = _.split(filename, '/', 2)
+            if (self.upload.size) {
+              filename = _.join([segments[0], self.upload.size, segments[1]], '/')
+            }
+            obj = {name: item.file.name, url: `${url}/${filename}`}
+          }
+          self.fileList.push(obj)
+        })
+        .catch(err => {
+          let msg = '上传文件失败'
+          if (err.response) {
+            msg = err.response.data.message
+          }
+          self.$message.error(msg)
+        })
       }
     },
     mounted() {
