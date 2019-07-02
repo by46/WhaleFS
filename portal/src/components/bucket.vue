@@ -158,12 +158,25 @@
                             </template>
                         </el-table-column>
                         <el-table-column
-                                label="高度">
+                                label="高度"
+                                width="180">
                             <template slot-scope="{row}">
                                 <el-input-number v-model="row.height"
                                                  :step="10"
                                                  :min="0"
                                                  :max="2000"></el-input-number>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="缩放模式">
+                            <template slot-scope="{row}">
+                                <el-select v-model="row.mode">
+                                    <el-option
+                                            v-for="item in modes"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
                             </template>
                         </el-table-column>
                         <el-table-column label="操作" width="200px">
@@ -320,6 +333,12 @@
           {label: '商品图片', value: 'product'},
           {label: '交易', value: 'trade'}
         ],
+        modes: [
+          {label: '等比缩放', value: 'fit'},
+          {label: '填充白边', value: 'padding'},
+          {label: '拉伸', value: 'stretch'},
+          {label: '等比裁剪', value: 'thumbnail'}
+        ],
         positions: [
           {label: '左上角', value: 'TopLeft'},
           {label: '左下角', value: 'BottomLeft'},
@@ -405,7 +424,7 @@
         })
       },
       onSizeAdd() {
-        this.entity.sizes.push({name: '', width: 400, height: 300})
+        this.entity.sizes.push({name: '', width: 400, height: 300, mode: 'fit'})
       },
       onSizeDelete(index) {
         this.entity.sizes.splice(index, 1)

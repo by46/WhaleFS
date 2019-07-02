@@ -27,7 +27,7 @@ Log:
 Sync:
   Enable: true
   DFSHost: https://oss.yzw.cn
-  RabbitMQConnection: amqp://ifs_admin:ifs@123@192.168.110.81:5672//blockchain
+  RabbitMQConnection: amqp://ifs_admin:ifs@123@192.168.110.81:5672/framework
   RabbitMQExchange: /whale-fs
   RabbitMQQueue: whale-fs
   LegacyFSRoot: F:\image
