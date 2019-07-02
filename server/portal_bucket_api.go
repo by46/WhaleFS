@@ -372,3 +372,7 @@ func (s *Server) logout(ctx echo.Context) error {
 func (s *Server) listMimeTypes(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, utils.MimeTypes)
 }
+
+func (s *Server) configuration(ctx echo.Context) error {
+	return ctx.String(http.StatusOK, "[{\"key\":\"dfsHost\",\"value\":\"http://oss.yzw.cn.qa\"}]")
+}

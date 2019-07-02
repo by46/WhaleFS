@@ -1,280 +1,343 @@
 <template>
     <div>
-        <el-form ref="form" :model="entity" label-width="140px" label-suffix=":"
-                 :rules="rules">
-            <el-divider content-position="left">基本信息</el-divider>
-            <el-row :gutter="10">
-                <el-col :md="8">
-                    <el-form-item label="Bucket名称" prop="name">
-                        <el-input placeholder="Bucket名称"
-                                  :disabled="isModify"
-                                  v-model="entity.name"
-                                  maxlength="128">
-                        </el-input>
-                    </el-form-item>
-                </el-col>
-                <el-col :md="8">
-                    <el-form-item label="存储类型" prop="collection">
-                        <el-select v-model="entity.basis.collection" placeholder="存储类型"
-                                   :disabled="isModify">
-                            <el-option
-                                    v-for="item in collections"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :md="8">
-                    <el-form-item label="备份策略" prop="replication">
-                        <el-select v-model="entity.basis.replication" placeholder="备份策略"
-                                   :disabled="isModify">
-                            <el-option
-                                    v-for="item in replications"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row :gutter="10">
-                <el-col :md="8">
-                    <el-form-item label="别名" prop="basis.alia">
-                        <el-input placeholder="别名"
-                                  v-model="entity.basis.alia">
-                        </el-input>
-                    </el-form-item>
-                </el-col>
-
-                <el-col :md="16">
-                    <el-form-item label="Bucket说明" prop="memo">
-                        <el-input placeholder="Bucket说明"
-                                  v-model="entity.memo">
-                        </el-input>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row :gutter="10">
-                <el-col :md="8">
-                    <el-form-item label="缓存过期(单位:秒)" prop="basis.expires">
-                        <el-input-number v-model="entity.basis.expires"
-                                         style="width:100%;"
-                                         :step="60*60" :min="0"
-                                         :max="60*60*24*360*10"></el-input-number>
-                    </el-form-item>
-                </el-col>
-                <el-col :md="8">
-                    <el-form-item label="图片阈值(单位:像素)" prop="basis.prepare_thumbnail_min_width">
-                        <el-input-number placeholder="图片预处理宽度阈值"
-                                         style="width:100%;"
-                                         v-model="entity.basis.prepare_thumbnail_min_width"
-                                         :step="100" :min="0"
-                                         :max="2000"></el-input-number>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-
-            <el-divider content-position="left">限制策略</el-divider>
-            <el-row :gutter="10">
-                <el-col :md="8">
-                    <el-form-item label="文件最小值(单位:字节)" prop="limit.min_size">
-                        <el-input-number placeholder="文件最小值"
-                                         style="width:100%;"
-                                         v-model="entity.limit.min_size"
-                                         :step="100" :min="0"></el-input-number>
-
-                    </el-form-item>
-
-                </el-col>
-                <el-col :md="8">
-                    <el-form-item label="文件最大值(单位:字节)" prop="limit.max_size">
-                        <el-input-number placeholder="文件最大值"
-                                         style="width:100%;"
-                                         v-model="entity.limit.max_size"
-                                         :step="100" :min="0"></el-input-number>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row :gutter="10">
-                <el-col :md="8">
-                    <el-form-item label="图片宽度" prop="limit.width">
-                        <el-input-number placeholder="图片宽度"
-                                         style="width:100%;"
-                                         v-model="entity.limit.width"
-                                         :step="100" :min="0"></el-input-number>
-                    </el-form-item>
-                </el-col>
-                <el-col :md="8">
-                    <el-form-item label="图片高度" prop="limit.height">
-                        <el-input-number placeholder="图片高度"
-                                         style="width:100%;"
-                                         v-model="entity.limit.height"
-                                         :step="100" :min="0"></el-input-number>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row :gutter="10">
-                <el-form-item label="Mime" prop="limit.mime_types">
-                    <el-select v-model="entity.limit.mime_types" multiple placeholder="Select" style="width:100%;">
-                        <el-option
-                                v-for="item in mimes"
-                                :key="item"
-                                :label="item"
-                                :value="item">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-            </el-row>
-
-            <el-divider content-position="left">图片变换</el-divider>
-            <el-row :gutter="10">
-                <el-form-item prop="sizes" label-width="0">
-                    <el-table :data="entity.sizes" stripe class="bucket-sizes"
-                              style="width: 100%">
-                        <el-table-column
-                                label="名称"
-                                width="140">
-                            <template slot-scope="{row, $index}">
-                                <el-form-item :prop="'sizes.'+$index+'.name'"
-                                              label-width="0"
-                                              :rules="rules.size_name">
-                                    <lte-error-tip>
-                                        <el-input v-model="row.name"></el-input>
-                                    </lte-error-tip>
-                                </el-form-item>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                                label="宽度"
-                                width="180">
-                            <template slot-scope="{row}">
-                                <el-input-number v-model="row.width"
-                                                 :step="10"
-                                                 :min="0"
-                                                 :max="2000"></el-input-number>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                                label="高度"
-                                width="180">
-                            <template slot-scope="{row}">
-                                <el-input-number v-model="row.height"
-                                                 :step="10"
-                                                 :min="0"
-                                                 :max="2000"></el-input-number>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="缩放模式">
-                            <template slot-scope="{row}">
-                                <el-select v-model="row.mode">
+        <el-tabs v-model="activeName">
+            <el-tab-pane label="设置" name="settings">
+                <el-form ref="form" :model="entity" label-width="140px" label-suffix=":"
+                         :rules="rules">
+                    <el-row :gutter="10">
+                        <el-col :md="8">
+                            <el-form-item label="Bucket名称" prop="name">
+                                <el-input placeholder="Bucket名称"
+                                          :disabled="isModify"
+                                          v-model="entity.name"
+                                          maxlength="128">
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :md="8">
+                            <el-form-item label="存储类型" prop="collection">
+                                <el-select v-model="entity.basis.collection" placeholder="存储类型"
+                                           :disabled="isModify">
                                     <el-option
-                                            v-for="item in modes"
+                                            v-for="item in collections"
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value">
                                     </el-option>
                                 </el-select>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="操作" width="200px">
-                            <template slot="header">
-                                <el-button type="primary" @click="onSizeAdd">新增</el-button>
-                            </template>
-                            <template slot-scope="{$index}">
-                                <el-button type="text" @click="onSizeDelete($index)">删除</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-form-item>
-            </el-row>
-
-            <el-divider content-position="left">水印</el-divider>
-            <el-row :gutter="10">
-                <el-form-item prop="overlays" label-width="0">
-                    <el-table :data="entity.overlays"
-                              stripe
-                              class="bucket-sizes"
-                              style="width: 100%">
-                        <el-table-column
-                                label="名称"
-                                width="150">
-                            <template slot-scope="{row, $index}">
-                                <el-form-item :prop="'overlays.'+$index+'.name'"
-                                              label-width="0"
-                                              :rules="rules.overlay_name">
-                                    <lte-error-tip>
-                                        <el-input v-model="row.name"></el-input>
-                                    </lte-error-tip>
-                                </el-form-item>
-
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                                label="默认"
-                                width="80">
-                            <template slot-scope="{row}">
-                                <el-checkbox v-model="row.default">默认</el-checkbox>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                                label="位置">
-                            <template slot-scope="{row}">
-                                <el-select v-model="row.position" style="width:100%;">
+                            </el-form-item>
+                        </el-col>
+                        <el-col :md="8">
+                            <el-form-item label="备份策略" prop="replication">
+                                <el-select v-model="entity.basis.replication" placeholder="备份策略"
+                                           :disabled="isModify">
                                     <el-option
-                                            v-for="item in positions"
+                                            v-for="item in replications"
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value">
                                     </el-option>
                                 </el-select>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                                label="图片">
-                            <template slot-scope="{row}">
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :md="8">
+                            <el-form-item label="别名" prop="basis.alia">
+                                <el-input placeholder="别名"
+                                          v-model="entity.basis.alia">
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+
+                        <el-col :md="16">
+                            <el-form-item label="Bucket说明" prop="memo">
+                                <el-input placeholder="Bucket说明"
+                                          v-model="entity.memo">
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :md="8">
+                            <el-form-item label="缓存过期(单位:秒)" prop="basis.expires">
+                                <el-input-number v-model="entity.basis.expires"
+                                                 style="width:100%;"
+                                                 :step="60*60" :min="0"
+                                                 :max="60*60*24*360*10"></el-input-number>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :md="8">
+                            <el-form-item label="图片阈值(单位:像素)" prop="basis.prepare_thumbnail_min_width">
+                                <el-input-number placeholder="图片预处理宽度阈值"
+                                                 style="width:100%;"
+                                                 v-model="entity.basis.prepare_thumbnail_min_width"
+                                                 :step="100" :min="0"
+                                                 :max="2000"></el-input-number>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+                    <el-divider content-position="left">限制策略</el-divider>
+                    <el-row :gutter="10">
+                        <el-col :md="8">
+                            <el-form-item label="文件最小值(单位:字节)" prop="limit.min_size">
+                                <el-input-number placeholder="文件最小值"
+                                                 style="width:100%;"
+                                                 v-model="entity.limit.min_size"
+                                                 :step="100" :min="0"></el-input-number>
+
+                            </el-form-item>
+
+                        </el-col>
+                        <el-col :md="8">
+                            <el-form-item label="文件最大值(单位:字节)" prop="limit.max_size">
+                                <el-input-number placeholder="文件最大值"
+                                                 style="width:100%;"
+                                                 v-model="entity.limit.max_size"
+                                                 :step="100" :min="0"></el-input-number>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-col :md="8">
+                            <el-form-item label="图片宽度" prop="limit.width">
+                                <el-input-number placeholder="图片宽度"
+                                                 style="width:100%;"
+                                                 v-model="entity.limit.width"
+                                                 :step="100" :min="0"></el-input-number>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :md="8">
+                            <el-form-item label="图片高度" prop="limit.height">
+                                <el-input-number placeholder="图片高度"
+                                                 style="width:100%;"
+                                                 v-model="entity.limit.height"
+                                                 :step="100" :min="0"></el-input-number>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-form-item label="Mime" prop="limit.mime_types">
+                            <el-select v-model="entity.limit.mime_types" multiple placeholder="Select"
+                                       style="width:100%;">
+                                <el-option
+                                        v-for="item in mimes"
+                                        :key="item"
+                                        :label="item"
+                                        :value="item">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-row>
+
+                    <el-divider content-position="left">图片变换</el-divider>
+                    <el-row :gutter="10">
+                        <el-form-item prop="sizes" label-width="0">
+                            <el-table :data="entity.sizes" stripe class="bucket-sizes"
+                                      style="width: 100%">
+                                <el-table-column
+                                        label="名称"
+                                        width="140">
+                                    <template slot-scope="{row, $index}">
+                                        <el-form-item :prop="'sizes.'+$index+'.name'"
+                                                      label-width="0"
+                                                      :rules="rules.size_name">
+                                            <lte-error-tip>
+                                                <el-input v-model="row.name"></el-input>
+                                            </lte-error-tip>
+                                        </el-form-item>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="宽度"
+                                        width="180">
+                                    <template slot-scope="{row}">
+                                        <el-input-number v-model="row.width"
+                                                         :step="10"
+                                                         :min="0"
+                                                         :max="2000"></el-input-number>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="高度"
+                                        width="180">
+                                    <template slot-scope="{row}">
+                                        <el-input-number v-model="row.height"
+                                                         :step="10"
+                                                         :min="0"
+                                                         :max="2000"></el-input-number>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="缩放模式">
+                                    <template slot-scope="{row}">
+                                        <el-select v-model="row.mode">
+                                            <el-option
+                                                    v-for="item in modes"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="操作" width="200px">
+                                    <template slot="header">
+                                        <el-button type="primary" @click="onSizeAdd">新增</el-button>
+                                    </template>
+                                    <template slot-scope="{$index}">
+                                        <el-button type="text" @click="onSizeDelete($index)">删除</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-form-item>
+                    </el-row>
+
+                    <el-divider content-position="left">水印</el-divider>
+                    <el-row :gutter="10">
+                        <el-form-item prop="overlays" label-width="0">
+                            <el-table :data="entity.overlays"
+                                      stripe
+                                      class="bucket-sizes"
+                                      style="width: 100%">
+                                <el-table-column
+                                        label="名称"
+                                        width="150">
+                                    <template slot-scope="{row, $index}">
+                                        <el-form-item :prop="'overlays.'+$index+'.name'"
+                                                      label-width="0"
+                                                      :rules="rules.overlay_name">
+                                            <lte-error-tip>
+                                                <el-input v-model="row.name"></el-input>
+                                            </lte-error-tip>
+                                        </el-form-item>
+
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="默认"
+                                        width="80">
+                                    <template slot-scope="{row}">
+                                        <el-checkbox v-model="row.default">默认</el-checkbox>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="位置">
+                                    <template slot-scope="{row}">
+                                        <el-select v-model="row.position" style="width:100%;">
+                                            <el-option
+                                                    v-for="item in positions"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="图片">
+                                    <template slot-scope="{row}">
+                                        <el-upload
+                                                class="avatar-uploader"
+                                                action="string"
+                                                :http-request="onUploadImg(row)"
+                                                :limit="1"
+                                                :show-file-list="false"
+                                                :on-success="handleAvatarSuccess(row)"
+                                                :before-upload="beforeAvatarUpload">
+                                            <img v-if="imageUrl(row.image)"
+                                                 :src="imageUrl(row.image)"
+                                                 class="avatar">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                        </el-upload>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="透明度">
+                                    <template slot-scope="{row}">
+                                        <el-input-number v-model="row.opacity" :precision="2" :step="0.1" :min="0.01"
+                                                         :max="1"></el-input-number>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="操作" width="200px">
+                                    <template slot="header">
+                                        <el-button type="primary" @click="onOverlayAdd">新增</el-button>
+                                    </template>
+                                    <template slot-scope="{$index}">
+                                        <el-button type="text" @click="onOverlayDelete($index)">删除</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-form-item>
+                    </el-row>
+                    <el-row :gutter="10" style="margin-top: 20px;">
+                        <el-form-item>
+                            <el-button type="primary" @click="onSave">保存</el-button>
+                            <el-button @click="onReturn">返回</el-button>
+                        </el-form-item>
+                    </el-row>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="上传/下载" name="upload">
+                <el-form :model="upload" label-width="140px" label-suffix=":">
+                    <el-row :gutter="10">
+                        <el-col :md="8">
+                            <el-form-item label="图片尺寸">
+                                <el-select v-model="upload.size">
+                                    <el-option
+                                            v-for="item in entity.sizes"
+                                            :key="item.name"
+                                            :label="item.name"
+                                            :value="item.name">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :md="8">
+                            <el-form-item label="水印">
+                                <el-select v-model="upload.overlay">
+                                    <el-option
+                                            v-for="item in entity.overlays"
+                                            :key="item.name"
+                                            :label="item.name"
+                                            :value="item.name">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="10">
+                        <el-row :md="16">
+                            <el-form-item>
                                 <el-upload
-                                        class="avatar-uploader"
-                                        action="string"
-                                        :http-request="onUploadImg(row)"
-                                        :limit="1"
-                                        :show-file-list="false"
-                                        :on-success="handleAvatarSuccess(row)"
-                                        :before-upload="beforeAvatarUpload">
-                                    <img v-if="imageUrl(row.image)"
-                                         :src="imageUrl(row.image)"
-                                         class="avatar">
-                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                        class="upload-demo"
+                                        action="https://jsonplaceholder.typicode.com/posts/"
+                                        list-type="picture">
+                                    <el-button size="small" type="primary">Click to upload</el-button>
+                                    <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 500kb
+                                    </div>
                                 </el-upload>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                                label="透明度">
-                            <template slot-scope="{row}">
-                                <el-input-number v-model="row.opacity" :precision="2" :step="0.1" :min="0.01"
-                                                 :max="1"></el-input-number>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="操作" width="200px">
-                            <template slot="header">
-                                <el-button type="primary" @click="onOverlayAdd">新增</el-button>
-                            </template>
-                            <template slot-scope="{$index}">
-                                <el-button type="text" @click="onOverlayDelete($index)">删除</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-form-item>
-            </el-row>
-            <el-row :gutter="10" style="margin-top: 20px;">
-                <el-form-item>
-                    <el-button type="primary" @click="onSave">保存</el-button>
-                    <el-button @click="onReturn">返回</el-button>
-                </el-form-item>
-            </el-row>
-        </el-form>
+                            </el-form-item>
+                        </el-row>
+                    </el-row>
+                </el-form>
+                <el-upload
+                        class="file-uploader"
+                        action="string"
+                        :http-request="onUploadImg()"
+                        :limit="1"
+                        :show-file-list="false"
+                        :on-success="handleAvatarSuccess()"
+                        :before-upload="beforeAvatarUpload">
+                    <img v-if="imageUrl()"
+                         :src="imageUrl()"
+                         class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                </el-upload>
+
+            </el-tab-pane>
+        </el-tabs>
+
     </div>
 </template>
 
@@ -282,6 +345,7 @@
   import _ from 'lodash'
   import uuidv4 from 'uuid/v4'
   import LteErrorTip from './lte-error-tip'
+  import bus from '@/utils/bus'
 
   export default {
     name: 'bucket',
@@ -300,6 +364,7 @@
         }
       }
       return {
+        activeName: 'settings',
         rules: {
           name: [
             {required: true, message: '请输入Bucket名称', trigger: 'blur'},
@@ -365,6 +430,10 @@
           },
           sizes: [],
           overlays: []
+        },
+        upload: {
+          size: '',
+          overlay: ''
         }
       }
     },
@@ -374,7 +443,9 @@
           if (!image) {
             return ''
           }
-          return `http://oss.yzw.cn.qa/home/overlay/${image}`
+
+          let url = bus.get('dfsHost')
+          return `${url}/home/overlay/${image}`
         }
       }
     },
@@ -496,9 +567,28 @@
           let extension = item.file.name.split('.').pop();
           let formData = new FormData()
           let filename = uuidv4()
+          let url = bus.get('dfsHost')
           formData.append('file', item.file)
           formData.append('key', `/home/overlay/${filename}.${extension}`)
-          this.$http.post('http://oss.yzw.cn.qa', formData)
+          this.$http.post(url, formData)
+          .then(response => {
+            row.image = response.data.title
+          })
+          .catch(() => {
+            self.$message.error('上传文件失败')
+          })
+        }
+      },
+      onUploadFile(row) {
+        let self = this
+        return (item) => {
+          let extension = item.file.name.split('.').pop();
+          let formData = new FormData()
+          let filename = uuidv4()
+          let url = bus.get('dfsHost')
+          formData.append('file', item.file)
+          formData.append('key', `/home/overlay/${filename}.${extension}`)
+          this.$http.post(url, formData)
           .then(response => {
             row.image = response.data.title
           })
@@ -513,9 +603,13 @@
     }
   }
 </script>
+
 <style scoped lang="less">
     @height: 26px;
     @container-height: 28px;
+
+    @file-height: 400px;
+    @file-container-height: 400px;
 
     .avatar-uploader {
         height: @container-height;
@@ -531,21 +625,48 @@
         .el-upload:hover {
             border-color: #409EFF;
         }
+        .avatar {
+            width: 50px;
+            height: @container-height;
+            display: block;
+        }
+        .avatar-uploader-icon {
+            font-size: @height;
+            color: #8c939d;
+            width: 50px;
+            height: @height;
+            line-height: @height;
+            text-align: center;
+        }
     }
 
-    .avatar-uploader-icon {
-        font-size: @height;
-        color: #8c939d;
-        width: 50px;
-        height: @height;
-        line-height: @height;
-        text-align: center;
-    }
+    .file-uploader {
+        height: @file-container-height;
 
-    .avatar {
-        width: 50px;
-        height: 28px;
-        display: block;
+        .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .el-upload:hover {
+            border-color: #409EFF;
+        }
+        .avatar {
+            width: 50px;
+            height: @file-container-height;
+            display: block;
+        }
+        .avatar-uploader-icon {
+            font-size: @file-height;
+            color: #8c939d;
+            width: 400px;
+            height: @file-height;
+            line-height: @file-height;
+            text-align: center;
+        }
     }
 
     .bucket-sizes {

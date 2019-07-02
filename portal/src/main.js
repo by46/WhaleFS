@@ -15,7 +15,6 @@ Vue.use(ElementUI, {size: 'mini'})
 Vue.use(VueAxios, axios)
 
 Vue.config.productionTip = false
-Vue.prototype.BASE_API_URL = "http://localhost:8089"
 Vue.prototype.$http.interceptors.request.use(config => {
   let user = JSON.parse(window.localStorage.getItem('user'))
 
