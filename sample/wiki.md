@@ -3,25 +3,45 @@
 目前分布式文件系统有两套环境: QA 和 PRD
 
 ### QA
-服务地址： http://oss.yzw.cn.qa
+服务地址： http://oss.yzw.cn.qa http://oss-portal.yzw.cn.qa
+
+portal的测试账号test/admin
 
 由于这几个域名都是自定义域名，所以需要在你的local DNS中添加解析规则
 
 Windows：C:\Windows\system32\drivers\etc\hosts, 规则如下：
 ```text
 172.16.0.143 oss.yzw.cn.qa
+172.16.0.143 oss-portal.yzw.cn.qa
 ```
 
 MacOS: /etc/hosts, 规则如下：
 ```text
 172.16.0.143 oss.yzw.cn.qa
+172.16.0.143 oss-portal.yzw.cn.qa
 ```
 
 ### PRD
 PRD环境使用的是一个外部域名， 可以直接访问
 服务地址： https://oss.yzw.cn
 
+但是Portal需要通过VPN访问, http://oss-portal.yzw.cn
 
+portal的测试账号test/admin
+
+Windows：C:\Windows\system32\drivers\etc\hosts, 规则如下：
+
+```text
+172.168.220.65 oss-portal.yzw.cn
+```
+
+MacOS: /etc/hosts, 规则如下：
+
+```text
+172.168.220.65 oss-portal.yzw.cn
+```
+
+### 
 
 ## API
 
