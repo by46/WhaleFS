@@ -313,6 +313,7 @@
       "mime_types": [
         "image/png",
         "image/jpeg",
+        "image/bmp",
         "image/gif"
       ]
     },

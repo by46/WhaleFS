@@ -21,21 +21,28 @@ type userCreate struct {
 	User    model.User `json:"basis,omitempty"`
 }
 
+type userBasisInfo struct {
+	Id      string      `json:"id"`
+	Cas     uint64      `json:"cas,omitempty"`
+	Version string      `json:"version"`
+	Basis   interface{} `json:"basis,omitempty"`
+}
+
 func (s *Server) addUser(ctx echo.Context) error {
 	u := s.getCurrentUser(ctx)
 	if u.Role != roleAdmin {
 		return echo.NewHTTPError(http.StatusForbidden, msgMustBeAdminRole)
 	}
 
-	basisInfo := &userCreate{}
+	userCreateInfo := &userCreate{}
 	body := ctx.Request().Body
-	if err := json.NewDecoder(body).Decode(basisInfo); err != nil {
+	if err := json.NewDecoder(body).Decode(userCreateInfo); err != nil {
 		s.Logger.Errorf("Json 解析失败 %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	user := basisInfo.User
-	user.Name = basisInfo.Id
+	user := userCreateInfo.User
+	user.Name = userCreateInfo.Id
 
 	encryptPass, err := utils.Sha1(user.Password)
 	if err != nil {
@@ -64,9 +71,9 @@ func (s *Server) listUser(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
-	var infos []*basisInfo
+	var infos []*userBasisInfo
 	for {
-		info := new(basisInfo)
+		info := new(userBasisInfo)
 		if results.Next(info) == false {
 			break
 		}
@@ -84,15 +91,15 @@ func (s *Server) updateUser(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, msgMustBeAdminRole)
 	}
 
-	basisInfo := &userCreate{}
+	userUpdateInfo := &userCreate{}
 	body := ctx.Request().Body
-	if err := json.NewDecoder(body).Decode(basisInfo); err != nil {
+	if err := json.NewDecoder(body).Decode(userUpdateInfo); err != nil {
 		s.Logger.Errorf("Json 解析失败 %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	user := basisInfo.User
-	user.Name = basisInfo.Id
+	user := userUpdateInfo.User
+	user.Name = userUpdateInfo.Id
 
 	user.Type = typeUser
 	user.Role = roleNormal
