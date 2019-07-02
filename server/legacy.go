@@ -133,6 +133,9 @@ func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 	key := ctx.QueryParam("FilePath")
 
 	attachmentName := ctx.QueryParam("FileName")
+	if attachmentName == "" {
+		attachmentName = filepath.Base(key)
+	}
 	//shouldMark := utils.ToBool(ctx.QueryParam("Mark"))
 
 	if utils.IsRemote(key) {
