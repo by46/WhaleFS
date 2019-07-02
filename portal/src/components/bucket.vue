@@ -379,7 +379,7 @@
         rules: {
           name: [
             {required: true, message: '请输入Bucket名称', trigger: 'blur'},
-            {pattern: /^[a-z0-9-]+$/, message: '请输入小写字母，数字，-', trigger: 'blur'}
+            {pattern: /^[a-z0-9-_]+$/, message: '请输入小写字母，数字，-', trigger: 'blur'}
           ],
           size_name: [
             {required: true, message: '请输入Resize名称', trigger: 'blur'},
