@@ -31,3 +31,5 @@ Sync:
   RabbitMQExchange: /whale-fs
   RabbitMQQueue: whale-fs
   LegacyFSRoot: D:\application\ImageServer
+Portal:
+  dfsHost: http://192.168.1.9:6081
