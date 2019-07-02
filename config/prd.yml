@@ -31,3 +31,5 @@ Sync:
   RabbitMQExchange: /whale-fs
   RabbitMQQueue: whale-fs
   LegacyFSRoot: F:\image
+Portal:
+  dfsHost: https://oss.yzw.cn

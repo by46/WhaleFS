@@ -374,5 +374,5 @@ func (s *Server) listMimeTypes(ctx echo.Context) error {
 }
 
 func (s *Server) configuration(ctx echo.Context) error {
-	return ctx.String(http.StatusOK, "[{\"key\":\"dfsHost\",\"value\":\"http://oss.yzw.cn.qa\"}]")
+	return ctx.JSON(http.StatusOK, s.Config.Portal)
 }
