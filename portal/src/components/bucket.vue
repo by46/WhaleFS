@@ -131,125 +131,129 @@
 
             <el-divider content-position="left">图片变换</el-divider>
             <el-row :gutter="10">
-                <el-table :data="entity.sizes" stripe class="bucket-sizes"
-                          style="width: 100%">
-                    <el-table-column
-                            label="名称"
-                            width="140">
-                        <template slot-scope="{row, $index}">
-                            <el-form-item :prop="'sizes.'+$index+'.name'"
-                                          label-width="0"
-                                          :rules="rules.size_name">
-                                <lte-error-tip>
-                                    <el-input v-model="row.name"></el-input>
-                                </lte-error-tip>
-                            </el-form-item>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            label="宽度"
-                            width="180">
-                        <template slot-scope="{row}">
-                            <el-input-number v-model="row.width"
-                                             :step="10"
-                                             :min="0"
-                                             :max="2000"></el-input-number>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            label="高度">
-                        <template slot-scope="{row}">
-                            <el-input-number v-model="row.height"
-                                             :step="10"
-                                             :min="0"
-                                             :max="2000"></el-input-number>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="操作" width="200px">
-                        <template slot="header">
-                            <el-button type="primary" @click="onSizeAdd">新增</el-button>
-                        </template>
-                        <template slot-scope="{$index}">
-                            <el-button type="text" @click="onSizeDelete($index)">删除</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
+                <el-form-item prop="sizes" label-width="0">
+                    <el-table :data="entity.sizes" stripe class="bucket-sizes"
+                              style="width: 100%">
+                        <el-table-column
+                                label="名称"
+                                width="140">
+                            <template slot-scope="{row, $index}">
+                                <el-form-item :prop="'sizes.'+$index+'.name'"
+                                              label-width="0"
+                                              :rules="rules.size_name">
+                                    <lte-error-tip>
+                                        <el-input v-model="row.name"></el-input>
+                                    </lte-error-tip>
+                                </el-form-item>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="宽度"
+                                width="180">
+                            <template slot-scope="{row}">
+                                <el-input-number v-model="row.width"
+                                                 :step="10"
+                                                 :min="0"
+                                                 :max="2000"></el-input-number>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="高度">
+                            <template slot-scope="{row}">
+                                <el-input-number v-model="row.height"
+                                                 :step="10"
+                                                 :min="0"
+                                                 :max="2000"></el-input-number>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" width="200px">
+                            <template slot="header">
+                                <el-button type="primary" @click="onSizeAdd">新增</el-button>
+                            </template>
+                            <template slot-scope="{$index}">
+                                <el-button type="text" @click="onSizeDelete($index)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-form-item>
             </el-row>
 
             <el-divider content-position="left">水印</el-divider>
             <el-row :gutter="10">
-                <el-table :data="entity.overlays"
-                          stripe
-                          class="bucket-sizes"
-                          style="width: 100%">
-                    <el-table-column
-                            label="名称"
-                            width="150">
-                        <template slot-scope="{row, $index}">
-                            <el-form-item :prop="'overlays.'+$index+'.name'"
-                                          label-width="0"
-                                          :rules="rules.overlay_name">
-                                <lte-error-tip>
-                                    <el-input v-model="row.name"></el-input>
-                                </lte-error-tip>
-                            </el-form-item>
+                <el-form-item prop="overlays" label-width="0">
+                    <el-table :data="entity.overlays"
+                              stripe
+                              class="bucket-sizes"
+                              style="width: 100%">
+                        <el-table-column
+                                label="名称"
+                                width="150">
+                            <template slot-scope="{row, $index}">
+                                <el-form-item :prop="'overlays.'+$index+'.name'"
+                                              label-width="0"
+                                              :rules="rules.overlay_name">
+                                    <lte-error-tip>
+                                        <el-input v-model="row.name"></el-input>
+                                    </lte-error-tip>
+                                </el-form-item>
 
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            label="默认"
-                            width="80">
-                        <template slot-scope="{row}">
-                            <el-checkbox v-model="row.default">默认</el-checkbox>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            label="位置">
-                        <template slot-scope="{row}">
-                            <el-select v-model="row.position" style="width:100%;">
-                                <el-option
-                                        v-for="item in positions"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                </el-option>
-                            </el-select>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            label="图片">
-                        <template slot-scope="{row}">
-                            <el-upload
-                                    class="avatar-uploader"
-                                    action="string"
-                                    :http-request="onUploadImg(row)"
-                                    :limit="1"
-                                    :show-file-list="false"
-                                    :on-success="handleAvatarSuccess(row)"
-                                    :before-upload="beforeAvatarUpload">
-                                <img v-if="imageUrl(row.image)"
-                                     :src="imageUrl(row.image)"
-                                     class="avatar">
-                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                            </el-upload>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            label="透明度">
-                        <template slot-scope="{row}">
-                            <el-input-number v-model="row.opacity" :precision="2" :step="0.1" :min="0.01"
-                                             :max="1"></el-input-number>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="操作" width="200px">
-                        <template slot="header">
-                            <el-button type="primary" @click="onOverlayAdd">新增</el-button>
-                        </template>
-                        <template slot-scope="{$index}">
-                            <el-button type="text" @click="onOverlayDelete($index)">删除</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="默认"
+                                width="80">
+                            <template slot-scope="{row}">
+                                <el-checkbox v-model="row.default">默认</el-checkbox>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="位置">
+                            <template slot-scope="{row}">
+                                <el-select v-model="row.position" style="width:100%;">
+                                    <el-option
+                                            v-for="item in positions"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="图片">
+                            <template slot-scope="{row}">
+                                <el-upload
+                                        class="avatar-uploader"
+                                        action="string"
+                                        :http-request="onUploadImg(row)"
+                                        :limit="1"
+                                        :show-file-list="false"
+                                        :on-success="handleAvatarSuccess(row)"
+                                        :before-upload="beforeAvatarUpload">
+                                    <img v-if="imageUrl(row.image)"
+                                         :src="imageUrl(row.image)"
+                                         class="avatar">
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                                label="透明度">
+                            <template slot-scope="{row}">
+                                <el-input-number v-model="row.opacity" :precision="2" :step="0.1" :min="0.01"
+                                                 :max="1"></el-input-number>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" width="200px">
+                            <template slot="header">
+                                <el-button type="primary" @click="onOverlayAdd">新增</el-button>
+                            </template>
+                            <template slot-scope="{$index}">
+                                <el-button type="text" @click="onOverlayDelete($index)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-form-item>
             </el-row>
             <el-row :gutter="10" style="margin-top: 20px;">
                 <el-form-item>
@@ -270,19 +274,37 @@
     name: 'bucket',
     components: {LteErrorTip},
     data() {
+      let duplicateValidator = (rule, value, callback) => {
+        let msg = _(value).countBy('name')
+        .toPairs()
+        .filter(item => item[1] > 1)
+        .map(item => item[0])
+        .join(',')
+        if (msg) {
+          callback(new Error(`存在重复的item: ${msg}`))
+        } else {
+          callback()
+        }
+      }
       return {
         rules: {
           name: [
             {required: true, message: '请输入Bucket名称', trigger: 'blur'},
-            {pattern: /^[a-zA-Z0-9-]+$/, message: '请输入大小写，数字，-', trigger: 'blur'}
+            {pattern: /^[a-z0-9-]+$/, message: '请输入小写字母，数字，-', trigger: 'blur'}
           ],
           size_name: [
             {required: true, message: '请输入Resize名称', trigger: 'blur'},
-            {pattern: /^[a-zA-Z0-9]+$/, message: '请输入大小写，数字', trigger: 'blur'}
+            {pattern: /^[a-z0-9]+$/, message: '请输入小写字母，数字', trigger: 'blur'}
           ],
           overlay_name: [
             {required: true, message: '请输入水印名称', trigger: 'blur'},
-            {pattern: /^[a-zA-Z0-9]+$/, message: '请输入大小写，数字', trigger: 'blur'}
+            {pattern: /^[a-z0-9]+$/, message: '请输入小写字母，数字', trigger: 'blur'}
+          ],
+          sizes: [
+            {validator: duplicateValidator, trigger: 'change'}
+          ],
+          overlays: [
+            {validator: duplicateValidator, trigger: 'change'}
           ]
         },
         isModify: false,

@@ -38,35 +38,19 @@
                 </template>
             </el-table-column>
         </el-table>
-        <el-dialog title="编辑bucket" :visible.sync="dialogBucketVisible">
-            <div v-if="!isEdit">
-                <el-input v-model="newBucketId" placeholder="请输入bucket id"></el-input>
-            </div>
-            <vue-json-editor v-model="editBucket" :show-btns="false" mode="code"
-                             @json-change="onJsonChange"></vue-json-editor>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogBucketVisible = false">取 消</el-button>
-                <el-button type="primary" @click="onSave(isEdit?editRow.id:newBucketId)">确 定</el-button>
-            </div>
-        </el-dialog>
     </div>
 
 </template>
 
 <script>
-  import vueJsonEditor from 'vue-json-editor'
 
   export default {
     name: 'buckets',
-    components: {
-      vueJsonEditor
-    },
     data() {
       return {
         bucketData: [],
         editBucket: {},
         editRow: {},
-        dialogBucketVisible: false,
         isEdit: false,
         newBucketId: null
       }
@@ -82,10 +66,6 @@
         })
       },
       onEdit(row) {
-        // this.isEdit = true
-        // this.dialogBucketVisible = true
-        // this.editRow = row
-        // this.editBucket = row.basis
         this.$router.push({name: 'bucket', query: {id: row.id, version: row.version}})
       },
       onSave(id) {
