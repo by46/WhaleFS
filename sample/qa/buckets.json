@@ -1318,16 +1318,16 @@
       "alias": "pdt"
     }
   },
-  "system.bucket.ibuild-DroneStrike-imgOrVideo": {
-    "name": "ibuild-DroneStrike-imgOrVideo",
+  "system.bucket.ibuild-dronestrike-imgorvideo": {
+    "name": "ibuild-dronestrike-imgorvideo",
     "type": "bucket",
     "memo": "智慧工地项目无人机航拍图片或视频",
     "basis": {
       "alias": "pdt"
     }
   },
-  "system.bucket.ibuild-BigScreen-imgOrVideo": {
-    "name": "ibuild-BigScreen-imgOrVideo",
+  "system.bucket.ibuild-bigscreen-imgorvideo": {
+    "name": "ibuild-bigscreen-imgorvideo",
     "type": "bucket",
     "memo": "智慧工地项目大屏图片或视频",
     "basis": {
