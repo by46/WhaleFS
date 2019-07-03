@@ -190,12 +190,14 @@ func (s *Server) install() {
 	s.app.POST("/api/users", s.addUser)
 	s.app.PUT("/api/users", s.updateUser)
 	s.app.DELETE("/api/users/*", s.deleteUser)
+	s.app.GET("/api/users/:id", s.getUser)
 
 	s.app.GET("/api/buckets", s.listBucket)
 	s.app.GET("/api/buckets/:id", s.getBucket)
 	s.app.PUT("/api/buckets", s.updateBucket)
 	s.app.DELETE("/api/buckets/:id", s.deleteBucket)
 	s.app.POST("/api/buckets", s.addBucket)
+	s.app.GET("/api/bucket-names", s.listBucketNames)
 
 	s.app.GET("/api/mimetypes", s.listMimeTypes)
 	s.app.GET("/api/configuration", s.configuration)

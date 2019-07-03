@@ -5,6 +5,7 @@ import Dashboard from '@/components/dashboard'
 import Buckets from '@/components/buckets'
 import Bucket from '@/components/bucket'
 import Users from '@/components/users'
+import User from '@/components/user'
 import BusUtil from '@/utils/bus'
 
 const router = new Router({
@@ -39,6 +40,11 @@ const router = new Router({
             path: 'users',
             name: 'users',
             component: Users
+          },
+          {
+            path: 'user',
+            name: 'user',
+            component: User
           }]
     },
     {
