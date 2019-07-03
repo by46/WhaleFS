@@ -4,15 +4,16 @@
                 :data="userData"
                 style="width: 100%">
             <el-table-column
-                    prop="id"
-                    label="ID"
+                    label="Name"
                     width="180">
+                <template slot-scope="{row}">
+                    {{row.basis.username}}
+                </template>
             </el-table-column>
             <el-table-column
-                    prop="doc"
-                    label="内容">
+                    label="Buckets">
                 <template slot-scope="{row}">
-                    {{row.basis}}
+                    {{row.basis.buckets}}
                 </template>
             </el-table-column>
             <el-table-column
@@ -43,7 +44,7 @@
                              @json-change="onJsonChange"></vue-json-editor>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogUserVisible = false">取 消</el-button>
-                <el-button type="primary" @click="onSave(isEdit?editRow.id:newBucketId)">确 定</el-button>
+                <el-button type="primary" @click="onEdit()">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -79,10 +80,7 @@
         })
       },
       onEdit(row) {
-        this.isEdit = true
-        this.dialogUserVisible = true
-        this.editRow = row
-        this.editUser = row.basis
+        this.$router.push({name: 'user', query: {id: row.id, version: row.version}})
       },
       onSave(id) {
         var self = this
@@ -115,10 +113,7 @@
         this.editUser = value
       },
       onAdd() {
-        this.isEdit = false
-        this.dialogUserVisible = true
-        this.editUser = {}
-        this.editRow = {}
+        this.$router.push({name: 'user'})
       },
       onDelete(row) {
         let self = this
