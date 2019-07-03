@@ -141,21 +141,24 @@ func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 	if utils.IsRemote(key) {
 		return s.legacyDownloadFileByRemote(ctx)
 	}
-
+	oldKey := key
 	key = utils.PathNormalize(key)
+	isRemoveOriginal := len(key) != len(oldKey)
+
 	bucket, key, size := s.parseBucketAndFileKey(key)
 
 	if bucket == nil {
 		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdBucketNameNotCorrect, getLangsFromCtx(ctx)...))
 	}
 	fileContext := &model.FileContext{
-		Bucket:         bucket,
-		BucketName:     bucket.Name,
-		Size:           size,
-		Key:            key,
-		AttachmentName: attachmentName,
+		Bucket:           bucket,
+		BucketName:       bucket.Name,
+		Size:             size,
+		Key:              key,
+		AttachmentName:   attachmentName,
+		IsRemoveOriginal: isRemoveOriginal,
 	}
-	fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey())
+	fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey(), isRemoveOriginal)
 	if err != nil {
 		if err == common.ErrKeyNotFound {
 			return echo.NewHTTPError(http.StatusNotFound)
@@ -221,7 +224,8 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 		if bucket == nil {
 			return returnMessage(ctx, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...), "")
 		}
-		entity, err := s.GetFileEntity(utils.PathNormalize(key))
+		newKey := utils.PathNormalize(key)
+		entity, err := s.GetFileEntity(newKey, len(key) != len(newKey))
 		if err != nil {
 			if err == common.ErrKeyNotFound {
 				return returnMessage(ctx, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...), "")
@@ -437,8 +441,9 @@ func (s *Server) legacySliceUploadAbort(ctx echo.Context, identity string) error
 
 // end SliceUploadHandler.ashx
 func (s *Server) legacyDownloadFileByFile(ctx echo.Context, key string) (*utils.PDFFile, error) {
-	_, key, _ = s.parseBucketAndFileKey(key)
-	meta, err := s.GetFileEntity(key)
+	_, key2, _ := s.parseBucketAndFileKey(key)
+
+	meta, err := s.GetFileEntity(key2, len(key2) != len(key))
 	if err != nil {
 		return nil, err
 	}

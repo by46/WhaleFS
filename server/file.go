@@ -168,7 +168,7 @@ func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
 	context := &middleware.ExtendContext{ctx, fileContext}
 	bucket := fileContext.Bucket
 	fileContext.ParseImageSize(bucket)
-	fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey())
+	fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey(), fileContext.IsRemoveOriginal)
 	if err != nil {
 		if err == common.ErrKeyNotFound {
 			if bucket.Basis.DefaultImage != "" && utils.IsImageByFileName(fileContext.Key) {
@@ -211,6 +211,9 @@ func (s *Server) delete(ctx echo.Context) (err error) {
 
 func (s *Server) parseBucketAndFixKey(fileContext *model.FileContext) (*model.FileContext, error) {
 	key := utils.PathNormalize(fileContext.Key)
+	if len(key) != len(fileContext.Key) {
+		fileContext.IsRemoveOriginal = true
+	}
 
 	bucketName, objectName := utils.PathRemoveSegment(key, 0)
 	if bucketName == "" {

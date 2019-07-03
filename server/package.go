@@ -14,7 +14,7 @@ import (
 func Package(
 	pkgFileInfo *model.PackageEntity,
 	w io.Writer,
-	getEntityFunc func(string) (*model.FileMeta, error),
+	getEntityFunc func(string, bool) (*model.FileMeta, error),
 	downloadFunc func(string) (io.ReadCloser, http.Header, error)) error {
 
 	pkgType := pkgFileInfo.GetPkgType()
@@ -29,8 +29,8 @@ func Package(
 	defer func() { _ = tw.(io.Closer).Close() }()
 
 	for _, item := range pkgFileInfo.Items {
-
-		entity, err := getEntityFunc(utils.PathNormalize(item.RawKey))
+		key := utils.PathNormalize(item.RawKey)
+		entity, err := getEntityFunc(key, len(key) != len(item.RawKey))
 		if err != nil {
 			return err
 		}
