@@ -48,6 +48,8 @@
 .ico image/vnd.microsoft.icon
 .json application/json
 .map application/x-navimap
+.doc      application/msword
+.doc_      application/msword
 .dot      application/msword
 
 .dotx     application/vnd.openxmlformats-officedocument.wordprocessingml.template
@@ -55,6 +57,7 @@
 .dotm     application/vnd.ms-word.template.macroEnabled.12
 
 .xls      application/vnd.ms-excel
+.xls_      application/vnd.ms-excel
 .xlt      application/vnd.ms-excel
 .xla      application/vnd.ms-excel
 

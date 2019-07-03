@@ -38,6 +38,11 @@ type PortalConfig struct {
 	DfsHost string `json:"dfsHost"`
 }
 
+type ExtensionMappingConfig struct {
+	Src  string `json:"src"`
+	Dest string `json:"dest"`
+}
+
 type Config struct {
 	Host                  string `default:":8080"`
 	Storage               *StorageConfig
@@ -56,4 +61,5 @@ type Config struct {
 	TempFileDir           string
 	Sync                  *SyncConfig
 	Portal                *PortalConfig
+	ExtensionMapping      []*ExtensionMappingConfig
 }

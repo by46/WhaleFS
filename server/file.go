@@ -109,7 +109,7 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 
 	}
 	if fileContext.Check {
-		result, err := s.digestCheck(context);
+		result, err := s.digestCheck(context)
 		if err != nil {
 			return err
 		}
@@ -117,7 +117,7 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 
 	}
 	if fileContext.UploadId != "" && fileContext.PartNumber != 0 {
-		entity, err := s.uploadPart(context);
+		entity, err := s.uploadPart(context)
 		if err != nil {
 			return err
 		}
@@ -129,7 +129,7 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 		if err = ctx.Bind(&parts); err != nil {
 			return errors.WithStack(err)
 		}
-		entity, err := s.uploadComplete(context, parts);
+		entity, err := s.uploadComplete(context, parts)
 		if err != nil {
 			return err
 		}
@@ -264,6 +264,14 @@ func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity,
 
 	if fileContext.ObjectName == "" {
 		fileContext.IsRandomName = true
+		if s.Config.ExtensionMapping != nil && len(s.Config.ExtensionMapping) > 0 {
+			for _, mapping := range s.Config.ExtensionMapping {
+				if mapping.Src == file.Extension {
+					file.Extension = mapping.Dest
+					break
+				}
+			}
+		}
 		fileContext.ObjectName = utils.RandomName(file.Extension)
 		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.Name, fileContext.ObjectName)
 	}
