@@ -52,7 +52,6 @@
 .doc_      application/msword
 .dot      application/msword
 
-.docx     application/vnd.openxmlformats-officedocument.wordprocessingml.document
 .dotx     application/vnd.openxmlformats-officedocument.wordprocessingml.template
 .docm     application/vnd.ms-word.document.macroEnabled.12
 .dotm     application/vnd.ms-word.template.macroEnabled.12
@@ -85,3 +84,14 @@
 .mdb      application/vnd.ms-access
 .go text/plain
 .bash application/x-sh
+
+.rvt application/x-rvt
+.rfa application/x-rfa
+.rte x-lml/x-gps
+.dgn application/x-dgn
+.obj application/x-obj
+.ifc application/x-ifc
+.cgr application/x-cgr
+.pln application/x-pln
+.stp application/step
+.vwx application/x-vwx
