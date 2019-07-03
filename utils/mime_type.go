@@ -12,7 +12,12 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-var MimeTypes []string
+type mimePair struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+var MimeTypes []*mimePair
 
 func init() {
 	loadMime()
@@ -40,7 +45,7 @@ func loadMime() {
 				continue
 			}
 			extension, mimeType := strings.TrimSpace(strings.ToLower(segments[0])), strings.TrimSpace(strings.ToLower(segments[1]))
-			MimeTypes = append(MimeTypes, mimeType)
+			MimeTypes = append(MimeTypes, &mimePair{Name: extension, Value: mimeType})
 			_ = mime.AddExtensionType(extension, mimeType)
 		}
 	}
