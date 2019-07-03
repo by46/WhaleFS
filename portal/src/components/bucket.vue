@@ -43,9 +43,9 @@
                     </el-row>
                     <el-row >
                         <el-col :md="8">
-                            <el-form-item label="别名" prop="basis.alia">
+                            <el-form-item label="别名" prop="basis.alias">
                                 <el-input placeholder="别名"
-                                          v-model="entity.basis.alia">
+                                          v-model="entity.basis.alias">
                                 </el-input>
                             </el-form-item>
                         </el-col>
