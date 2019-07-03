@@ -10,8 +10,10 @@
 .wmv video/x-ms-wmv
 .mp4 video/mpeg4
 .doc application/msword
+.doc_ application/msword
 .docx application/vnd.openxmlformats-officedocument.wordprocessingml.document
 .xls application/vnd.ms-excel
+.xls_ application/vnd.ms-excel
 .xlsx application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 .txt text/plain
 .pdf application/pdf
