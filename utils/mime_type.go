@@ -137,3 +137,16 @@ func IsVideo(mimeType string) bool {
 	mimeType = strings.ToLower(mimeType)
 	return strings.HasPrefix(mimeType, "video/")
 }
+
+func Mime2Extension(mimeTypes []string) ([]string) {
+	extensions := make([]string, 0)
+	for _, mimeType := range mimeTypes {
+		ext, err := mime.ExtensionsByType(mimeType)
+		if err != nil {
+			continue
+		}
+		extensions = append(extensions, ext...)
+	}
+
+	return extensions
+}

@@ -264,14 +264,6 @@ func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity,
 
 	if fileContext.ObjectName == "" {
 		fileContext.IsRandomName = true
-		if s.Config.ExtensionMapping != nil && len(s.Config.ExtensionMapping) > 0 {
-			for _, mapping := range s.Config.ExtensionMapping {
-				if mapping.Src == file.Extension {
-					file.Extension = mapping.Dest
-					break
-				}
-			}
-		}
 		fileContext.ObjectName = utils.RandomName(file.Extension)
 		fileContext.Key = fmt.Sprintf("/%s/%s", bucket.Name, fileContext.ObjectName)
 	}
@@ -509,7 +501,8 @@ func (s *Server) validateFile(ctx echo.Context) error {
 		}
 
 		if utils.MimeMatch(file.MimeType, limit.MimeTypes) == false {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持%v格式的文件", strings.Join(limit.MimeTypes, ",")))
+			mimeTypes := utils.Mime2Extension(limit.MimeTypes)
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持%v后缀的文件", strings.Join(mimeTypes, ",")))
 		}
 	}
 

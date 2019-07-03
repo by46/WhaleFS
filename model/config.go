@@ -61,5 +61,4 @@ type Config struct {
 	TempFileDir           string
 	Sync                  *SyncConfig
 	Portal                *PortalConfig
-	ExtensionMapping      []*ExtensionMappingConfig
 }

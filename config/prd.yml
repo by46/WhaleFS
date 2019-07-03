@@ -33,6 +33,3 @@ Sync:
   LegacyFSRoot: F:\image
 Portal:
   dfsHost: http://192.168.220.65:8089
-ExtensionMapping:
-  - { src: .xls, dest: .xls_ }
-  - { src: .doc, dest: .doc_ }

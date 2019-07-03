@@ -33,6 +33,3 @@ Sync:
   LegacyFSRoot: D:\application\ImageServer
 Portal:
   dfsHost: http://oss.yzw.cn.qa
-ExtensionMapping:
-  - { src: .xls, dest: .xls_ }
-  - { src: .doc, dest: .doc_ }

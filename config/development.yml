@@ -33,6 +33,3 @@ Sync:
   LegacyFSRoot: /Users/benjamin.c.yan/dfs/legacyfs
 Portal:
   dfsHost: http://localhost:8089
-ExtensionMapping:
-  - { src: .xls, dest: .xls_ }
-  - { src: .doc, dest: .doc_ }
