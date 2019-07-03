@@ -55,8 +55,8 @@ var (
 
 // 兼容legacy下载接口, 支持OSS模式
 func (s *Server) legacySupportOSS(ctx echo.Context, key string) string {
-	if strings.ToLower(ctx.QueryParam("oss")) == "yes" {
-		size := ctx.QueryParam("format")
+	if strings.ToLower(utils.QueryParam(ctx.Request().URL.Query(), "oss")) == "yes" {
+		size := utils.QueryParam(ctx.Request().URL.Query(), "format")
 		if size == "" {
 			size = s.Config.Basis.SizeDefault
 		}
@@ -130,9 +130,9 @@ func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
 
 // DownloadHandler.ashx
 func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
-	key := ctx.QueryParam("FilePath")
+	key := utils.QueryParam(ctx.Request().URL.Query(), "FilePath")
 
-	attachmentName := ctx.QueryParam("FileName")
+	attachmentName := utils.QueryParam(ctx.Request().URL.Query(), "FileName")
 	if attachmentName == "" {
 		attachmentName = filepath.Base(key)
 	}
@@ -170,9 +170,9 @@ func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 }
 
 func (s *Server) legacyDownloadFileByRemote(ctx echo.Context) error {
-	source := ctx.QueryParam("FilePath")
+	source := utils.QueryParam(ctx.Request().URL.Query(), "FilePath")
 	fileContext := &model.FileContext{
-		AttachmentName: ctx.QueryParam("FileName"),
+		AttachmentName: utils.QueryParam(ctx.Request().URL.Query(), "FileName"),
 	}
 	if err := fileContext.ParseFileContent(source, nil); err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...))
@@ -350,13 +350,13 @@ func (s *Server) legacyMergePDF(ctx echo.Context) error {
 
 // SliceUploadHandler.ashx
 func (s *Server) legacySliceUpload(ctx echo.Context) error {
-	appName := strings.ToLower(ctx.QueryParam(AppName))
-	identity := strings.TrimSpace(ctx.QueryParam("FileIdentity"))
+	appName := strings.ToLower(utils.QueryParam(ctx.Request().URL.Query(), AppName))
+	identity := strings.TrimSpace(utils.QueryParam(ctx.Request().URL.Query(), "FileIdentity"))
 	if identity == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdMissFileIdentity, getLangsFromCtx(ctx)...))
 	}
 	if appName == "" {
-		if ActionCancel == strings.TrimSpace(ctx.QueryParam("Action")) {
+		if ActionCancel == strings.TrimSpace(utils.QueryParam(ctx.Request().URL.Query(), "Action")) {
 			return s.legacySliceUploadAbort(ctx, identity)
 		}
 		return s.legacySliceUploadChunk(ctx, identity)
@@ -365,7 +365,7 @@ func (s *Server) legacySliceUpload(ctx echo.Context) error {
 }
 
 func (s *Server) legacySliceUploadChunk(ctx echo.Context, identity string) error {
-	positionValue := strings.TrimSpace(ctx.QueryParam("startPosition"))
+	positionValue := strings.TrimSpace(utils.QueryParam(ctx.Request().URL.Query(), "startPosition"))
 
 	if ReInteger.MatchString(positionValue) == false {
 		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdStartPositionNotSet, getLangsFromCtx(ctx)...))
@@ -417,8 +417,8 @@ func (s *Server) legacySliceUploadComplete(ctx echo.Context, appName, identity s
 		return errors.WithMessage(err, "获取文件信息失败")
 	}
 
-	fileName := ctx.QueryParam("FileName")
-	relativePath := ctx.QueryParam("RelativePath")
+	fileName := utils.QueryParam(ctx.Request().URL.Query(), "FileName")
+	relativePath := utils.QueryParam(ctx.Request().URL.Query(), "RelativePath")
 	relativePath = strings.ReplaceAll(relativePath, "\\", constant.Separator)
 	fileKey := path.Join(constant.Separator, appName, relativePath, fileName)
 
