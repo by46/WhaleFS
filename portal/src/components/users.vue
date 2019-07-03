@@ -4,8 +4,8 @@
                 :data="userData"
                 style="width: 100%">
             <el-table-column
-                    label="Name"
-                    width="180">
+                    label="名称"
+                    width="200">
                 <template slot-scope="{row}">
                     {{row.basis.username}}
                 </template>
@@ -13,7 +13,9 @@
             <el-table-column
                     label="Buckets">
                 <template slot-scope="{row}">
-                    {{row.basis.buckets}}
+                    <el-tag type="success" v-for="bucket in row.basis.buckets" :key="bucket" style="margin: 3px 3px">
+                        {{bucket}}
+                    </el-tag>
                 </template>
             </el-table-column>
             <el-table-column
@@ -23,13 +25,12 @@
                     <el-button type="primary" @click="onAdd">新增</el-button>
                 </template>
                 <template slot-scope="{row}">
-                    <el-button style="padding: 0px"
-                               type="text"
+                    <el-button type="text"
                                @click="onEdit(row)">
                         编辑
                     </el-button>
-                    <el-button style="padding: 0px"
-                               type="text"
+                    <el-button type="text"
+                               style="color: #F56C6C;"
                                @click="onDelete(row)">
                         删除
                     </el-button>

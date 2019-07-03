@@ -2,21 +2,20 @@
     <div>
         <el-table
                 :data="bucketData"
-                style="width: 100%">
+                stripe="">
             <el-table-column
                     prop="name"
-                    label="Name"
-                    width="180">
+                    label="名称"
+                    sortable
+                    width="200">
                 <template slot-scope="{row}">
-                    {{row.basis.name}}
+                    <el-link :href="bucketHref(row)" type="primary">{{row.basis.name}}</el-link>
                 </template>
             </el-table-column>
             <el-table-column
-                    prop="doc"
-                    label="Memo">
-                <template slot-scope="{row}">
-                    {{row.basis.memo}}
-                </template>
+                    prop="basis.memo"
+                    sortable
+                    label="说明">
             </el-table-column>
             <el-table-column
                     label="操作"
@@ -25,12 +24,11 @@
                     <el-button type="primary" @click="onAdd">新增</el-button>
                 </template>
                 <template slot-scope="{row}">
-                    <el-button style="padding: 0px"
-                               type="text"
+                    <el-button type="text"
                                @click="onEdit(row)">
                         编辑
                     </el-button>
-                    <el-button style="padding: 0px"
+                    <el-button style="color: #F56C6C;"
                                type="text"
                                @click="onDelete(row)">
                         删除
@@ -53,6 +51,14 @@
         editRow: {},
         isEdit: false,
         newBucketId: null
+      }
+    },
+    computed: {
+      bucketHref() {
+        return row => {
+          let route = this.$router.resolve({name: 'bucket', query: {id: row.id, version: row.version}})
+          return route.href
+        }
       }
     },
     methods: {
