@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/textproto"
 	"path/filepath"
+	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -117,6 +118,7 @@ func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader,
 	file.Headers = headers
 	file.Content = buf
 	file.Size = int64(len(buf))
+	filename = strings.Trim(filename, "\"")
 	extension := filepath.Ext(filename)
 	if filename != "" && extension != "" && extension != ".ashx" {
 		file.FileName = filename
