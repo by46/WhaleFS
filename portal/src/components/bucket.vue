@@ -337,6 +337,7 @@
                                         action="string"
                                         :http-request="onUploadFile"
                                         :file-list="fileList"
+                                        :on-preview="onPreview"
                                         list-type="picture">
                                     <el-button size="small" type="primary">点击上传</el-button>
                                 </el-upload>
@@ -635,6 +636,7 @@
             }
             obj = {name: item.file.name, url: `${url}/${filename}`}
           }
+          obj.name = `${obj.name} ${obj.url}`
           self.fileList.push(obj)
         })
         .catch(err => {
@@ -644,6 +646,9 @@
           }
           self.$message.error(msg)
         })
+      },
+      onPreview(file) {
+        window.open(file.url, '_blank')
       },
       processMimes(items) {
         return _(items).groupBy('value')
