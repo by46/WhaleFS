@@ -161,6 +161,7 @@ func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
 	fileContext.Key = ctx.Request().URL.Path
 	fileContext.Key = s.legacySupportOSS(ctx, fileContext.Key)
 	fileContext.AttachmentName = ctx.QueryParam("attachmentName")
+	fileContext.IsDownload = true
 	fileContext, err = s.parseBucketAndFixKey(fileContext)
 	if err != nil {
 		return err
@@ -219,8 +220,13 @@ func (s *Server) parseBucketAndFixKey(fileContext *model.FileContext) (*model.Fi
 	if bucketName == "" {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
 	}
-
-	bucket, err := s.getBucketByName(bucketName)
+	var bucket *model.Bucket
+	var err error
+	if fileContext.IsDownload {
+		bucket, err = s.GetBucket(bucketName)
+	} else {
+		bucket, err = s.getBucketByName(bucketName)
+	}
 	if err != nil {
 		return nil, err
 	}

@@ -28,6 +28,7 @@ type FileContext struct {
 	Check            bool
 	PartNumber       int32
 	IsRemoveOriginal bool
+	IsDownload       bool
 	Bucket           *Bucket
 	Meta             *FileMeta
 	File             *FileContent
