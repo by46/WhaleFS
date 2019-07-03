@@ -15,7 +15,7 @@ Basis:
   CollectionTmpTTL: 7d
   CollectionShare: mass
   CollectionShareReplication: 100
-  SizeDefault: p200
+  SizeDefault: Original
 Storage:
   Cluster:
     - 192.168.220.65:9333
