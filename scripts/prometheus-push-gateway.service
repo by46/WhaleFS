@@ -1,0 +1,10 @@
+[Unit]
+Description=Push Gateway
+
+[Service]
+User=root
+ExecStart=/opt/framework/push_gateway/pushgateway
+
+[Install]
+WantedBy=default.target
+

@@ -145,6 +145,8 @@ func (s *Server) install() {
 
 	s.app.Use(middleware2.InjectServer())
 
+	s.app.Use(middleware2.NewMetric())
+
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST, echo.PUT, echo.DELETE},

@@ -48,7 +48,7 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 
 	err = packageEntity.Validate()
 	if err != nil {
-		return errors.WithStack(err)
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("bad reqeust: %v", err))
 	}
 
 	var totalSize int64
@@ -57,7 +57,7 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 		entity, err := s.GetFileEntity(key, len(key) != len(item.RawKey))
 		if err != nil {
 			if err == common.ErrKeyNotFound {
-				return echo.NewHTTPError(http.StatusNotFound)
+				return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("%s not found", item.RawKey))
 			}
 			return errors.WithStack(err)
 		}
