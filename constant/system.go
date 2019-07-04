@@ -2,7 +2,7 @@ package constant
 
 const (
 	BucketPdt            = "pdt"
-	VERSION              = "1.0.2"
+	VERSION              = "1.0.3"
 	DefaultImageDigest   = "6f922092b63db2b3bd998666f589da6de6f54b63"
 	QueryNameCollection  = "collection"
 	QueryNameReplication = "replication"
