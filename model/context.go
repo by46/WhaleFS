@@ -120,6 +120,7 @@ func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader,
 	file.Size = int64(len(buf))
 	filename = strings.Trim(filename, "\"")
 	extension := filepath.Ext(filename)
+	extension = strings.ToLower(extension)
 	if filename != "" && extension != "" && extension != ".ashx" {
 		file.FileName = filename
 		file.Extension = extension
