@@ -10,10 +10,13 @@ const (
 	MimeSize             = 512
 	KeyBucket            = "system.bucket"
 	KeyTimeStamp         = "system.timestamp"
+	KeyUser              = "system.user"
+	KeyAccess            = "system.access"
 	GzipScheme           = "gzip"
 	GzipLimit            = 5 << 10          // 5K
 	TTLChunk             = 60 * 60 * 24 * 7 //7 days
 	FIDSep               = "|"
 	ChunkSize            = 1024 * 1024 * 16 // 16M
-	LengthEtag              = 14
+	LengthEtag           = 14
+	UserAdmin            = "admin"
 )

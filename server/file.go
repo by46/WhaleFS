@@ -53,6 +53,11 @@ func (s *Server) uploadByForm(ctx echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
+	// TODO(benjamin): 权限检查
+	if err = s.authenticate(ctx, fileContext.Bucket, params.Token); err != nil {
+		return err
+	}
+
 	context := &middleware.ExtendContext{ctx, fileContext}
 	return s.uploadFile(context)
 }

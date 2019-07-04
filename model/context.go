@@ -145,4 +145,5 @@ type FormParams struct {
 	Key      string `json:"key" form:"key"`
 	Source   string `json:"source" form:"source"`
 	Override bool   `json:"override" form:"override"`
+	Token    string `json:"token" form:"token"`
 }

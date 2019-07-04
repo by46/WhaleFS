@@ -13,6 +13,7 @@
                 <el-menu-item index="home">Home</el-menu-item>
                 <el-menu-item index="buckets">Buckets</el-menu-item>
                 <el-menu-item index="users">Users</el-menu-item>
+                <el-menu-item index="settings">Settings</el-menu-item>
                 <div class="right-header">
                     <div v-if="username != ''">
                         <span class="user">当前用户: {{ username }}</span>

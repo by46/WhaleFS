@@ -60,6 +60,11 @@
                     </el-row>
                     <el-row>
                         <el-col :md="8">
+                            <el-form-item label="是否验证权限" prop="protected">
+                                <el-checkbox v-model="entity.protected">是</el-checkbox>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :md="8">
                             <el-form-item label="缓存过期(单位:秒)" prop="basis.expires">
                                 <el-input-number v-model="entity.basis.expires"
                                                  style="width:100%;"
