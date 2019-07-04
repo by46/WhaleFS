@@ -7,6 +7,7 @@ const (
 	HeaderVia           = "Via"
 	HeaderCacheControl  = "Cache-Control"
 	HeaderXWhaleFSFlags = "X-WhaleFS-Flags"
+	HeaderXWhaleFSToken = "X-WhaleFS-Token"
 	FlagDefaultImage    = "default-image"
 	ErrorResponseSize   = 512
 	RFC1123             = "Mon, 02 Jan 2006 15:04:05 GMT"

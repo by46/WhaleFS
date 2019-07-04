@@ -359,6 +359,8 @@
 
 <script>
   import _ from 'lodash'
+  import axios from 'axios'
+  import moment from 'moment'
   import uuidv4 from 'uuid/v4'
   import LteErrorTip from './lte-error-tip'
   import bus from '@/utils/bus'
@@ -546,16 +548,16 @@
         }
       },
       beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg';
-        const isLt2M = file.size / 1024 / 1024 < 2;
+        const isPNG = file.type === 'image/png';
+        const isLt1M = file.size / 1024 / 1024 < 1;
 
-        if (!isJPG) {
+        if (!isPNG) {
           this.$message.error('Avatar picture must be JPG format!');
         }
-        if (!isLt2M) {
-          this.$message.error('Avatar picture size can not exceed 2MB!');
+        if (!isLt1M) {
+          this.$message.error('Avatar picture size can not exceed 1MB!');
         }
-        return isJPG && isLt2M;
+        return isPNG && isLt1M;
       },
       load(id) {
         let name = id || this.$route.query['id']
@@ -611,38 +613,51 @@
         }
       },
       onUploadFile(item) {
+
         let self = this
-        let extension = item.file.name.split('.').pop();
-        let formData = new FormData()
-        let filename = uuidv4()
-        let url = bus.get('dfsHost')
-        let bucket = self.entity.name
-        let key = _.trim(self.upload.key)
-        if (key) {
-          key = _.trim(key, '/')
-          key = `/${self.entity.name}/${key}`
-        } else {
-          key = `/${bucket}/${filename}.${extension}`
-        }
-        formData.append('file', item.file)
-        formData.append('key', key)
-        formData.append('override', self.upload.override)
-        this.$http.post(url, formData)
-        .then(({data}) => {
-          let filename = data.url
-          let obj = undefined
-          let size = self.upload.size || 'Original'
-          if (_.indexOf(filename, '/') < 0) {
-            obj = {name: item.file.name, url: `${url}/pdt/${size}/${filename}`}
+        self.generateToke()
+        .then((token) => {
+          let instance = axios.create()
+          let extension = item.file.name.split('.').pop();
+          let formData = new FormData()
+          let filename = uuidv4()
+          let url = bus.get('dfsHost')
+          let bucket = self.entity.name
+          let key = _.trim(self.upload.key)
+          if (key) {
+            key = _.trim(key, '/')
+            key = `/${self.entity.name}/${key}`
           } else {
-            let segments = _.split(filename, '/', 2)
-            if (self.upload.size) {
-              filename = _.join([segments[0], self.upload.size, segments[1]], '/')
-            }
-            obj = {name: item.file.name, url: `${url}/${filename}`}
+            key = `/${bucket}/${filename}.${extension}`
           }
-          obj.name = `${obj.name} ${obj.url}`
-          self.fileList.push(obj)
+          formData.append('file', item.file)
+          formData.append('key', key)
+          formData.append('token', token)
+          formData.append('override', self.upload.override)
+          instance.post(url, formData)
+          .then(({data}) => {
+            let filename = data.url
+            let obj = undefined
+            let size = self.upload.size || 'Original'
+            if (_.indexOf(filename, '/') < 0) {
+              obj = {name: item.file.name, url: `${url}/pdt/${size}/${filename}`}
+            } else {
+              let segments = _.split(filename, '/', 2)
+              if (self.upload.size) {
+                filename = _.join([segments[0], self.upload.size, segments[1]], '/')
+              }
+              obj = {name: item.file.name, url: `${url}/${filename}`}
+            }
+            obj.name = `${obj.name} ${obj.url}`
+            self.fileList.push(obj)
+          })
+          .catch(err => {
+            let msg = '上传文件失败'
+            if (err.response) {
+              msg = err.response.data.message
+            }
+            self.$message.error(msg)
+          })
         })
         .catch(err => {
           let msg = '上传文件失败'
@@ -661,6 +676,19 @@
         .map(t => {
           return {value: t[0], name: _(t[1]).map(x => x.name).join(', ')}
         }).value()
+      },
+      generateToke() {
+        let self = this
+        if (!self.entity.protected) {
+          return Promise.resolve('')
+        }
+        return self.$http.post('/api/access-key/token', {
+          bucket: self.entity.name,
+          deadline: moment().add(10, 'm').unix()
+        })
+        .then(({data}) => {
+          return Promise.resolve(data.token)
+        })
       }
     },
     mounted() {

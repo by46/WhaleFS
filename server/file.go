@@ -53,7 +53,6 @@ func (s *Server) uploadByForm(ctx echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	// TODO(benjamin): 权限检查
 	if err = s.authenticate(ctx, fileContext.Bucket, params.Token); err != nil {
 		return err
 	}
@@ -73,6 +72,9 @@ func (s *Server) uploadByBody(ctx echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
+	if err = s.authenticate(ctx, fileContext.Bucket, ctx.Request().Header.Get(constant.HeaderXWhaleFSToken)); err != nil {
+		return err
+	}
 	context := &middleware.ExtendContext{ctx, fileContext}
 	return s.uploadFile(context)
 }
@@ -85,6 +87,7 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 	values := ctx.Request().URL.Query()
 	partNumber := values.Get("partNumber")
 	uploadId := values.Get("uploadId")
+	token := values.Get("token")
 	if utils.QueryExists(values, "uploads") {
 		// 初始化multi-chunk解析参数
 		fileContext.Uploads = true
@@ -102,6 +105,9 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 	}
 	fileContext, err = s.parseBucketAndFixKey(fileContext)
 	if err != nil {
+		return err
+	}
+	if err = s.authenticate(ctx, fileContext.Bucket, token); err != nil {
 		return err
 	}
 	context := &middleware.ExtendContext{ctx, fileContext}

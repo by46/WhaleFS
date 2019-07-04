@@ -149,13 +149,15 @@ func (s *Server) install() {
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST, echo.PUT, echo.DELETE},
 		ExposeHeaders: []string{"X-Request-Id"},
-		AllowHeaders: []string{"X-Request-Id",
+		AllowHeaders: []string{
+			"X-Request-Id",
 			"X-Requested-With",
 			"X_Requested_With",
 			"X-Requested-LangCode",
 			"projectsysno",
 			"content-type",
 			"Authorization",
+			constant.HeaderXWhaleFSToken,
 			constant.HeaderVia},
 		MaxAge: 60 * 30,
 	}))
@@ -163,9 +165,8 @@ func (s *Server) install() {
 	s.app.Use(middleware2.InjectUser(middleware2.AuthUserConfig{
 		Server: s,
 		Skipper: func(context echo.Context) bool {
-			return !(strings.HasPrefix(context.Request().URL.Path, "/api/users") ||
-				strings.HasPrefix(context.Request().URL.Path, "/api/buckets") ||
-				context.Request().URL.Path == "/api/logout")
+			return strings.HasPrefix(context.Request().URL.Path, "/api/") == false ||
+				context.Request().URL.Path == "/api/login"
 		},
 	}))
 
@@ -202,7 +203,11 @@ func (s *Server) install() {
 	s.app.GET("/api/mimetypes", s.listMimeTypes)
 	s.app.GET("/api/configuration", s.configuration)
 
-	s.app.POST("/api/access-key", s.createAccessKey)
+	s.app.POST("/api/access-key/", s.createAccessKey)
+	s.app.GET("/api/access-key/", s.listAccessKey)
+	s.app.POST("/api/access-key/:key", s.updateAccessKey)
+	s.app.DELETE("/api/access-key/:key", s.deleteAccessKey)
+	s.app.POST("/api/access-key/token", s.generateToken)
 
 	s.app.POST("/api/login", s.login)
 	s.app.POST("/api/logout", s.logout)
@@ -216,8 +221,8 @@ func (s *Server) install() {
 	s.app.Match(methods, "/BatchMergePdfHandler.ashx", s.legacyMergePDF)
 	s.app.Match(methods, "/SliceUploadHandler.ashx", s.legacySliceUpload)
 
-	s.app.POST("/", s.uploadByForm)
 	s.app.GET("/*", s.downloadByUrl)
+	s.app.POST("/", s.uploadByForm)
 	s.app.PUT("/*", s.uploadByBody)
 	s.app.POST("/*", s.uploadByChunks)
 	s.app.DELETE("/*", s.deleteChunks)

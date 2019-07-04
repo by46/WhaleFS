@@ -10,6 +10,7 @@ var (
 	ErrVolumeNotFound = errors.New("Volume not found")
 	ErrFileNotFound   = errors.New("File not found")
 	ErrKeyNotFound    = errors.New("Key not found")
+	ErrKeyExists      = errors.New("Key exists")
 )
 
 type BusinessError struct {
