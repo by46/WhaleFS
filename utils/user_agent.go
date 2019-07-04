@@ -5,8 +5,9 @@ import (
 )
 
 var (
-	ReBrowserIE     = regexp.MustCompile("MSIE|Trident|InternetExplorer|Edge")
-	ReBrowserSafari = regexp.MustCompile("Safari")
+	ReBrowserIE      = regexp.MustCompile("MSIE|Trident|InternetExplorer|Edge")
+	ReBrowserSafari  = regexp.MustCompile("Safari")
+	ReBrowserFirefox = regexp.MustCompile("Firefox")
 )
 
 func IsBrowserIE(userAgent string) bool {
@@ -15,4 +16,8 @@ func IsBrowserIE(userAgent string) bool {
 
 func IsBrowserSafari(userAgent string) bool {
 	return ReBrowserSafari.MatchString(userAgent)
+}
+
+func IsBrowserFireFox(userAgent string) bool {
+	return ReBrowserFirefox.MatchString(userAgent)
 }

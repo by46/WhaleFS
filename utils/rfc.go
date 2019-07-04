@@ -10,7 +10,6 @@ import (
 	"github.com/by46/whalefs/constant"
 )
 
-
 var (
 	bufferPool = &sync.Pool{
 		New: func() interface{} {
@@ -39,6 +38,8 @@ func Name2Disposition(userAgent, name string) string {
 	if IsBrowserSafari(userAgent) {
 		name = url.PathEscape(name)
 		return fmt.Sprintf("attachment;filename=\"%s\";filename*=utf-8''%s", name, name)
+	} else if IsBrowserFireFox(userAgent) {
+		return fmt.Sprintf("attachment;filename*=\"utf-8''%s\"", name)
 	} else if IsBrowserIE(userAgent) {
 		name = strings.ReplaceAll(name, "+", "%20")
 		return fmt.Sprintf("attachment;filename=\"%s\"", name)
