@@ -202,6 +202,8 @@ func (s *Server) install() {
 	s.app.GET("/api/mimetypes", s.listMimeTypes)
 	s.app.GET("/api/configuration", s.configuration)
 
+	s.app.POST("/api/access-key", s.createAccessKey)
+
 	s.app.POST("/api/login", s.login)
 	s.app.POST("/api/logout", s.logout)
 

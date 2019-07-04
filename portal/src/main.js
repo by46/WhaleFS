@@ -6,6 +6,7 @@ import VueAxios from 'vue-axios'
 
 import 'element-ui/lib/theme-chalk/index.css'
 import '@/less/all.less'
+import '@/components/filters'
 
 import App from './App.vue'
 import router from '@/router'

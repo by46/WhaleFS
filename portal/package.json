@@ -13,6 +13,8 @@
     "element-ui": "^2.8.2",
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.11",
+    "moment": "^2.24.0",
+    "numeral": "^2.0.6",
     "uuid": "^3.3.2",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.4",
