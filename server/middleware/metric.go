@@ -34,7 +34,7 @@ func initCollector(namespace string) {
 			Name:      "http_request_total",
 			Help:      "HTTP requests processed.",
 		},
-		[]string{"code", "method", "host", "url"},
+		[]string{"status"},
 	)
 	echoReqDuration = prometheus.NewSummaryVec(
 		prometheus.SummaryOpts{
@@ -42,7 +42,7 @@ func initCollector(namespace string) {
 			Name:      "http_request_duration_seconds",
 			Help:      "HTTP request latencies in seconds.",
 		},
-		[]string{"method", "host", "url"},
+		[]string{},
 	)
 	prometheus.MustRegister(echoReqQps, echoReqDuration)
 }
@@ -62,18 +62,16 @@ func NewMetricWithConfig(config PrometheusConfig) echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			req := c.Request()
 			res := c.Response()
 			start := time.Now()
 
 			if err := next(c); err != nil {
 				c.Error(err)
 			}
-			uri := req.URL.Path
 			status := strconv.Itoa(res.Status)
 			elapsed := time.Since(start).Seconds()
-			echoReqQps.WithLabelValues(status, req.Method, req.Host, uri).Inc()
-			echoReqDuration.WithLabelValues(req.Method, req.Host, uri).Observe(elapsed)
+			echoReqQps.WithLabelValues(status).Inc()
+			echoReqDuration.WithLabelValues().Observe(elapsed)
 			return nil
 		}
 	}
