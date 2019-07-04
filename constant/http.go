@@ -14,5 +14,6 @@ const (
 )
 
 const (
-	ParameterFile = "file"
+	ParameterFile           = "file"
+	ParameterAttachmentName = "attachmentName"
 )

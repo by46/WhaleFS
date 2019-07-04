@@ -1,3 +1,5 @@
+# text
+.txt text/plain
 .jpeg image/jpeg
 .jpg image/jpeg
 .gif image/gif
@@ -15,7 +17,6 @@
 .xls application/vnd.ms-excel
 .xls_ application/vnd.ms-excel
 .xlsx application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-.txt text/plain
 .pdf application/pdf
 .rar application/x-rar-compressed
 .zip application/x-zip-compressed

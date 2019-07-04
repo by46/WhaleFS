@@ -12,7 +12,7 @@
                     active-text-color="#ffd04b">
                 <el-menu-item index="home">Home</el-menu-item>
                 <el-menu-item index="buckets">Buckets</el-menu-item>
-                <el-menu-item index="users">Users</el-menu-item>
+                <el-menu-item index="users" v-if="username === 'admin'">Users</el-menu-item>
                 <el-menu-item index="settings">Settings</el-menu-item>
                 <div class="right-header">
                     <div v-if="username != ''">

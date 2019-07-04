@@ -129,6 +129,7 @@ func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader,
 		file.MimeType = http.DetectContentType(buf)
 		file.Extension = utils.ExtensionByMimeType(file.MimeType)
 	}
+	file.MimeType = utils.NormalMimeType(file.MimeType)
 	file.Digest, err = utils.ContentSha1(bytes.NewReader(buf))
 	if err != nil {
 		return nil, errors.WithMessage(err, "文件内容摘要错误")

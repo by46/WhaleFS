@@ -171,7 +171,7 @@ func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
 	fileContext := new(model.FileContext)
 	fileContext.Key = ctx.Request().URL.Path
 	fileContext.Key = s.legacySupportOSS(ctx, fileContext.Key)
-	fileContext.AttachmentName = ctx.QueryParam("attachmentName")
+	fileContext.AttachmentName = ctx.QueryParam(constant.ParameterAttachmentName)
 	fileContext.IsDownload = true
 	fileContext, err = s.parseBucketAndFixKey(fileContext)
 	if err != nil {

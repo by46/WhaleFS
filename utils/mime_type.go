@@ -36,7 +36,7 @@ func loadMime() {
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
 			line := strings.TrimSpace(scanner.Text())
-			if line == "" {
+			if line == "" || strings.HasPrefix(line, "#") {
 				continue
 			}
 			segments := strings.SplitN(line, " ", 2)
