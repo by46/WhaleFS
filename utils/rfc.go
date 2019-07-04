@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 
@@ -35,15 +34,5 @@ func TimestampToRFC822(second int64) string {
 }
 
 func Name2Disposition(userAgent, name string) string {
-	if IsBrowserSafari(userAgent) {
-		name = url.PathEscape(name)
-		return fmt.Sprintf("attachment;filename=\"%s\";filename*=utf-8''%s", name, name)
-	} else if IsBrowserFireFox(userAgent) {
-		return fmt.Sprintf("attachment;filename*=\"utf-8''%s\"", url.PathEscape(name))
-	} else if IsBrowserIE(userAgent) {
-		name = strings.ReplaceAll(name, "+", "%20")
-		return fmt.Sprintf("attachment;filename=\"%s\"", name)
-	} else {
-		return fmt.Sprintf("attachment;filename=\"%s\"", name)
-	}
+	return fmt.Sprintf("attachment;filename=\"%s\";filename*=utf-8''%s", url.PathEscape(name), url.PathEscape(name))
 }
