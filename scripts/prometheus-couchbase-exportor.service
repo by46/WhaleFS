@@ -3,7 +3,7 @@ Description=Couchbase Exporter
 
 [Service]
 User=root
-ExecStart=/opt/framework/couchbase_exporter/couchbase-exporter --couchbase.username admin --couchbase.password 123456 --web.listen-address=:9420 --couchbase.url="http://localhost:8091"
+ExecStart=/opt/framework/couchbase_exporter/couchbase-exporter --couchbase.username admin --couchbase.password PfD4fTC$06dYHiPm --web.listen-address=:28091 --couchbase.url="http://localhost:8091"
 
 [Install]
 WantedBy=default.target

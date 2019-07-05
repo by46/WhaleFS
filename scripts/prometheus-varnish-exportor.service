@@ -3,7 +3,7 @@ Description=Varnish Exporter
 
 [Service]
 User=root
-ExecStart=/opt/framework/varnish_exporter/prometheus_varnish_exporter
+ExecStart=/opt/framework/varnish_exporter/prometheus_varnish_exporter -web.listen-address :26081
 
 [Install]
 WantedBy=default.target
