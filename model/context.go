@@ -36,18 +36,6 @@ type FileContext struct {
 	Size             *ImageSize
 }
 
-// parse image size from path, used to resize picture
-func (f *FileContext) ParseImageSize(bucket *Bucket) {
-	name, key := utils.PathRemoveSegment(f.Key, 1)
-	if name == "" {
-		return
-	}
-	size := bucket.GetSize(name)
-	if size != nil {
-		f.Key, f.Size = key, size
-	}
-}
-
 func (f *FileContext) ParseFileContentFromRequest(ctx echo.Context) (err error) {
 	body := ctx.Request().Body
 	if body != nil {
