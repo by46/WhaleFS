@@ -48,6 +48,7 @@ func PathRemoveSegment(path string, i int) (removed string, result string) {
 
 }
 
+// this function will remove original path
 func PathNormalize(path string) string {
 	path = strings.ToLower(path)
 	segments := strings.Split(path, constant.Separator)

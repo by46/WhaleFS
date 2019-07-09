@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -16,10 +17,14 @@ var (
 		Short: "sync file from whale-fs",
 		Run:   runSync,
 	}
+
+	syncWorkerCount uint8
 )
 
 func init() {
 	rootCmd.AddCommand(syncCmd)
+
+	syncCmd.Flags().Uint8VarP(&syncWorkerCount, "count", "", 10, "count")
 }
 
 func runSync(cmd *cobra.Command, args []string) {
@@ -27,6 +32,11 @@ func runSync(cmd *cobra.Command, args []string) {
 	if err != nil {
 		panic(fmt.Errorf("Load config fatal: %s\n", errors.WithStack(err)))
 	}
-	consumer := rabbitmq.NewConsumer(config)
-	consumer.Run()
+	wg := &sync.WaitGroup{}
+	for i := 0; i < int(syncWorkerCount); i++ {
+		wg.Add(1)
+		consumer := rabbitmq.NewConsumer(config)
+		go consumer.Run()
+	}
+	wg.Wait()
 }
