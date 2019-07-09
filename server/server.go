@@ -216,6 +216,7 @@ func (s *Server) install() {
 
 	s.app.POST("/UploadHandler.ashx", s.legacyUploadFile)
 	s.app.POST("/BatchDownloadHandler.ashx", s.legacyBatchDownload)
+	s.app.POST("/BatchDownLoadHandler.ashx", s.legacyBatchDownload)
 	s.app.Match(methods, "/DownloadSaveServerHandler.ashx", s.legacyUploadByRemote)
 	s.app.GET("/DownloadHandler.ashx", s.legacyDownloadFile)
 	s.app.GET("/DownLoadHandler.ashx", s.legacyDownloadFile)
