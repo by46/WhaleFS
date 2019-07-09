@@ -306,7 +306,8 @@ func (s *Server) legacyMergePDF(ctx echo.Context) error {
 	items := make([]pdfcpu.ReadSeekerCloser, 0)
 	files := utils.Split(pdfFiles, ",")
 	for _, file := range files {
-		reader, err := s.legacyDownloadFileByFile(ctx, file)
+		key := utils.PathNormalize(file)
+		reader, err := s.legacyDownloadFileByFile(ctx, key)
 		if err != nil {
 			return err
 		}
@@ -438,8 +439,8 @@ func (s *Server) legacySliceUploadAbort(ctx echo.Context, identity string) error
 	key = fmt.Sprintf("chunks:%s", key)
 	return s.Meta.Delete(key, 0)
 }
-
 // end SliceUploadHandler.ashx
+
 func (s *Server) legacyDownloadFileByFile(ctx echo.Context, key string) (*utils.PDFFile, error) {
 	_, key2, _ := s.parseBucketAndFileKey(key)
 
