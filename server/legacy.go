@@ -34,10 +34,10 @@ type DownloadZipFile struct {
 }
 
 type ReturnData struct {
-	Status  int8   `json:"status"`
-	Message string `json:"message"`
-	Url     string `json:"url"`
-	Path    string `json:"path"`
+	Status  int8   `json:"Status"`
+	Message string `json:"Message"`
+	Url     string `json:"Url"`
+	Path    string `json:"Path"`
 }
 
 const (
@@ -243,7 +243,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, packageEntity.Name))
 	err = s.CreateAutoTask(hashKey, packageEntity)
 
-	return returnMessage(ctx, "success", "http://"+ctx.Request().Host+"/tasks?key="+hashKey)
+	return returnMessage(ctx, "success", s.getReqScheme(ctx)+"://"+s.getReqHost(ctx)+"/tasks?key="+hashKey)
 }
 
 func returnMessage(ctx echo.Context, msg string, url string) error {
@@ -477,7 +477,7 @@ func (s *Server) legacyFormFile(ctx echo.Context) (file *multipart.FileHeader, e
 }
 
 func (s *Server) legacyBuildDownloadUrl(ctx echo.Context, filePath, fileName string) string {
-	return fmt.Sprintf("%s://%s/%s?attachmentName=%s", ctx.Scheme(), ctx.Request().Host, filePath, url.PathEscape(fileName))
+	return fmt.Sprintf("%s://%s/%s?attachmentName=%s", s.getReqScheme(ctx), s.getReqHost(ctx), filePath, url.PathEscape(fileName))
 }
 
 func getLangsFromCtx(ctx echo.Context) []string {
@@ -492,4 +492,12 @@ func getLangsFromCtx(ctx echo.Context) []string {
 	}
 	langs = append(langs, "zh")
 	return langs
+}
+
+func (s *Server) getReqHost(ctx echo.Context) string {
+	return ctx.Request().Host
+}
+
+func (s *Server) getReqScheme(ctx echo.Context) string {
+	return ctx.Scheme()
 }
