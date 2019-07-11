@@ -359,11 +359,11 @@
 
 <script>
   import _ from 'lodash'
-  import axios from 'axios'
   import moment from 'moment'
   import uuidv4 from 'uuid/v4'
   import LteErrorTip from './lte-error-tip'
   import bus from '@/utils/bus'
+  import {upload} from 'whalefs'
 
   export default {
     name: 'bucket',
@@ -594,21 +594,21 @@
         let self = this
         return (item) => {
           let extension = item.file.name.split('.').pop();
-          let formData = new FormData()
           let filename = uuidv4()
           let url = bus.get('dfsHost')
-          formData.append('file', item.file)
-          formData.append('key', `/home/overlay/${filename}.${extension}`)
-          this.$http.post(url, formData)
-          .then(response => {
-            row.image = response.data.title
-          })
-          .catch(err => {
-            let msg = '修改失败'
-            if (err.response) {
-              msg = err.response.data.message
+          const key = `/home/overlay/${filename}.${extension}`
+          const observable = upload(item.file, key, {host: url})
+          observable.subscribe({
+            complete(data) {
+              row.image = data.title
+            },
+            error(err) {
+              let msg = '修改失败'
+              if (err.response) {
+                msg = err.response.data.message
+              }
+              self.$message.error(msg)
             }
-            self.$message.error(msg)
           })
         }
       },
@@ -617,9 +617,7 @@
         let self = this
         self.generateToke()
         .then((token) => {
-          let instance = axios.create()
           let extension = item.file.name.split('.').pop();
-          let formData = new FormData()
           let filename = uuidv4()
           let url = bus.get('dfsHost')
           let bucket = self.entity.name
@@ -630,33 +628,31 @@
           } else {
             key = `/${bucket}/${filename}.${extension}`
           }
-          formData.append('file', item.file)
-          formData.append('key', key)
-          formData.append('token', token)
-          formData.append('override', self.upload.override)
-          instance.post(url, formData)
-          .then(({data}) => {
-            let filename = data.url
-            let obj = undefined
-            let size = self.upload.size || 'Original'
-            if (_.indexOf(filename, '/') < 0) {
-              obj = {name: item.file.name, url: `${url}/pdt/${size}/${filename}`}
-            } else {
-              let segments = _.split(filename, '/', 2)
-              if (self.upload.size) {
-                filename = _.join([segments[0], self.upload.size, segments[1]], '/')
+          const observable = upload(item.file, key, {token}, {host: url})
+          observable.subscribe({
+            complete(data) {
+              let filename = data.url
+              let obj = undefined
+              let size = self.upload.size || 'Original'
+              if (_.indexOf(filename, '/') < 0) {
+                obj = {name: item.file.name, url: `${url}/pdt/${size}/${filename}`}
+              } else {
+                let segments = _.split(filename, '/', 2)
+                if (self.upload.size) {
+                  filename = _.join([segments[0], self.upload.size, segments[1]], '/')
+                }
+                obj = {name: item.file.name, url: `${url}/${filename}`}
               }
-              obj = {name: item.file.name, url: `${url}/${filename}`}
+              obj.name = `${obj.name} ${obj.url}`
+              self.fileList.push(obj)
+            },
+            error(err) {
+              let msg = '上传文件失败'
+              if (err.response) {
+                msg = err.response.data.message
+              }
+              self.$message.error(msg)
             }
-            obj.name = `${obj.name} ${obj.url}`
-            self.fileList.push(obj)
-          })
-          .catch(err => {
-            let msg = '上传文件失败'
-            if (err.response) {
-              msg = err.response.data.message
-            }
-            self.$message.error(msg)
           })
         })
         .catch(err => {
