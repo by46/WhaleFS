@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"path/filepath"
 	"strings"
 
@@ -24,6 +25,7 @@ type FileContext struct {
 	UploadId         string
 	Override         bool // 是否允许覆盖已存在文件
 	IsRandomName     bool // 是否自动生成文件名
+	Params           url.Values
 	ExtractFile      bool
 	Uploads          bool
 	Check            bool

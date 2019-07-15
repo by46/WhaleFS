@@ -173,6 +173,7 @@ func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
 	fileContext.Key = s.legacySupportOSS(ctx, fileContext.Key)
 	fileContext.AttachmentName = ctx.QueryParam(constant.ParameterAttachmentName)
 	fileContext.IsDownload = true
+	fileContext.Params = ctx.Request().URL.Query()
 	fileContext, err = s.parseBucketAndFixKey(fileContext)
 	if err != nil {
 		return err
@@ -250,11 +251,17 @@ func (s *Server) parseBucketAndFixKey(fileContext *model.FileContext) (*model.Fi
 
 	// process image size logical
 	if fileContext.IsDownload {
-		name, key2 := utils.PathRemoveSegment(key, 1)
+		name := utils.QueryParam(fileContext.Params, constant.QueryNameSize)
 		size := bucket.GetSize(name)
 		if size != nil {
-			fileContext.Key, fileContext.Size = key2, size
-			fileContext.IsRemoveOriginal = true
+			fileContext.Size = size
+		} else {
+			name, key2 := utils.PathRemoveSegment(key, 1)
+			size := bucket.GetSize(name)
+			if size != nil {
+				fileContext.Key, fileContext.Size = key2, size
+				fileContext.IsRemoveOriginal = true
+			}
 		}
 	}
 

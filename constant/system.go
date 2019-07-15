@@ -7,6 +7,7 @@ const (
 	QueryNameCollection  = "collection"
 	QueryNameReplication = "replication"
 	QueryNameTTL         = "ttl"
+	QueryNameSize        = "size"
 	MimeSize             = 512
 	KeyBucket            = "system.bucket"
 	KeyTimeStamp         = "system.timestamp"
