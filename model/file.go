@@ -84,6 +84,7 @@ func (f *FileMeta) AsEntity(bucketName, fileName string) *FileEntity {
 	return &FileEntity{
 		Key:      key,
 		Url:      key,
+		ETag:     utils.Sha1WithLength(f.FID, 40),
 		Title:    path.Base(key),
 		Original: fileName,
 		Message:  "上传成功",
@@ -115,6 +116,7 @@ func (f *FileContent) IsImage() bool {
 type FileEntity struct {
 	Key      string `json:"key"`
 	Size     int64  `json:"size"`
+	ETag     string `json:"etag"`     // the hash of content, but not equal to md5 or sha1
 	Url      string `json:"url"`      // legacy property
 	Title    string `json:"title"`    // legacy property
 	Message  string `json:"message"`  // legacy property
