@@ -124,15 +124,7 @@
                     </el-row>
                     <el-row>
                         <el-form-item label="Mime" prop="limit.mime_types">
-                            <el-select v-model="entity.limit.mime_types" multiple placeholder="Select"
-                                       style="width:100%;">
-                                <el-option
-                                        v-for="item in mimes"
-                                        :key="item.value"
-                                        :label="item.name"
-                                        :value="item.value">
-                                </el-option>
-                            </el-select>
+                            <lte-mimes v-model="entity.limit.mime_types" :items="items"></lte-mimes>
                         </el-form-item>
                     </el-row>
 
@@ -364,10 +356,11 @@
   import LteErrorTip from './lte-error-tip'
   import bus from '@/utils/bus'
   import {upload} from 'whalefs'
+  import LteMimes from './lte-mimes'
 
   export default {
     name: 'bucket',
-    components: {LteErrorTip},
+    components: {LteErrorTip, LteMimes},
     data() {
       let duplicateValidator = (rule, value, callback) => {
         let msg = _(value).countBy('name')
@@ -406,7 +399,7 @@
         },
         isModify: false,
         version: '',
-        mimes: [],
+        items: [],
         options: [],
         replications: [
           {label: '无备份', value: '000'},
@@ -564,7 +557,7 @@
         let self = this
         self.$http.get('/api/mimetypes')
         .then(({data}) => {
-          self.mimes = self.processMimes(data)
+          self.items = data
         })
         if (name) {
           self.$http.get(`/api/buckets/${name}`)
@@ -666,13 +659,6 @@
       onPreview(file) {
         window.open(file.url, '_blank')
       },
-      processMimes(items) {
-        return _(items).groupBy('value')
-        .toPairs()
-        .map(t => {
-          return {value: t[0], name: _(t[1]).map(x => x.name).join(', ')}
-        }).value()
-      },
       generateToke() {
         let self = this
         if (!self.entity.protected) {
@@ -714,11 +700,13 @@
         .el-upload:hover {
             border-color: #409EFF;
         }
+
         .avatar {
             width: 50px;
             height: @container-height;
             display: block;
         }
+
         .avatar-uploader-icon {
             font-size: @height;
             color: #8c939d;
@@ -727,6 +715,7 @@
             line-height: @height;
             text-align: center;
         }
+
     }
 
     .file-uploader {
@@ -743,11 +732,13 @@
         .el-upload:hover {
             border-color: #409EFF;
         }
+
         .avatar {
             width: 50px;
             height: @file-container-height;
             display: block;
         }
+
         .avatar-uploader-icon {
             font-size: @file-height;
             color: #8c939d;
@@ -756,9 +747,11 @@
             line-height: @file-height;
             text-align: center;
         }
+
     }
 
     .bucket-sizes {
+
         /deep/ .el-form-item {
             margin-bottom: 0;
         }
@@ -769,5 +762,6 @@
             margin-right: 4px;
 
         }
+
     }
 </style>

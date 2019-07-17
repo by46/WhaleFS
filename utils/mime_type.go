@@ -20,8 +20,9 @@ type mimePair struct {
 var MimeTypes []*mimePair
 
 func init() {
-	loadMime()
+	loadMimeFile()
 }
+
 func loadMime() {
 	file := "config/mime.txt"
 	if FileExists(file) {
@@ -51,6 +52,34 @@ func loadMime() {
 	}
 }
 
+func loadMimeFile() {
+	filename := "config/mime.types"
+	f, err := os.Open(filename)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		fields := strings.Fields(scanner.Text())
+		if len(fields) <= 1 || fields[0][0] == '#' {
+			continue
+		}
+		mimeType := fields[0]
+		for _, ext := range fields[1:] {
+			if ext[0] == '#' {
+				break
+			}
+			extension := "." + ext
+			MimeTypes = append(MimeTypes, &mimePair{Name: extension, Value: mimeType})
+			_ = mime.AddExtensionType(extension, mimeType)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+}
 func IsImageByFileName(fileName string) bool {
 	mimeType := MimeTypeByExtension(fileName)
 	return IsImage(mimeType)
