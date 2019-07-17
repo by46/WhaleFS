@@ -429,7 +429,7 @@
             alias: '',
             collection: 'general',
             replication: '100',
-            expires: 20,
+            expires: 60 * 60 * 24 * 30,
             prepare_thumbnail_min_width: 1024,
             prepare_thumbnail: ''
           },
