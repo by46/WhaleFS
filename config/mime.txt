@@ -96,3 +96,5 @@
 .pln application/x-pln
 .stp application/step
 .vwx application/x-vwx
+
+.bak application/x-bak
