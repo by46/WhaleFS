@@ -1567,3 +1567,5 @@ image/vnd.shx           shx
 application/x-fas       fas
 application/x-lsp       lsp
 application/x-dwl       dwl dwl2
+image/vnd.dws           dws
+image/vnd.dwt           dwt
