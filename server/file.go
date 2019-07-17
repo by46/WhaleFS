@@ -252,6 +252,7 @@ func (s *Server) parseBucketAndFixKey(fileContext *model.FileContext) (*model.Fi
 	// process image size logical
 	if fileContext.IsDownload {
 		name := utils.QueryParam(fileContext.Params, constant.QueryNameSize)
+		name = strings.ToLower(name)
 		size := bucket.GetSize(name)
 		if size != nil {
 			fileContext.Size = size
