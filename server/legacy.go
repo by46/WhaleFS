@@ -143,7 +143,7 @@ func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 	}
 	oldKey := key
 	key = utils.PathNormalize(key)
-	isRemoveOriginal := len(key) != len(oldKey)
+	isRemoveOriginal := len(strings.TrimLeft(key, "/")) != len(strings.TrimLeft(oldKey, "/"))
 
 	bucket, key, size := s.parseBucketAndFileKey(key)
 
@@ -439,6 +439,7 @@ func (s *Server) legacySliceUploadAbort(ctx echo.Context, identity string) error
 	key = fmt.Sprintf("chunks:%s", key)
 	return s.Meta.Delete(key, 0)
 }
+
 // end SliceUploadHandler.ashx
 
 func (s *Server) legacyDownloadFileByFile(ctx echo.Context, key string) (*utils.PDFFile, error) {
