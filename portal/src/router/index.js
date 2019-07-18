@@ -5,14 +5,16 @@ import Dashboard from '@/components/dashboard'
 import Buckets from '@/components/buckets'
 import Bucket from '@/components/bucket'
 import Users from '@/components/users'
+import User from '@/components/user'
+import Settings from '@/components/settings'
+import BusUtil from '@/utils/bus'
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Portal
+      redirect: '/portal/buckets'
     },
     {
       path: '/portal',
@@ -21,8 +23,8 @@ export default new Router({
       children:
         [
           {
-            path: 'dashboard',
-            name: 'dashboard',
+            path: 'home',
+            name: 'home',
             component: Dashboard
           },
           {
@@ -39,6 +41,16 @@ export default new Router({
             path: 'users',
             name: 'users',
             component: Users
+          },
+          {
+            path: 'user',
+            name: 'user',
+            component: User
+          },
+          {
+            path: 'settings',
+            name: 'settings',
+            component: Settings
           }]
     },
     {
@@ -48,3 +60,10 @@ export default new Router({
     }
   ]
 })
+router.beforeEach((to, from, next) => {
+  BusUtil.load()
+  .then(() => {
+    next()
+  })
+})
+export default router

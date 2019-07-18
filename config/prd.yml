@@ -15,7 +15,7 @@ Basis:
   CollectionTmpTTL: 7d
   CollectionShare: mass
   CollectionShareReplication: 100
-  SizeDefault: p200
+  SizeDefault: Original
 Storage:
   Cluster:
     - 192.168.220.65:9333
@@ -27,7 +27,9 @@ Log:
 Sync:
   Enable: true
   DFSHost: https://oss.yzw.cn
-  RabbitMQConnection: amqp://ifs_admin:ifs@123@192.168.110.81:5672/
+  RabbitMQConnection: amqp://ifs_admin:ifs@123@192.168.110.81:5672/framework
   RabbitMQExchange: /whale-fs
   RabbitMQQueue: whale-fs
   LegacyFSRoot: F:\image
+Portal:
+  dfsHost: http://192.168.220.65:8089

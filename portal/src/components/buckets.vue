@@ -1,35 +1,34 @@
 <template>
     <div>
-        <el-button class="pull-right" type="primary" @click="onAdd">新增</el-button>
         <el-table
                 :data="bucketData"
-                style="width: 100%">
+                stripe="">
             <el-table-column
                     prop="name"
-                    label="Name"
-                    width="180">
+                    label="名称"
+                    sortable
+                    width="200">
                 <template slot-scope="{row}">
-                    {{row.basis.name}}
+                    <el-link :href="bucketHref(row)" type="primary">{{row.basis.name}}</el-link>
                 </template>
             </el-table-column>
             <el-table-column
-                    prop="doc"
-                    label="Memo">
-                <template slot-scope="{row}">
-                    {{row.basis.memo}}
-                </template>
+                    prop="basis.memo"
+                    sortable
+                    label="说明">
             </el-table-column>
             <el-table-column
-                    prop=""
                     label="操作"
                     width="180">
+                <template slot="header">
+                    <el-button type="primary" @click="onAdd">新增</el-button>
+                </template>
                 <template slot-scope="{row}">
-                    <el-button style="padding: 0px"
-                               type="text"
+                    <el-button type="text"
                                @click="onEdit(row)">
                         编辑
                     </el-button>
-                    <el-button style="padding: 0px"
+                    <el-button style="color: #F56C6C;"
                                type="text"
                                @click="onDelete(row)">
                         删除
@@ -37,37 +36,29 @@
                 </template>
             </el-table-column>
         </el-table>
-        <el-dialog title="编辑bucket" :visible.sync="dialogBucketVisible">
-            <div v-if="!isEdit">
-                <el-input v-model="newBucketId" placeholder="请输入bucket id"></el-input>
-            </div>
-            <vue-json-editor v-model="editBucket" :show-btns="false" mode="code"
-                             @json-change="onJsonChange"></vue-json-editor>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogBucketVisible = false">取 消</el-button>
-                <el-button type="primary" @click="onSave(isEdit?editRow.id:newBucketId)">确 定</el-button>
-            </div>
-        </el-dialog>
     </div>
 
 </template>
 
 <script>
-  import vueJsonEditor from 'vue-json-editor'
 
   export default {
     name: 'buckets',
-    components: {
-      vueJsonEditor
-    },
     data() {
       return {
         bucketData: [],
         editBucket: {},
         editRow: {},
-        dialogBucketVisible: false,
         isEdit: false,
         newBucketId: null
+      }
+    },
+    computed: {
+      bucketHref() {
+        return row => {
+          let route = this.$router.resolve({name: 'bucket', query: {id: row.id, version: row.version}})
+          return route.href
+        }
       }
     },
     methods: {
@@ -81,10 +72,6 @@
         })
       },
       onEdit(row) {
-        // this.isEdit = true
-        // this.dialogBucketVisible = true
-        // this.editRow = row
-        // this.editBucket = row.basis
         this.$router.push({name: 'bucket', query: {id: row.id, version: row.version}})
       },
       onSave(id) {
@@ -121,14 +108,24 @@
         this.$router.push({name: 'bucket'})
       },
       onDelete(row) {
-        var self = this
-        this.$http.delete(`/api/buckets/${row.id}`)
-        .then(function () {
-          self.$message('删除成功')
-          self.loadData()
-        }).catch(function (error) {
-          self.$message(error.response.data.message)
+        this.$confirm('Bucket删除之后将不能恢复，是否继续', 'Warning', {
+          confirmButtonText: '继续',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
+        .then(() => {
+          var self = this
+          this.$http.delete(`/api/buckets/${row.id}`)
+          .then(function () {
+            self.$message('删除成功')
+            self.loadData()
+          }).catch(function (error) {
+            self.$message(error.response.data.message)
+          })
+        })
+        .catch(() => {
+        })
+
       }
     },
     mounted() {

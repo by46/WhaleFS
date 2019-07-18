@@ -1,3 +1,5 @@
+# text
+.txt text/plain
 .jpeg image/jpeg
 .jpg image/jpeg
 .gif image/gif
@@ -10,10 +12,11 @@
 .wmv video/x-ms-wmv
 .mp4 video/mpeg4
 .doc application/msword
+.doc_ application/msword
 .docx application/vnd.openxmlformats-officedocument.wordprocessingml.document
 .xls application/vnd.ms-excel
+.xls_ application/vnd.ms-excel
 .xlsx application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-.txt text/plain
 .pdf application/pdf
 .rar application/x-rar-compressed
 .zip application/x-zip-compressed
@@ -34,20 +37,7 @@
 .pptx application/vnd.openxmlformats-officedocument.presentationml.presentation
 .xps application/vnd.ms-xpsdocument
 .oxps application/oxps
-.rvt
-.gbim
-.pi
-.pc
 .bin application/octet-stream
-.rfa
-.rte
-.dgn
-.obj
-.ifc
-.cgr
-.pln
-.stp
-.vwx
 .css text/css
 .js text/javascript
 .svg image/svg+xml
@@ -60,14 +50,15 @@
 .json application/json
 .map application/x-navimap
 .doc      application/msword
+.doc_      application/msword
 .dot      application/msword
 
-.docx     application/vnd.openxmlformats-officedocument.wordprocessingml.document
 .dotx     application/vnd.openxmlformats-officedocument.wordprocessingml.template
 .docm     application/vnd.ms-word.document.macroEnabled.12
 .dotm     application/vnd.ms-word.template.macroEnabled.12
 
 .xls      application/vnd.ms-excel
+.xls_      application/vnd.ms-excel
 .xlt      application/vnd.ms-excel
 .xla      application/vnd.ms-excel
 
@@ -94,3 +85,16 @@
 .mdb      application/vnd.ms-access
 .go text/plain
 .bash application/x-sh
+
+.rvt application/x-rvt
+.rfa application/x-rfa
+.rte x-lml/x-gps
+.dgn application/x-dgn
+.obj application/x-obj
+.ifc application/x-ifc
+.cgr application/x-cgr
+.pln application/x-pln
+.stp application/step
+.vwx application/x-vwx
+
+.bak application/x-bak

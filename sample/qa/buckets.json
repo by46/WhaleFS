@@ -313,6 +313,7 @@
       "mime_types": [
         "image/png",
         "image/jpeg",
+        "image/bmp",
         "image/gif"
       ]
     },
@@ -321,103 +322,103 @@
         "name": "p60",
         "width": 60,
         "height": 60,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p68",
         "width": 68,
         "height": 68,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p120",
         "width": 120,
         "height": 120,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p160",
         "width": 160,
         "height": 160,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p200",
         "width": 200,
         "height": 200,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p240",
         "width": 240,
         "height": 240,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p360",
         "width": 360,
         "height": 360,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p450",
         "width": 450,
         "height": 450,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p800",
         "width": 800,
         "height": 800,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p80",
         "width": 80,
         "height": 60,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p110",
         "width": 110,
         "height": 82,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p160",
         "width": 160,
         "height": 120,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p220",
         "width": 220,
         "height": 165,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p600",
         "width": 600,
         "height": 450,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p375",
         "width": 375,
         "height": 281,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p750",
         "width": 750,
         "height": 563,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p1125",
         "width": 1125,
         "height": 844,
-        "mode": "stretch"
+        "mode": "fit"
       }
     ],
     "last_edit_date": 123143,
@@ -531,7 +532,7 @@
         "name": "p90",
         "width": 90,
         "height": 90,
-        "mode": "stretch"
+        "mode": "fit"
       }
     ],
     "last_edit_date": 123143,
@@ -1317,16 +1318,16 @@
       "alias": "pdt"
     }
   },
-  "system.bucket.ibuild-DroneStrike-imgOrVideo": {
-    "name": "ibuild-DroneStrike-imgOrVideo",
+  "system.bucket.ibuild-dronestrike-imgorvideo": {
+    "name": "ibuild-dronestrike-imgorvideo",
     "type": "bucket",
     "memo": "智慧工地项目无人机航拍图片或视频",
     "basis": {
       "alias": "pdt"
     }
   },
-  "system.bucket.ibuild-BigScreen-imgOrVideo": {
-    "name": "ibuild-BigScreen-imgOrVideo",
+  "system.bucket.ibuild-bigscreen-imgorvideo": {
+    "name": "ibuild-bigscreen-imgorvideo",
     "type": "bucket",
     "memo": "智慧工地项目大屏图片或视频",
     "basis": {
@@ -1981,13 +1982,13 @@
         "name": "p200",
         "width": 200,
         "height": 150,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p60",
         "width": 60,
         "height": 45,
-        "mode": "stretch"
+        "mode": "fit"
       },
       {
         "name": "p160",
@@ -2027,7 +2028,7 @@
         "name": "p140",
         "width": 140,
         "height": 140,
-        "mode": "stretch"
+        "mode": "fit"
       }
     ],
     "last_edit_date": 123143,
@@ -2071,7 +2072,7 @@
         "name": "p1920",
         "width": 1920,
         "height": 1920,
-        "mode": "stretch"
+        "mode": "fit"
       }
     ],
     "last_edit_date": 123143,
@@ -2115,7 +2116,7 @@
         "name": "p180",
         "width": 180,
         "height": 180,
-        "mode": "stretch"
+        "mode": "fit"
       }
     ],
     "last_edit_date": 123143,
@@ -2159,7 +2160,7 @@
         "name": "p216",
         "width": 216,
         "height": 216,
-        "mode": "stretch"
+        "mode": "fit"
       }
     ],
     "last_edit_date": 123143,

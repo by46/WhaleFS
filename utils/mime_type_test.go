@@ -57,3 +57,9 @@ func TestParseMediaType(t *testing.T) {
 	assert.Equal(t, "text/plain", media)
 	assert.Equal(t, map[string]string{"charset": "utf8"}, p)
 }
+
+func TestMime2Extension(t *testing.T) {
+	mimeTypes := []string{"application/json", "application/pdf", "image/jpeg"}
+	extensions := Mime2Extension(mimeTypes)
+	assert.ElementsMatch(t, []string{".json", ".pdf", ".jpg", ".jpeg", ".jpe"}, extensions)
+}

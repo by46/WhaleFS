@@ -372,3 +372,25 @@ func (s *Server) logout(ctx echo.Context) error {
 func (s *Server) listMimeTypes(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, utils.MimeTypes)
 }
+
+func (s *Server) configuration(ctx echo.Context) error {
+	return ctx.JSON(http.StatusOK, s.Config.Portal)
+}
+
+func (s *Server) listBucketNames(ctx echo.Context) error {
+	results, err := s.BucketMeta.GetAllBuckets()
+	if err != nil {
+		s.Logger.Errorf("请求couchbase api失败 %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	var names []string
+	for {
+		info := new(basisInfo)
+		if results.Next(info) == false {
+			break
+		}
+		names = append(names, info.Basis.Name)
+	}
+	return ctx.JSON(http.StatusOK, names)
+}

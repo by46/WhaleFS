@@ -70,6 +70,21 @@ func (m *metaClient) Set(key string, value interface{}) error {
 	return errors.Wrapf(err, "设置数据失败, key: %s", key)
 }
 
+func (m *metaClient) Replace(key string, value interface{}, cas uint64) (uint64, error) {
+	replaceCas, err := m.Bucket.Replace(key, value, gocb.Cas(cas), 0)
+	if err == gocb.ErrKeyNotFound {
+		return 0, common.ErrKeyNotFound
+	}
+	return uint64(replaceCas), nil
+}
+func (m *metaClient) Insert(key string, value interface{}) (uint64, error) {
+	cas, err := m.Bucket.Insert(key, value, 0)
+	if err == gocb.ErrKeyExists {
+		return 0, common.ErrKeyExists
+	}
+	return uint64(cas), nil
+}
+
 func (m *metaClient) Exists(key string) (bool, error) {
 	var value interface{}
 	_, err := m.Bucket.Get(key, &value)

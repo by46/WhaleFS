@@ -159,7 +159,8 @@ type Bucket struct {
 	Extends        []*ExtendItem            `json:"extends"`
 	LastEditDate   int64                    `json:"last_edit_date"`
 	LastEditUser   string                   `json:"last_edit_user"`
-	Sizes          []*ImageSize             `json:"Sizes"`
+	Protected      bool                     `json:"protected"`
+	Sizes          []*ImageSize             `json:"sizes"`
 	Limit          *BucketLimit             `json:"limit"`
 	Type           string                   `json:"type"`
 	Overlays       []*ImageOverlay          `json:"overlays"`
@@ -202,6 +203,9 @@ func (b *Bucket) getExtendInt(key string) int {
 
 // 获取图片切片信息
 func (b *Bucket) GetSize(name string) *ImageSize {
+	if name == "" {
+		return nil
+	}
 	if len(b.Sizes) == 0 {
 		return nil
 	}

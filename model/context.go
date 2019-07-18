@@ -7,7 +7,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"path/filepath"
+	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -16,33 +18,24 @@ import (
 )
 
 type FileContext struct {
-	Key            string
-	ObjectName     string // 去掉Bucket之后的Key路径
-	BucketName     string
-	AttachmentName string // 用于浏览器中保存时的别名
-	UploadId       string
-	Override       bool // 是否允许覆盖已存在文件
-	IsRandomName   bool // 是否自动生成文件名
-	ExtractFile    bool
-	Uploads        bool
-	Check          bool
-	PartNumber     int32
-	Bucket         *Bucket
-	Meta           *FileMeta
-	File           *FileContent
-	Size           *ImageSize
-}
-
-// parse image size from path, used to resize picture
-func (f *FileContext) ParseImageSize(bucket *Bucket) {
-	name, key := utils.PathRemoveSegment(f.Key, 1)
-	if name == "" {
-		return
-	}
-	size := bucket.GetSize(name)
-	if size != nil {
-		f.Key, f.Size = key, size
-	}
+	Key              string
+	ObjectName       string // 去掉Bucket之后的Key路径
+	BucketName       string
+	AttachmentName   string // 用于浏览器中保存时的别名
+	UploadId         string
+	Override         bool // 是否允许覆盖已存在文件
+	IsRandomName     bool // 是否自动生成文件名
+	Params           url.Values
+	ExtractFile      bool
+	Uploads          bool
+	Check            bool
+	PartNumber       int32
+	IsRemoveOriginal bool
+	IsDownload       bool
+	Bucket           *Bucket
+	Meta             *FileMeta
+	File             *FileContent
+	Size             *ImageSize
 }
 
 func (f *FileContext) ParseFileContentFromRequest(ctx echo.Context) (err error) {
@@ -115,7 +108,9 @@ func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader,
 	file.Headers = headers
 	file.Content = buf
 	file.Size = int64(len(buf))
+	filename = strings.Trim(filename, "\"")
 	extension := filepath.Ext(filename)
+	extension = strings.ToLower(extension)
 	if filename != "" && extension != "" && extension != ".ashx" {
 		file.FileName = filename
 		file.Extension = extension
@@ -124,6 +119,7 @@ func (f *FileContext) buildFileContent(buf []byte, headers textproto.MIMEHeader,
 		file.MimeType = http.DetectContentType(buf)
 		file.Extension = utils.ExtensionByMimeType(file.MimeType)
 	}
+	file.MimeType = utils.NormalMimeType(file.MimeType)
 	file.Digest, err = utils.ContentSha1(bytes.NewReader(buf))
 	if err != nil {
 		return nil, errors.WithMessage(err, "文件内容摘要错误")
@@ -141,4 +137,5 @@ type FormParams struct {
 	Key      string `json:"key" form:"key"`
 	Source   string `json:"source" form:"source"`
 	Override bool   `json:"override" form:"override"`
+	Token    string `json:"token" form:"token"`
 }

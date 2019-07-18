@@ -34,10 +34,10 @@ type DownloadZipFile struct {
 }
 
 type ReturnData struct {
-	Status  int8   `json:"status"`
-	Message string `json:"message"`
-	Url     string `json:"url"`
-	Path    string `json:"path"`
+	Status  int8   `json:"Status"`
+	Message string `json:"Message"`
+	Url     string `json:"Url"`
+	Path    string `json:"Path"`
 }
 
 const (
@@ -55,8 +55,8 @@ var (
 
 // 兼容legacy下载接口, 支持OSS模式
 func (s *Server) legacySupportOSS(ctx echo.Context, key string) string {
-	if strings.ToLower(ctx.QueryParam("oss")) == "yes" {
-		size := ctx.QueryParam("format")
+	if strings.ToLower(utils.QueryParam(ctx.Request().URL.Query(), "oss")) == "yes" {
+		size := utils.QueryParam(ctx.Request().URL.Query(), "format")
 		if size == "" {
 			size = s.Config.Basis.SizeDefault
 		}
@@ -71,6 +71,7 @@ func (s *Server) legacyUploadFile(ctx echo.Context) error {
 	if bucketName == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdBucketNameNotCorrect, getLangsFromCtx(ctx)...))
 	}
+	bucketName = strings.ToLower(bucketName)
 	bucket, err := s.getBucketByName(bucketName)
 	if err != nil {
 		return err
@@ -107,6 +108,7 @@ func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
 	if bucketName == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdBucketNameNotCorrect, getLangsFromCtx(ctx)...))
 	}
+	bucketName = strings.ToLower(bucketName)
 	bucket, err := s.getBucketByName(bucketName)
 	if err != nil {
 		return err
@@ -128,29 +130,35 @@ func (s *Server) legacyUploadByRemote(ctx echo.Context) error {
 
 // DownloadHandler.ashx
 func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
-	key := ctx.QueryParam("FilePath")
+	key := utils.QueryParam(ctx.Request().URL.Query(), "FilePath")
 
-	attachmentName := ctx.QueryParam("FileName")
+	attachmentName := utils.QueryParam(ctx.Request().URL.Query(), "FileName")
+	if attachmentName == "" {
+		attachmentName = filepath.Base(key)
+	}
 	//shouldMark := utils.ToBool(ctx.QueryParam("Mark"))
 
 	if utils.IsRemote(key) {
 		return s.legacyDownloadFileByRemote(ctx)
 	}
-
+	oldKey := key
 	key = utils.PathNormalize(key)
+	isRemoveOriginal := len(strings.TrimLeft(key, "/")) != len(strings.TrimLeft(oldKey, "/"))
+
 	bucket, key, size := s.parseBucketAndFileKey(key)
 
 	if bucket == nil {
 		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdBucketNameNotCorrect, getLangsFromCtx(ctx)...))
 	}
 	fileContext := &model.FileContext{
-		Bucket:         bucket,
-		BucketName:     bucket.Name,
-		Size:           size,
-		Key:            key,
-		AttachmentName: attachmentName,
+		Bucket:           bucket,
+		BucketName:       bucket.Name,
+		Size:             size,
+		Key:              key,
+		AttachmentName:   attachmentName,
+		IsRemoveOriginal: isRemoveOriginal,
 	}
-	fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey())
+	fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey(), isRemoveOriginal)
 	if err != nil {
 		if err == common.ErrKeyNotFound {
 			return echo.NewHTTPError(http.StatusNotFound)
@@ -162,9 +170,9 @@ func (s *Server) legacyDownloadFile(ctx echo.Context) (err error) {
 }
 
 func (s *Server) legacyDownloadFileByRemote(ctx echo.Context) error {
-	source := ctx.QueryParam("FilePath")
+	source := utils.QueryParam(ctx.Request().URL.Query(), "FilePath")
 	fileContext := &model.FileContext{
-		AttachmentName: ctx.QueryParam("FileName"),
+		AttachmentName: utils.QueryParam(ctx.Request().URL.Query(), "FileName"),
 	}
 	if err := fileContext.ParseFileContent(source, nil); err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...))
@@ -216,7 +224,8 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 		if bucket == nil {
 			return returnMessage(ctx, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...), "")
 		}
-		entity, err := s.GetFileEntity(utils.PathNormalize(key))
+		newKey := utils.PathNormalize(key)
+		entity, err := s.GetFileEntity(newKey, len(key) != len(newKey))
 		if err != nil {
 			if err == common.ErrKeyNotFound {
 				return returnMessage(ctx, s.getMessage(MsgIdFileNotFound, getLangsFromCtx(ctx)...), "")
@@ -234,7 +243,7 @@ func (s *Server) legacyBatchDownload(ctx echo.Context) error {
 	hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, packageEntity.Name))
 	err = s.CreateAutoTask(hashKey, packageEntity)
 
-	return returnMessage(ctx, "success", "http://"+ctx.Request().Host+"/tasks?key="+hashKey)
+	return returnMessage(ctx, "success", s.getReqScheme(ctx)+"://"+s.getReqHost(ctx)+"/tasks?key="+hashKey)
 }
 
 func returnMessage(ctx echo.Context, msg string, url string) error {
@@ -297,7 +306,8 @@ func (s *Server) legacyMergePDF(ctx echo.Context) error {
 	items := make([]pdfcpu.ReadSeekerCloser, 0)
 	files := utils.Split(pdfFiles, ",")
 	for _, file := range files {
-		reader, err := s.legacyDownloadFileByFile(ctx, file)
+		key := utils.PathNormalize(file)
+		reader, err := s.legacyDownloadFileByFile(ctx, key)
 		if err != nil {
 			return err
 		}
@@ -341,13 +351,13 @@ func (s *Server) legacyMergePDF(ctx echo.Context) error {
 
 // SliceUploadHandler.ashx
 func (s *Server) legacySliceUpload(ctx echo.Context) error {
-	appName := strings.ToLower(ctx.QueryParam(AppName))
-	identity := strings.TrimSpace(ctx.QueryParam("FileIdentity"))
+	appName := strings.ToLower(utils.QueryParam(ctx.Request().URL.Query(), AppName))
+	identity := strings.TrimSpace(utils.QueryParam(ctx.Request().URL.Query(), "FileIdentity"))
 	if identity == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdMissFileIdentity, getLangsFromCtx(ctx)...))
 	}
 	if appName == "" {
-		if ActionCancel == strings.TrimSpace(ctx.QueryParam("Action")) {
+		if ActionCancel == strings.TrimSpace(utils.QueryParam(ctx.Request().URL.Query(), "Action")) {
 			return s.legacySliceUploadAbort(ctx, identity)
 		}
 		return s.legacySliceUploadChunk(ctx, identity)
@@ -356,7 +366,7 @@ func (s *Server) legacySliceUpload(ctx echo.Context) error {
 }
 
 func (s *Server) legacySliceUploadChunk(ctx echo.Context, identity string) error {
-	positionValue := strings.TrimSpace(ctx.QueryParam("startPosition"))
+	positionValue := strings.TrimSpace(utils.QueryParam(ctx.Request().URL.Query(), "startPosition"))
 
 	if ReInteger.MatchString(positionValue) == false {
 		return echo.NewHTTPError(http.StatusBadRequest, s.getMessage(MsgIdStartPositionNotSet, getLangsFromCtx(ctx)...))
@@ -408,8 +418,8 @@ func (s *Server) legacySliceUploadComplete(ctx echo.Context, appName, identity s
 		return errors.WithMessage(err, "获取文件信息失败")
 	}
 
-	fileName := ctx.QueryParam("FileName")
-	relativePath := ctx.QueryParam("RelativePath")
+	fileName := utils.QueryParam(ctx.Request().URL.Query(), "FileName")
+	relativePath := utils.QueryParam(ctx.Request().URL.Query(), "RelativePath")
 	relativePath = strings.ReplaceAll(relativePath, "\\", constant.Separator)
 	fileKey := path.Join(constant.Separator, appName, relativePath, fileName)
 
@@ -431,9 +441,11 @@ func (s *Server) legacySliceUploadAbort(ctx echo.Context, identity string) error
 }
 
 // end SliceUploadHandler.ashx
+
 func (s *Server) legacyDownloadFileByFile(ctx echo.Context, key string) (*utils.PDFFile, error) {
-	_, key, _ = s.parseBucketAndFileKey(key)
-	meta, err := s.GetFileEntity(key)
+	_, key2, _ := s.parseBucketAndFileKey(key)
+
+	meta, err := s.GetFileEntity(key2, len(key2) != len(key))
 	if err != nil {
 		return nil, err
 	}
@@ -466,7 +478,7 @@ func (s *Server) legacyFormFile(ctx echo.Context) (file *multipart.FileHeader, e
 }
 
 func (s *Server) legacyBuildDownloadUrl(ctx echo.Context, filePath, fileName string) string {
-	return fmt.Sprintf("%s://%s/%s?attachmentName=%s", ctx.Scheme(), ctx.Request().Host, filePath, url.PathEscape(fileName))
+	return fmt.Sprintf("%s://%s/%s?attachmentName=%s", s.getReqScheme(ctx), s.getReqHost(ctx), filePath, url.PathEscape(fileName))
 }
 
 func getLangsFromCtx(ctx echo.Context) []string {
@@ -481,4 +493,12 @@ func getLangsFromCtx(ctx echo.Context) []string {
 	}
 	langs = append(langs, "zh")
 	return langs
+}
+
+func (s *Server) getReqHost(ctx echo.Context) string {
+	return ctx.Request().Host
+}
+
+func (s *Server) getReqScheme(ctx echo.Context) string {
+	return ctx.Scheme()
 }

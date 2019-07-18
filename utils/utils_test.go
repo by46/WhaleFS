@@ -1,12 +1,16 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"sync"
 	"testing"
+	"time"
 
+	"github.com/disintegration/imaging"
 	"github.com/hhrutter/pdfcpu/pkg/api"
 	pdf "github.com/hhrutter/pdfcpu/pkg/pdfcpu"
 	"github.com/labstack/gommon/log"
@@ -111,4 +115,29 @@ func TestPanicAndRecover(t *testing.T) {
 	var a *A
 	//panic(a)
 	fmt.Printf("tricky: %v %v", a == nil, a.Name)
+}
+
+func TestImage(t *testing.T) {
+	content, err := ioutil.ReadFile("sample/file.png")
+	assert.Nil(t, err)
+	img, err := imaging.Decode(bytes.NewReader(content))
+	assert.Nil(t, err)
+	newImg := imaging.Fit(img, 160, 160, imaging.Lanczos)
+	_ = imaging.Save(newImg, "sample/file-fit.png")
+
+	newImg = imaging.Thumbnail(img, 160, 160, imaging.Lanczos)
+	_ = imaging.Save(newImg, "sample/file-thumbnail.png")
+
+	newImg = imaging.Resize(img, 160, 160, imaging.Lanczos)
+	_ = imaging.Save(newImg, "sample/file-resize.png")
+
+	newImg = imaging.Resize(img, 160, 0, imaging.Lanczos)
+	_ = imaging.Save(newImg, "sample/file-resize-height.png")
+
+	newImg = imaging.Resize(img, 0, 160, imaging.Lanczos)
+	_ = imaging.Save(newImg, "sample/file-resize-width.png")
+}
+
+func TestTimestamp2(t *testing.T) {
+	fmt.Printf("%v", time.Date(2018, 1, 1, 0, 0, 0, 0, time.UTC).Unix())
 }

@@ -53,6 +53,10 @@ func (s *Server) uploadByForm(ctx echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
+	if err = s.authenticate(ctx, fileContext.Bucket, params.Token); err != nil {
+		return err
+	}
+
 	context := &middleware.ExtendContext{ctx, fileContext}
 	return s.uploadFile(context)
 }
@@ -68,6 +72,9 @@ func (s *Server) uploadByBody(ctx echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
+	if err = s.authenticate(ctx, fileContext.Bucket, ctx.Request().Header.Get(constant.HeaderXWhaleFSToken)); err != nil {
+		return err
+	}
 	context := &middleware.ExtendContext{ctx, fileContext}
 	return s.uploadFile(context)
 }
@@ -80,6 +87,7 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 	values := ctx.Request().URL.Query()
 	partNumber := values.Get("partNumber")
 	uploadId := values.Get("uploadId")
+	token := values.Get("token")
 	if utils.QueryExists(values, "uploads") {
 		// 初始化multi-chunk解析参数
 		fileContext.Uploads = true
@@ -99,6 +107,9 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
+	if err = s.authenticate(ctx, fileContext.Bucket, token); err != nil {
+		return err
+	}
 	context := &middleware.ExtendContext{ctx, fileContext}
 	if fileContext.Uploads {
 		entity, err := s.uploads(context)
@@ -109,7 +120,7 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 
 	}
 	if fileContext.Check {
-		result, err := s.digestCheck(context);
+		result, err := s.digestCheck(context)
 		if err != nil {
 			return err
 		}
@@ -117,7 +128,7 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 
 	}
 	if fileContext.UploadId != "" && fileContext.PartNumber != 0 {
-		entity, err := s.uploadPart(context);
+		entity, err := s.uploadPart(context)
 		if err != nil {
 			return err
 		}
@@ -129,7 +140,7 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 		if err = ctx.Bind(&parts); err != nil {
 			return errors.WithStack(err)
 		}
-		entity, err := s.uploadComplete(context, parts);
+		entity, err := s.uploadComplete(context, parts)
 		if err != nil {
 			return err
 		}
@@ -160,15 +171,16 @@ func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
 	fileContext := new(model.FileContext)
 	fileContext.Key = ctx.Request().URL.Path
 	fileContext.Key = s.legacySupportOSS(ctx, fileContext.Key)
-	fileContext.AttachmentName = ctx.QueryParam("attachmentName")
+	fileContext.AttachmentName = ctx.QueryParam(constant.ParameterAttachmentName)
+	fileContext.IsDownload = true
+	fileContext.Params = ctx.Request().URL.Query()
 	fileContext, err = s.parseBucketAndFixKey(fileContext)
 	if err != nil {
 		return err
 	}
 	context := &middleware.ExtendContext{ctx, fileContext}
 	bucket := fileContext.Bucket
-	fileContext.ParseImageSize(bucket)
-	fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey())
+	fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey(), fileContext.IsRemoveOriginal)
 	if err != nil {
 		if err == common.ErrKeyNotFound {
 			if bucket.Basis.DefaultImage != "" && utils.IsImageByFileName(fileContext.Key) {
@@ -179,80 +191,6 @@ func (s *Server) downloadByUrl(ctx echo.Context) (err error) {
 		return err
 	}
 	return s.download(context)
-}
-
-// obsolete
-func (s *Server) prepareFileContext(ctx echo.Context) (*model.FileContext, error) {
-	fileContext := new(model.FileContext)
-
-	key := ctx.Request().URL.Path
-	contentType := ctx.Request().Header.Get(echo.HeaderContentType)
-	method := ctx.Request().Method
-	if strings.HasPrefix(contentType, echo.MIMEMultipartForm) {
-		// 解析表单数据, 主要是通过表单上传
-		params := new(model.FormParams)
-		if err := ctx.Bind(params); err != nil {
-			return nil, errors.WithStack(err)
-		}
-		if params.Source != "" {
-			params.Source = utils.UrlDecode(params.Source)
-		}
-		// TODO(benjamin): 处理tmp file临时文件close问题
-		_, file, err := ctx.Request().FormFile("file")
-		if err != nil && err != http.ErrMissingFile {
-			return nil, err
-		}
-		fileContext.Override = params.Override
-		if params.Key != "" {
-			key = params.Key
-		}
-		if err := fileContext.ParseFileContent(params.Source, file); err != nil {
-			return nil, err
-		}
-	} else if method == http.MethodPost {
-		// 解析multi-chunk参数
-		values := ctx.Request().URL.Query()
-		partNumber := values.Get("partNumber")
-		uploadId := values.Get("uploadId")
-		if utils.QueryExists(values, "uploads") {
-			// 初始化multi-chunk解析参数
-			fileContext.Uploads = true
-		} else if partNumber != "" && uploadId != "" {
-			// 解析单个chunk上传参数
-			fileContext.PartNumber = utils.ToInt32(partNumber)
-			fileContext.UploadId = uploadId
-			_ = fileContext.ParseFileContentFromRequest(ctx)
-		} else if uploadId != "" {
-			// 完成multi-chunk上传
-			fileContext.UploadId = uploadId
-		}
-		if utils.QueryExists(values, "check") {
-			fileContext.Check = true
-		}
-	} else if method == http.MethodHead || method == http.MethodGet {
-		fileContext.AttachmentName = ctx.QueryParam("attachmentName")
-		key = s.legacySupportOSS(ctx, key)
-	}
-
-	key = utils.PathNormalize(key)
-
-	bucketName, objectName := utils.PathRemoveSegment(key, 0)
-	if bucketName == "" {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
-	}
-
-	bucket, err := s.getBucketByName(bucketName)
-	if err != nil {
-		return nil, err
-	}
-	key = fmt.Sprintf("/%s%s", bucket.Name, objectName)
-	fileContext.Key = key
-	if len(key) > len(bucketName)+2 {
-		fileContext.ObjectName = key[len(bucketName)+2:]
-	}
-	fileContext.BucketName = bucketName
-	fileContext.Bucket = bucket
-	return fileContext, nil
 }
 
 // 获取Bucket信息, 处理别名的逻辑
@@ -279,104 +217,27 @@ func (s *Server) getBucketByName(name string) (*model.Bucket, error) {
 	return bucket, nil
 }
 
-// obsolete
-func (s *Server) file(ctx echo.Context) (err error) {
-	fileContext, err := s.prepareFileContext(ctx)
-	if err != nil {
-		return err
-	}
-	context := &middleware.ExtendContext{ctx, fileContext}
-	bucket := fileContext.Bucket
-
-	method := ctx.Request().Method
-	switch method {
-	case http.MethodGet:
-		fileContext.ParseImageSize(bucket)
-		fileContext.Meta, err = s.GetFileEntity(fileContext.HashKey())
-		if err != nil {
-			if err == common.ErrKeyNotFound {
-				if bucket.Basis.DefaultImage != "" && utils.IsImageByFileName(fileContext.Key) {
-					return s.downloadDefaultImage(context)
-				}
-				return echo.NewHTTPError(http.StatusNotFound)
-			}
-			return err
-		}
-		return s.download(context)
-	case http.MethodPost:
-		if fileContext.Uploads {
-			entity, err := s.uploads(context)
-			if err != nil {
-				return err
-			}
-			return ctx.JSON(http.StatusOK, entity)
-
-		}
-		if fileContext.Check {
-			result, err := s.digestCheck(context);
-			if err != nil {
-				return err
-			}
-			return ctx.JSON(http.StatusOK, result)
-
-		}
-		if fileContext.UploadId != "" && fileContext.PartNumber != 0 {
-			entity, err := s.uploadPart(context);
-			if err != nil {
-				return err
-			}
-			return ctx.JSON(http.StatusOK, entity)
-
-		}
-		if fileContext.UploadId != "" {
-			parts := make([]*model.Part, 0)
-			if err = ctx.Bind(&parts); err != nil {
-				return errors.WithStack(err)
-			}
-			entity, err := s.uploadComplete(context, parts);
-			if err != nil {
-				return err
-			}
-			return ctx.JSON(http.StatusOK, entity)
-		}
-		return s.uploadFile(context)
-	case http.MethodDelete:
-		if fileContext.UploadId != "" {
-			return s.uploadAbort(context)
-		}
-	case http.MethodPut:
-
-	}
-	return echo.ErrMethodNotAllowed
-}
-
-// obsolete
-func (s *Server) head(ctx echo.Context) error {
-	context := ctx.(*middleware.ExtendContext)
-	entity := context.FileContext.Meta
-
-	response := ctx.Response()
-	response.Header().Set(echo.HeaderContentType, entity.MimeType)
-	response.Header().Set(echo.HeaderContentLength, fmt.Sprintf("%d", entity.Size))
-	response.Header().Set(echo.HeaderLastModified, utils.TimestampToRFC822(entity.LastModified))
-	response.Header().Set(constant.HeaderETag, fmt.Sprintf(`"%s"`, entity.ETag))
-	response.WriteHeader(http.StatusNoContent)
-	return nil
-}
-
 func (s *Server) delete(ctx echo.Context) (err error) {
 	return http.ErrNotSupported
 }
 
 func (s *Server) parseBucketAndFixKey(fileContext *model.FileContext) (*model.FileContext, error) {
 	key := utils.PathNormalize(fileContext.Key)
+	if len(key) != len(fileContext.Key) {
+		fileContext.IsRemoveOriginal = true
+	}
 
 	bucketName, objectName := utils.PathRemoveSegment(key, 0)
 	if bucketName == "" {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "未设置正确设置Bucket名")
 	}
-
-	bucket, err := s.getBucketByName(bucketName)
+	var bucket *model.Bucket
+	var err error
+	if fileContext.IsDownload {
+		bucket, err = s.GetBucket(bucketName)
+	} else {
+		bucket, err = s.getBucketByName(bucketName)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -387,6 +248,24 @@ func (s *Server) parseBucketAndFixKey(fileContext *model.FileContext) (*model.Fi
 	}
 	fileContext.BucketName = bucketName
 	fileContext.Bucket = bucket
+
+	// process image size logical
+	if fileContext.IsDownload {
+		name := utils.QueryParam(fileContext.Params, constant.QueryNameSize)
+		name = strings.ToLower(name)
+		size := bucket.GetSize(name)
+		if size != nil {
+			fileContext.Size = size
+		} else {
+			name, key2 := utils.PathRemoveSegment(key, 1)
+			size := bucket.GetSize(name)
+			if size != nil {
+				fileContext.Key, fileContext.Size = key2, size
+				fileContext.IsRemoveOriginal = true
+			}
+		}
+	}
+
 	return fileContext, nil
 }
 
@@ -651,7 +530,8 @@ func (s *Server) validateFile(ctx echo.Context) error {
 		}
 
 		if utils.MimeMatch(file.MimeType, limit.MimeTypes) == false {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持%v格式的文件", strings.Join(limit.MimeTypes, ",")))
+			mimeTypes := utils.Mime2Extension(limit.MimeTypes)
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持%v后缀的文件", strings.Join(mimeTypes, ",")))
 		}
 	}
 

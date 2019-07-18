@@ -11,7 +11,7 @@ type Server interface {
 	GetBucket(string) (*model.Bucket, error)
 
 	// get meta information
-	GetFileEntity(hash string) (*model.FileMeta, error)
+	GetFileEntity(hash string, isRemoveOriginal bool) (*model.FileMeta, error)
 
 	AuthenticateUser(authToken string) (*model.User, error)
 }

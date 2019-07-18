@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -12,7 +13,8 @@ type LineFormatter struct {
 }
 
 func (l *LineFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	return []byte(entry.Message + "\n"), nil
+	msg := fmt.Sprintf("%s, %s\n", entry.Time.Format(time.RFC3339), entry.Message)
+	return []byte(msg), nil
 }
 
 func buildRecorder(home, name string) *logrus.Logger {

@@ -6,6 +6,7 @@ import VueAxios from 'vue-axios'
 
 import 'element-ui/lib/theme-chalk/index.css'
 import '@/less/all.less'
+import '@/components/filters'
 
 import App from './App.vue'
 import router from '@/router'
@@ -15,7 +16,6 @@ Vue.use(ElementUI, {size: 'mini'})
 Vue.use(VueAxios, axios)
 
 Vue.config.productionTip = false
-Vue.prototype.BASE_API_URL = "http://localhost:8089"
 Vue.prototype.$http.interceptors.request.use(config => {
   let user = JSON.parse(window.localStorage.getItem('user'))
 

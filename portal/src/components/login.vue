@@ -106,7 +106,7 @@
             this.axios.post('/api/login', this.loginForm)
               .then((resp) => {
                 window.localStorage.setItem('user', JSON.stringify(resp.data))
-                this.$router.push({ path: '/portal', query: this.otherQuery })
+                this.$router.push({ name: 'buckets', query: this.otherQuery })
                 this.loading = false
               })
               .catch(() => {

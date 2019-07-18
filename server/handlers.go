@@ -3,10 +3,10 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/constant"
-
-	"net/http"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
@@ -48,15 +48,16 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 
 	err = packageEntity.Validate()
 	if err != nil {
-		return errors.WithStack(err)
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("bad reqeust: %v", err))
 	}
 
 	var totalSize int64
 	for _, item := range packageEntity.Items {
-		entity, err := s.GetFileEntity(item.RawKey)
+		key := utils.PathNormalize(item.RawKey)
+		entity, err := s.GetFileEntity(key, len(key) != len(item.RawKey))
 		if err != nil {
 			if err == common.ErrKeyNotFound {
-				return echo.NewHTTPError(http.StatusNotFound)
+				return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("%s not found", item.RawKey))
 			}
 			return errors.WithStack(err)
 		}

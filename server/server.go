@@ -145,17 +145,21 @@ func (s *Server) install() {
 
 	s.app.Use(middleware2.InjectServer())
 
+	s.app.Use(middleware2.NewMetric())
+
 	s.app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:  []string{"*"},
 		AllowMethods:  []string{echo.HEAD, echo.GET, echo.POST, echo.PUT, echo.DELETE},
 		ExposeHeaders: []string{"X-Request-Id"},
-		AllowHeaders: []string{"X-Request-Id",
+		AllowHeaders: []string{
+			"X-Request-Id",
 			"X-Requested-With",
 			"X_Requested_With",
 			"X-Requested-LangCode",
 			"projectsysno",
 			"content-type",
 			"Authorization",
+			constant.HeaderXWhaleFSToken,
 			constant.HeaderVia},
 		MaxAge: 60 * 30,
 	}))
@@ -163,9 +167,8 @@ func (s *Server) install() {
 	s.app.Use(middleware2.InjectUser(middleware2.AuthUserConfig{
 		Server: s,
 		Skipper: func(context echo.Context) bool {
-			return !(strings.HasPrefix(context.Request().URL.Path, "/api/users") ||
-				strings.HasPrefix(context.Request().URL.Path, "/api/buckets") ||
-				context.Request().URL.Path == "/api/logout")
+			return strings.HasPrefix(context.Request().URL.Path, "/api/") == false ||
+				context.Request().URL.Path == "/api/login"
 		},
 	}))
 
@@ -190,20 +193,30 @@ func (s *Server) install() {
 	s.app.POST("/api/users", s.addUser)
 	s.app.PUT("/api/users", s.updateUser)
 	s.app.DELETE("/api/users/*", s.deleteUser)
+	s.app.GET("/api/users/:id", s.getUser)
 
 	s.app.GET("/api/buckets", s.listBucket)
 	s.app.GET("/api/buckets/:id", s.getBucket)
 	s.app.PUT("/api/buckets", s.updateBucket)
 	s.app.DELETE("/api/buckets/:id", s.deleteBucket)
 	s.app.POST("/api/buckets", s.addBucket)
+	s.app.GET("/api/bucket-names", s.listBucketNames)
 
 	s.app.GET("/api/mimetypes", s.listMimeTypes)
+	s.app.GET("/api/configuration", s.configuration)
+
+	s.app.POST("/api/access-key/", s.createAccessKey)
+	s.app.GET("/api/access-key/", s.listAccessKey)
+	s.app.POST("/api/access-key/:key", s.updateAccessKey)
+	s.app.DELETE("/api/access-key/:key", s.deleteAccessKey)
+	s.app.POST("/api/access-key/token", s.generateToken)
 
 	s.app.POST("/api/login", s.login)
 	s.app.POST("/api/logout", s.logout)
 
 	s.app.POST("/UploadHandler.ashx", s.legacyUploadFile)
 	s.app.POST("/BatchDownloadHandler.ashx", s.legacyBatchDownload)
+	s.app.POST("/BatchDownLoadHandler.ashx", s.legacyBatchDownload)
 	s.app.Match(methods, "/DownloadSaveServerHandler.ashx", s.legacyUploadByRemote)
 	s.app.GET("/DownloadHandler.ashx", s.legacyDownloadFile)
 	s.app.GET("/DownLoadHandler.ashx", s.legacyDownloadFile)
@@ -211,13 +224,11 @@ func (s *Server) install() {
 	s.app.Match(methods, "/BatchMergePdfHandler.ashx", s.legacyMergePDF)
 	s.app.Match(methods, "/SliceUploadHandler.ashx", s.legacySliceUpload)
 
-	s.app.POST("/", s.uploadByForm)
 	s.app.GET("/*", s.downloadByUrl)
+	s.app.POST("/", s.uploadByForm)
 	s.app.PUT("/*", s.uploadByBody)
 	s.app.POST("/*", s.uploadByChunks)
 	s.app.DELETE("/*", s.deleteChunks)
-
-	//s.app.Match(methodsNew, "/*", s.file)
 }
 
 func (s *Server) ListenAndServe() {

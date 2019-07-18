@@ -166,8 +166,8 @@ func (s *Scheduler) RunPackageFileTask() {
 	logger.Info("All tasks completed!\n")
 }
 
-func getFileEntity(metaClient common.Dao) func(hash string) (meta *model.FileMeta, e error) {
-	return func(hash string) (meta *model.FileMeta, e error) {
+func getFileEntity(metaClient common.Dao) func(hash string, isRemoveOriginal bool) (meta *model.FileMeta, e error) {
+	return func(hash string, isRemoveOriginal bool) (meta *model.FileMeta, e error) {
 		entity := &model.FileMeta{}
 		if err := metaClient.Get(hash, entity); err != nil {
 			return nil, err

@@ -26,3 +26,12 @@ func Url2FileName(u string) string {
 	}
 	return path.Base(opt.Path)
 }
+
+func QueryParam(values url.Values, name string) string {
+	for key := range values {
+		if strings.ToLower(key) == strings.ToLower(name) {
+			return values.Get(key)
+		}
+	}
+	return ""
+}

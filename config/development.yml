@@ -1,4 +1,4 @@
-Host: :8089
+Host: 0.0.0.0:8089
 LegacyFS: http://imagetest.yzw.cn.qa:8000
 Meta: http://whalefs:123456@192.168.1.9:8091/whalefs
 BucketMeta: http://whalefs:123456@192.168.1.9:8091/basis
@@ -27,7 +27,9 @@ Log:
 Sync:
   Enable: true
   DFSHost: http://localhost:8089
-  RabbitMQConnection: amqp://guest:guest@localhost:5672/
+  RabbitMQConnection: amqp://guest:guest@localhost:5672/dfs
   RabbitMQExchange: /whale-fs
   RabbitMQQueue: whale-fs
   LegacyFSRoot: /Users/benjamin.c.yan/dfs/legacyfs
+Portal:
+  dfsHost: http://localhost:8089

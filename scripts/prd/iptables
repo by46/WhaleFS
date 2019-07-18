@@ -19,3 +19,7 @@
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 6081:6082 -j ACCEPT
 # nginx
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+# prometheus
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 9200 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 28091 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 26081 -j ACCEPT

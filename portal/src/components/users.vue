@@ -1,33 +1,36 @@
 <template>
     <div>
-        <el-button class="pull-right" type="primary" @click="onAdd">新增</el-button>
         <el-table
                 :data="userData"
                 style="width: 100%">
             <el-table-column
-                    prop="id"
-                    label="ID"
-                    width="180">
-            </el-table-column>
-            <el-table-column
-                    prop="doc"
-                    label="内容">
+                    label="名称"
+                    width="200">
                 <template slot-scope="{row}">
-                    {{row.basis}}
+                    {{row.basis.username}}
                 </template>
             </el-table-column>
             <el-table-column
-                    prop=""
+                    label="Buckets">
+                <template slot-scope="{row}">
+                    <el-tag type="success" v-for="bucket in row.basis.buckets" :key="bucket" style="margin: 3px 3px">
+                        {{bucket}}
+                    </el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column
                     label="操作"
                     width="180">
+                <template slot="header">
+                    <el-button type="primary" @click="onAdd">新增</el-button>
+                </template>
                 <template slot-scope="{row}">
-                    <el-button style="padding: 0px"
-                               type="text"
+                    <el-button type="text"
                                @click="onEdit(row)">
                         编辑
                     </el-button>
-                    <el-button style="padding: 0px"
-                               type="text"
+                    <el-button type="text"
+                               style="color: #F56C6C;"
                                @click="onDelete(row)">
                         删除
                     </el-button>
@@ -42,7 +45,7 @@
                              @json-change="onJsonChange"></vue-json-editor>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogUserVisible = false">取 消</el-button>
-                <el-button type="primary" @click="onSave(isEdit?editRow.id:newBucketId)">确 定</el-button>
+                <el-button type="primary" @click="onEdit()">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -53,7 +56,7 @@
   import vueJsonEditor from 'vue-json-editor'
 
   export default {
-    name: "users",
+    name: 'users',
     components: {
       vueJsonEditor
     },
@@ -70,40 +73,37 @@
     methods: {
       loadData() {
         var self = this
-        this.$http.get("/api/users")
-          .then(function (response) {
-            self.userData = response.data;
-          }).catch(function (error) {
+        this.$http.get('/api/users')
+        .then(function (response) {
+          self.userData = response.data;
+        }).catch(function (error) {
           self.$message(error.response.data.message)
         })
       },
       onEdit(row) {
-        this.isEdit = true
-        this.dialogUserVisible = true
-        this.editRow = row
-        this.editUser = row.basis
+        this.$router.push({name: 'user', query: {id: row.id, version: row.version}})
       },
       onSave(id) {
         var self = this
         this.dialogUserVisible = false
         if (this.isEdit) {
-          this.$http.put("/api/users", {
-            "id": id,
-            "version": this.editRow.version,
-            "basis": this.editUser
+          this.$http.put('/api/users', {
+            'id': id,
+            'version': this.editRow.version,
+            'basis': this.editUser
           }).then(function () {
-            self.$message("修改成功")
+            self.$message('修改成功')
             self.loadData()
           }).catch(function (error) {
             self.$message(error.response.data.message)
           })
         } else {
-          this.$http.post("/api/users", {
-            "id": id,
-            "version": "",
-            "basis": this.editUser
+          this.$http.post('/api/users', {
+            'id': id,
+            'version': '',
+            'basis': this.editUser
           }).then(function () {
-            self.$message("创建成功")
+            self.$message('创建成功')
             self.loadData()
           }).catch(function (error) {
             self.$message(error.response.data.message)
@@ -114,20 +114,27 @@
         this.editUser = value
       },
       onAdd() {
-        this.isEdit = false
-        this.dialogUserVisible = true
-        this.editUser = {}
-        this.editRow = {}
+        this.$router.push({name: 'user'})
       },
       onDelete(row) {
-        var self = this
-        this.$http.delete(`/api/users/${row.id}`)
+        let self = this
+        this.$confirm('用户删除之后将不能恢复，是否继续', 'Warning', {
+          confirmButtonText: '继续',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        .then(() => {
+          self.$http.delete(`/api/users/${row.id}`)
           .then(function () {
-            self.$message("删除成功")
+            self.$message('删除成功')
             self.loadData()
           }).catch(function (error) {
-          self.$message(error.response.data.message)
+            self.$message(error.response.data.message)
+          })
         })
+        .catch(() => {
+        })
+
       }
     },
     mounted() {
