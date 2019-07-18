@@ -637,11 +637,12 @@
               let obj = undefined
               let size = self.upload.size || 'Original'
               if (_.indexOf(filename, '/') < 0) {
-                obj = {name: item.file.name, url: `${url}/pdt/${size}/${filename}`}
+                obj = {name: item.file.name, url: `${url}/pdt/${filename}?size=${size}`}
               } else {
                 let segments = _.split(filename, '/', 2)
                 if (self.upload.size) {
-                  filename = _.join([segments[0], self.upload.size, segments[1]], '/')
+                  filename = _.join([segments[0], segments[1]], '/')
+                  filename = `${filename}?size=${self.upload.size}`
                 }
                 obj = {name: item.file.name, url: `${url}/${filename}`}
               }
