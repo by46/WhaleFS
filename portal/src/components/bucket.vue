@@ -123,8 +123,16 @@
                         </el-col>
                     </el-row>
                     <el-row>
-                        <el-form-item label="Mime" prop="limit.mime_types">
-                            <lte-mimes v-model="entity.limit.mime_types" :items="items"></lte-mimes>
+                        <el-col :md="8">
+                            <el-form-item label="图片宽高比" prop="limit.ratio">
+                                <el-input placeholder="宽高比, 例如：4:3"
+                                          v-model="entity.limit.ratio"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-form-item label="文件后缀" prop="limit.extensions">
+                            <lte-mimes v-model="entity.limit.extensions" :items="extensions"></lte-mimes>
                         </el-form-item>
                     </el-row>
 
@@ -400,6 +408,7 @@
         isModify: false,
         version: '',
         items: [],
+        extensions: [],
         options: [],
         replications: [
           {label: '无备份', value: '000'},
@@ -557,7 +566,7 @@
         let self = this
         self.$http.get('/api/mimetypes')
         .then(({data}) => {
-          self.items = data
+          self.extensions = data
         })
         if (name) {
           self.$http.get(`/api/buckets/${name}`)

@@ -144,12 +144,13 @@ type ImageSize struct {
 }
 
 type BucketLimit struct {
-	MinSize   *int64   `json:"min_size"`
-	MaxSize   *int64   `json:"max_size"`
-	Width     *int     `json:"width"`
-	Height    *int     `json:"height"`
-	Ratio     string   `json:"ratio"`
-	MimeTypes []string `json:"mime_types"`
+	MinSize    *int64   `json:"min_size"`
+	MaxSize    *int64   `json:"max_size"`
+	Width      *int     `json:"width"`
+	Height     *int     `json:"height"`
+	Ratio      string   `json:"ratio"`
+	MimeTypes  []string `json:"mime_types"`
+	Extensions []string `json:"extensions"`
 }
 
 type Bucket struct {

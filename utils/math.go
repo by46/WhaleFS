@@ -9,7 +9,7 @@ import (
 )
 
 func Float64Equal(x, y float64) bool {
-	return math.Abs(math.Dim(x, y)) <= constant.Fraction
+	return math.Abs(x-y) <= constant.Fraction
 }
 
 func RatioEval(ratio string) *float64 {

@@ -8,9 +8,9 @@
                 :label="group.name">
             <el-option
                     v-for="item in group.items"
-                    :key="item.value"
+                    :key="item.name"
                     :label="item.name"
-                    :value="item.value">
+                    :value="item.name">
                 <span style="float: left">{{ item.name }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
             </el-option>
@@ -36,7 +36,7 @@
     },
     data() {
       return {
-        filter: ''
+        filter: '',
       }
     },
     computed: {
@@ -47,12 +47,7 @@
             return _.includes(t.name, this.filter) || _.includes(t.value, this.filter)
           })
         }
-        let types = _(filterItems).groupBy('value')
-        .toPairs()
-        .map(t => {
-          return {value: t[0], name: _(t[1]).map(x => x.name).join(', ')}
-        }).value()
-        return _(types).groupBy(type => {
+        return _(filterItems).groupBy(type => {
           const name = _.split(type.value, '/')[0]
           if (_.includes(category, name)) {
             return name

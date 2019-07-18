@@ -151,6 +151,19 @@ func MimeMatch(mimeType string, patterns []string) bool {
 	return false
 }
 
+func ExtensionMatch(ext string, extensions []string) bool {
+	if len(extensions) == 0 {
+		return true
+	}
+	ext = strings.ToLower(ext)
+	for _, extension := range extensions {
+		if strings.ToLower(extension) == ext {
+			return true
+		}
+	}
+	return false
+}
+
 func NormalMimeType(mimeType string) string {
 	media, _, err := mime.ParseMediaType(mimeType)
 	if err != nil {
