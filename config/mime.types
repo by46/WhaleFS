@@ -1569,3 +1569,4 @@ application/x-dwl       dwl dwl2
 image/vnd.dws           dws
 image/vnd.dwt           dwt
 application/x-navimap   map
+application/x-rar-compressed    rar
