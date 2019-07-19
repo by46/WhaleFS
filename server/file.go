@@ -529,10 +529,14 @@ func (s *Server) validateFile(ctx echo.Context) error {
 			}
 		}
 
-		if utils.MimeMatch(file.MimeType, limit.MimeTypes) == false {
-			mimeTypes := utils.Mime2Extension(limit.MimeTypes)
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持%v后缀的文件", strings.Join(mimeTypes, ",")))
+		if utils.ExtensionMatch(file.Extension, limit.Extensions) == false {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持%v后缀的文件", strings.Join(limit.Extensions, ",")))
 		}
+
+		//if utils.MimeMatch(file.MimeType, limit.MimeTypes) == false {
+		//	mimeTypes := utils.Mime2Extension(limit.MimeTypes)
+		//	return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("只支持%v后缀的文件", strings.Join(mimeTypes, ",")))
+		//}
 	}
 
 	hash := params.HashKey()

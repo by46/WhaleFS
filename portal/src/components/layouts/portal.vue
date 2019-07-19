@@ -72,15 +72,11 @@
     },
     methods: {
       onLogout() {
-        var self = this
-        this.$http.post('/api/logout', {})
-        .then(function () {
-          window.localStorage.removeItem('user')
-          self.$router.push({path: '/login'})
-        })
+        window.localStorage.removeItem('user')
+        this.$router.push({name: 'login'})
       },
       onLogin() {
-        this.$router.push({path: '/login'})
+        this.$router.push({name: 'login'})
       },
       handleSelect(key) {
         this.$router.push({name: key})

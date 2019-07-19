@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -163,14 +162,7 @@ func (s *Server) install() {
 			constant.HeaderVia},
 		MaxAge: 60 * 30,
 	}))
-
-	s.app.Use(middleware2.InjectUser(middleware2.AuthUserConfig{
-		Server: s,
-		Skipper: func(context echo.Context) bool {
-			return strings.HasPrefix(context.Request().URL.Path, "/api/") == false ||
-				context.Request().URL.Path == "/api/login"
-		},
-	}))
+	
 
 	methods := []string{
 		http.MethodHead,
@@ -189,30 +181,36 @@ func (s *Server) install() {
 	s.app.GET("/metrics", s.metric)
 	s.app.HEAD("/status.html", s.status)
 
-	s.app.GET("/api/users", s.listUser)
-	s.app.POST("/api/users", s.addUser)
-	s.app.PUT("/api/users", s.updateUser)
-	s.app.DELETE("/api/users/*", s.deleteUser)
-	s.app.GET("/api/users/:id", s.getUser)
+	api := s.app.Group("/api", middleware2.InjectUser(middleware2.AuthUserConfig{
+		Server: s,
+		Skipper: func(context echo.Context) bool {
+			return strings.HasPrefix(context.Request().URL.Path, "/api/") == false ||
+				context.Request().URL.Path == "/api/login2"
+		},
+	}))
+	api.GET("/users", s.listUser)
+	api.POST("/users", s.addUser)
+	api.PUT("/users", s.updateUser)
+	api.DELETE("/users/*", s.deleteUser)
+	api.GET("/users/:id", s.getUser)
 
-	s.app.GET("/api/buckets", s.listBucket)
-	s.app.GET("/api/buckets/:id", s.getBucket)
-	s.app.PUT("/api/buckets", s.updateBucket)
-	s.app.DELETE("/api/buckets/:id", s.deleteBucket)
-	s.app.POST("/api/buckets", s.addBucket)
-	s.app.GET("/api/bucket-names", s.listBucketNames)
+	api.GET("/buckets", s.listBucket)
+	api.GET("/buckets/:id", s.getBucket)
+	api.PUT("/buckets", s.updateBucket)
+	api.DELETE("/buckets/:id", s.deleteBucket)
+	api.POST("/buckets", s.addBucket)
+	api.GET("/bucket-names", s.listBucketNames)
 
-	s.app.GET("/api/mimetypes", s.listMimeTypes)
-	s.app.GET("/api/configuration", s.configuration)
+	api.GET("/mimetypes", s.listMimeTypes)
 
-	s.app.POST("/api/access-key/", s.createAccessKey)
-	s.app.GET("/api/access-key/", s.listAccessKey)
-	s.app.POST("/api/access-key/:key", s.updateAccessKey)
-	s.app.DELETE("/api/access-key/:key", s.deleteAccessKey)
-	s.app.POST("/api/access-key/token", s.generateToken)
+	api.POST("/access-key/", s.createAccessKey)
+	api.GET("/access-key/", s.listAccessKey)
+	api.POST("/access-key/:key", s.updateAccessKey)
+	api.DELETE("/access-key/:key", s.deleteAccessKey)
+	api.POST("/access-key/token", s.generateToken)
 
 	s.app.POST("/api/login", s.login)
-	s.app.POST("/api/logout", s.logout)
+	s.app.GET("/api/configuration", s.configuration)
 
 	s.app.POST("/UploadHandler.ashx", s.legacyUploadFile)
 	s.app.POST("/BatchDownloadHandler.ashx", s.legacyBatchDownload)
@@ -237,32 +235,4 @@ func (s *Server) ListenAndServe() {
 	if err := s.app.Start(address); err != nil {
 		s.Logger.Fatalf("Listen error %v\n", err)
 	}
-}
-
-func (s *Server) AuthenticateUser(authToken string) (*model.User, error) {
-	t := &model.Token{}
-	err := s.BucketMeta.Get(prefixToken+authToken, t)
-	if err != nil {
-		if err == common.ErrKeyNotFound {
-			return nil, echo.NewHTTPError(http.StatusUnauthorized)
-		}
-		return nil, echo.NewHTTPError(http.StatusInternalServerError)
-	}
-	if t.Expires.Before(time.Now()) {
-		return nil, echo.NewHTTPError(http.StatusUnauthorized)
-	}
-
-	u := &model.User{}
-	err = s.BucketMeta.Get(t.UserId, u)
-	if err != nil {
-		if err == common.ErrKeyNotFound {
-			return nil, echo.NewHTTPError(http.StatusNotFound)
-		}
-		return nil, echo.NewHTTPError(http.StatusInternalServerError)
-	}
-	return u, nil
-}
-
-func (s *Server) getCurrentUser(ctx echo.Context) *model.User {
-	return ctx.Get("user").(*model.User)
 }

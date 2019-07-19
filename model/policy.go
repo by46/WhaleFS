@@ -15,7 +15,7 @@ type Policy struct {
 }
 
 func (p *Policy) Decode(sign, appSecretKey, payload string) (err error) {
-	content, err := base64.StdEncoding.DecodeString(payload)
+	content, err := base64.URLEncoding.DecodeString(payload)
 	if err != nil {
 		return fmt.Errorf("策略格式错误")
 	}
@@ -35,5 +35,5 @@ func (p *Policy) Decode(sign, appSecretKey, payload string) (err error) {
 func (p *Policy) Encode(appId, appSecretKey string) string {
 	content, _ := json.Marshal(p)
 	encodedSign := utils.Encode(content, appSecretKey)
-	return fmt.Sprintf("%s:%s:%s", appId, encodedSign, base64.StdEncoding.EncodeToString(content))
+	return fmt.Sprintf("%s:%s:%s", appId, encodedSign, base64.URLEncoding.EncodeToString(content))
 }

@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/dgrijalva/jwt-go v0.0.0-20180921172315-3af4c746e1c2 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.0
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/uuid v1.1.1

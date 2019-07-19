@@ -20,7 +20,7 @@ Vue.prototype.$http.interceptors.request.use(config => {
   let user = JSON.parse(window.localStorage.getItem('user'))
 
   if (user && user.token) {
-    config.headers.Authorization = `Bearer ${user.token}`
+    config.headers.Authorization = `jwt ${user.token}`
   }
   return config
 })

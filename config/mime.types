@@ -1561,7 +1561,6 @@ application/x-ifc       ifc
 application/x-cgr       cgr
 application/x-pln       pln
 application/step        stp
-application/x-vwx       vwx
 application/x-bak       bak
 image/vnd.shx           shx
 application/x-fas       fas
@@ -1570,3 +1569,4 @@ application/x-dwl       dwl dwl2
 image/vnd.dws           dws
 image/vnd.dwt           dwt
 application/x-navimap   map
+application/x-rar-compressed    rar

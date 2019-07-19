@@ -1,6 +1,7 @@
 <template>
     <div class="login-container">
-        <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
+        <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on"
+                 label-position="left">
 
             <div class="title-container">
                 <h3 class="title">Login Form</h3>
@@ -42,7 +43,9 @@
                 </el-form-item>
             </el-tooltip>
 
-            <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+            <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;"
+                       @click.native.prevent="handleLogin">Login
+            </el-button>
         </el-form>
     </div>
 </template>
@@ -64,8 +67,8 @@
           password: ''
         },
         loginRules: {
-          username: [{ required: true, trigger: 'blur'}],
-          password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+          username: [{required: true, trigger: 'blur'}],
+          password: [{required: true, trigger: 'blur', validator: validatePassword}]
         },
         passwordType: 'password',
         capsTooltip: false,
@@ -78,7 +81,7 @@
     mounted() {
       let user = JSON.parse(window.localStorage.getItem('user'))
       if (user && user.token) {
-        this.$router.push({ path: '/portal', query: this.otherQuery })
+        this.$router.push({path: '/portal', query: this.otherQuery})
       }
       if (this.loginForm.username === '') {
         this.$refs.username.focus()
@@ -87,7 +90,7 @@
       }
     },
     methods: {
-      checkCapslock({ shiftKey, key } = {}) {
+      checkCapslock({shiftKey, key} = {}) {
         if (key && key.length === 1) {
           if (shiftKey && (key >= 'a' && key <= 'z') || !shiftKey && (key >= 'A' && key <= 'Z')) {
             this.capsTooltip = true
@@ -104,9 +107,9 @@
           if (valid) {
             this.loading = true
             this.axios.post('/api/login', this.loginForm)
-              .then((resp) => {
-                window.localStorage.setItem('user', JSON.stringify(resp.data))
-                this.$router.push({ name: 'buckets', query: this.otherQuery })
+              .then(({data}) => {
+                window.localStorage.setItem('user', JSON.stringify(data))
+                this.$router.push({name: 'buckets', query: this.otherQuery})
                 this.loading = false
               })
               .catch(() => {
@@ -129,12 +132,14 @@
             color: #fff;
         }
     }
+
     /* reset element-ui css */
     .login-container .el-input {
         display: inline-block;
         height: 47px;
         width: 85%;
     }
+
     .login-container .el-input input {
         background: transparent;
         border: 0px;
@@ -145,10 +150,12 @@
         height: 47px;
         caret-color: #fff;
     }
+
     .login-container .el-input input:-webkit-autofill {
         box-shadow: 0 0 0px 1000px #283443 inset !important;
         -webkit-text-fill-color: #fff !important;
     }
+
     .login-container .el-form-item {
         border: 1px solid rgba(255, 255, 255, 0.1);
         background: rgba(0, 0, 0, 0.1);
@@ -164,6 +171,7 @@
         background-color: #2d3a4b;
         overflow: hidden;
     }
+
     .login-container .login-form {
         position: relative;
         width: 520px;
@@ -172,14 +180,17 @@
         margin: 0 auto;
         overflow: hidden;
     }
+
     .login-container .tips {
         font-size: 14px;
         color: #fff;
         margin-bottom: 10px;
     }
+
     .login-container .tips span:first-of-type {
         margin-right: 16px;
     }
+
     .login-container .svg-container {
         padding: 6px 5px 6px 15px;
         color: #889aa4;
@@ -187,9 +198,11 @@
         width: 30px;
         display: inline-block;
     }
+
     .login-container .title-container {
         position: relative;
     }
+
     .login-container .title-container .title {
         font-size: 26px;
         color: #eee;
@@ -197,6 +210,7 @@
         text-align: center;
         font-weight: bold;
     }
+
     .login-container .show-pwd {
         position: absolute;
         right: 10px;
@@ -206,11 +220,13 @@
         cursor: pointer;
         user-select: none;
     }
+
     .login-container .thirdparty-button {
         position: absolute;
         right: 0;
         bottom: 6px;
     }
+
     @media only screen and (max-width: 470px) {
         .login-container .thirdparty-button {
             display: none;

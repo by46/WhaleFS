@@ -7,6 +7,7 @@ TaskBucket: http://whale:3vxtMJHTI!IDRGrW@192.168.220.65:8091/tasks
 TaskFileBucketName: benjamin
 TaskFileSizeThreshold: 1073741824
 HttpClientBase: http://localhost:8089
+JwtSecretKey: 22858338a7ecf809d4a493ead5bbaea2db043847
 TempFileDir: ./tmp/
 Basis:
   BucketHome: home
