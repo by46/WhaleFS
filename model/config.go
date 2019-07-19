@@ -59,6 +59,7 @@ type Config struct {
 	TaskFileSizeThreshold int64
 	HttpClientBase        string
 	TempFileDir           string
+	JwtSecretKey          string
 	Sync                  *SyncConfig
 	Portal                *PortalConfig
 }

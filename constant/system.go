@@ -13,6 +13,7 @@ const (
 	KeyTimeStamp         = "system.timestamp"
 	KeyUser              = "system.user"
 	KeyAccess            = "system.access"
+	ContextKeyUser       = "user"
 	GzipScheme           = "gzip"
 	GzipLimit            = 5 << 10          // 5K
 	TTLChunk             = 60 * 60 * 24 * 7 //7 days

@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo"
 	"gopkg.in/couchbase/gocb.v1"
 
@@ -274,96 +273,6 @@ func (s *Server) deleteBucket(ctx echo.Context) error {
 	if err = s.BucketMeta.Set(constant.KeyTimeStamp, ts); err != nil {
 		s.Logger.Errorf("数据库操作失败 %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
-	}
-
-	return nil
-}
-
-func (s *Server) login(ctx echo.Context) error {
-	reqUser := new(model.User)
-	if err := ctx.Bind(reqUser); err != nil {
-		s.Logger.Error(err)
-		return echo.NewHTTPError(http.StatusBadRequest)
-	}
-
-	var user = &model.User{}
-	err := s.BucketMeta.Get(prefixUser+reqUser.Name, user)
-	if err != nil {
-		if err == common.ErrFileNotFound {
-			return echo.NewHTTPError(http.StatusNotFound)
-		}
-		s.Logger.Errorf("数据库操作失败 %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError)
-	}
-
-	sha1, err := utils.Sha1(reqUser.Password)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError)
-	}
-	if user.Password == sha1 {
-		userToken := uuid.New().String()
-		expires := time.Now().Add(30 * 24 * time.Hour)
-
-		newToken := &model.Token{
-			Value:   userToken,
-			Expires: expires,
-			UserId:  prefixUser + reqUser.Name,
-			Type:    typeToken,
-		}
-		err := s.BucketMeta.Set(prefixToken+userToken, newToken)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-
-		user.Tokens = append(user.Tokens, userToken)
-		err = s.BucketMeta.Set(prefixUser+reqUser.Name, user)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-
-		uInfo := &userInfo{
-			Name:    user.Name,
-			Buckets: user.Buckets,
-			Token:   userToken,
-		}
-		return ctx.JSON(http.StatusOK, uInfo)
-	}
-	return ctx.NoContent(http.StatusUnauthorized)
-}
-
-func (s *Server) logout(ctx echo.Context) error {
-	u := s.getCurrentUser(ctx)
-
-	authToken := ctx.Request().Header.Get("Authorization")
-	authToken = strings.TrimPrefix(authToken, "Bearer ")
-
-	err := s.BucketMeta.Delete(prefixToken+authToken, 0)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError)
-	}
-
-	user := &model.User{}
-	for {
-		cas, err := s.BucketMeta.GetWithCas(prefixUser+u.Name, user)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-
-		var newTokens []string
-		for _, token := range user.Tokens {
-			if authToken != token {
-				newTokens = append(newTokens, token)
-			}
-		}
-		user.Tokens = newTokens
-		err = s.BucketMeta.SubSet(prefixUser+u.Name, "tokens", user.Tokens, cas)
-		if err != nil {
-			if err == gocb.ErrKeyExists {
-				continue
-			}
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-		break
 	}
 
 	return nil

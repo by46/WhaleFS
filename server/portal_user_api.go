@@ -2,13 +2,20 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/by46/whalefs/common"
-	"github.com/by46/whalefs/model"
-	"github.com/by46/whalefs/utils"
-	"github.com/labstack/echo"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
+	"github.com/pkg/errors"
+
+	"github.com/by46/whalefs/common"
+	"github.com/by46/whalefs/constant"
+	"github.com/by46/whalefs/model"
+	"github.com/by46/whalefs/utils"
 )
 
 const (
@@ -27,6 +34,11 @@ type userBasisInfo struct {
 	Cas     uint64      `json:"cas,omitempty"`
 	Version string      `json:"version"`
 	Basis   interface{} `json:"basis,omitempty"`
+}
+
+type AuthenticationClaims struct {
+	Name string `json:"name"`
+	jwt.StandardClaims
 }
 
 func (s *Server) addUser(ctx echo.Context) error {
@@ -167,4 +179,77 @@ func (s *Server) deleteUser(ctx echo.Context) error {
 	}
 
 	return nil
+}
+
+func (s *Server) login(ctx echo.Context) error {
+	u := &struct {
+		Name     string `json:"username"`
+		Password string `json:"password"`
+	}{}
+	if err := ctx.Bind(u); err != nil {
+		s.Logger.Error(err)
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
+	user := &model.User{}
+	err := s.BucketMeta.Get(prefixUser+u.Name, user)
+	if err != nil {
+		if err == common.ErrFileNotFound {
+			return echo.NewHTTPError(http.StatusNotFound)
+		}
+		s.Logger.Errorf("数据库操作失败 %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	sha1, err := utils.Sha1(u.Password)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	if user.Password != sha1 {
+		return ctx.NoContent(http.StatusUnauthorized)
+	}
+
+	claims := AuthenticationClaims{
+		user.Name,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 24 * 30).Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	signed, err := token.SignedString([]byte(s.Config.JwtSecretKey))
+
+	if err != nil {
+		s.Logger.Errorf("jwt sign failed: %+v", errors.WithStack(err))
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	info := struct {
+		Token   string   `json:"token"`
+		Name    string   `json:"username"`
+		Buckets []string `json:"buckets"`
+	}{signed, user.Name, user.Buckets,}
+	return ctx.JSON(http.StatusOK, info)
+}
+
+func (s *Server) AuthenticateUser(token string) (*model.User, error) {
+	t, err := jwt.ParseWithClaims(token, &AuthenticationClaims{}, func(token *jwt.Token) (i interface{}, e error) {
+		return []byte(s.Config.JwtSecretKey), nil
+	})
+	if err != nil || t.Valid == false {
+		return nil, echo.NewHTTPError(http.StatusUnauthorized)
+	}
+	claims, ok := t.Claims.(*AuthenticationClaims);
+	if ok == false {
+		return nil, echo.NewHTTPError(http.StatusUnauthorized)
+	}
+	key := fmt.Sprintf("%s.%s", constant.KeyUser, claims.Name)
+	u := new(model.User)
+	err = s.BucketMeta.Get(key, u)
+	return u, errors.WithStack(err)
+}
+
+func (s *Server) getCurrentUser(ctx echo.Context) *model.User {
+	return ctx.Get("user").(*model.User)
 }

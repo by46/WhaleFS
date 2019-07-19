@@ -1,9 +1,13 @@
 package middleware
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"strings"
+
+	"github.com/by46/whalefs/constant"
 )
 
 func InjectUser(config AuthUserConfig) echo.MiddlewareFunc {
@@ -17,14 +21,26 @@ func InjectUser(config AuthUserConfig) echo.MiddlewareFunc {
 				return next(ctx)
 			}
 
-			authToken := ctx.Request().Header.Get("Authorization")
-			authToken = strings.TrimPrefix(authToken, "Bearer ")
-			user, err := config.Server.AuthenticateUser(authToken)
-			if err != nil {
-				return err
+			token := ctx.Request().Header.Get(echo.HeaderAuthorization)
+			if token == "" {
+				return echo.NewHTTPError(http.StatusUnauthorized)
 			}
-			ctx.Set("user", user)
-			return next(ctx)
+			segments := strings.Fields(token)
+			if len(segments) != 2 {
+				return echo.NewHTTPError(http.StatusUnauthorized)
+			}
+
+			switch strings.ToLower(segments[0]) {
+			case "jwt":
+				user, err := config.Server.AuthenticateUser(segments[1])
+				if err != nil {
+					return err
+				}
+				ctx.Set(constant.ContextKeyUser, user)
+				return next(ctx)
+			default:
+				return echo.NewHTTPError(http.StatusUnauthorized)
+			}
 		}
 	}
 }
