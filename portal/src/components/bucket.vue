@@ -631,7 +631,7 @@
           } else {
             key = `/${bucket}/${filename}.${extension}`
           }
-          const observable = upload(item.file, key, {token, overrid}, {host: url})
+          const observable = upload(item.file, key, {token, override}, {host: url})
           observable.subscribe({
             complete(data) {
               let filename = data.url
