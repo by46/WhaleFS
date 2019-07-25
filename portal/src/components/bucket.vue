@@ -623,6 +623,7 @@
           let filename = uuidv4()
           let url = bus.get('dfsHost')
           let bucket = self.entity.name
+          const override = self.upload.override
           let key = _.trim(self.upload.key)
           if (key) {
             key = _.trim(key, '/')
@@ -630,7 +631,7 @@
           } else {
             key = `/${bucket}/${filename}.${extension}`
           }
-          const observable = upload(item.file, key, {token}, {host: url})
+          const observable = upload(item.file, key, {token, overrid}, {host: url})
           observable.subscribe({
             complete(data) {
               let filename = data.url
