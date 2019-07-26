@@ -82,7 +82,7 @@ func (f *FileMeta) AsEntity(bucketName, fileName string) *FileEntity {
 		key = fmt.Sprintf("%s/Original%s", aliasBucketName, objectName)
 	}
 	return &FileEntity{
-		Key:      key,
+		Key:      f.RawKey,
 		Url:      key,
 		ETag:     utils.Sha1WithLength(f.FID, 40),
 		Title:    path.Base(key),
