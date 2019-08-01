@@ -32,13 +32,13 @@ portal的测试账号test/admin
 Windows：C:\Windows\system32\drivers\etc\hosts, 规则如下：
 
 ```text
-172.168.220.65 oss-portal.yzw.cn
+192.168.220.66 oss-portal.yzw.cn
 ```
 
 MacOS: /etc/hosts, 规则如下：
 
 ```text
-172.168.220.65 oss-portal.yzw.cn
+192.168.220.66 oss-portal.yzw.cn
 ```
 
 ### 
@@ -303,10 +303,15 @@ Host: 192.168.1.9:8089
 
 ### 下载接口（图片Resize， 水印效果）
 
-如果有图片变化和水印效果的需求， 需要先在我们Portal上设置Resize和水印效果，然后通过本接口使用， 使用Resize的名称替换Original特殊字符, 而水印也是在bucket上设置， 目前支持一个默认水印图
+如果有图片变化和水印效果的需求， 需要先在我们Portal上设置Resize(p200)和水印效果，然后通过本接口使用， 使用Resize的名称替换Original特殊字符, 而水印也是在bucket上设置， 目前支持一个默认水印图
 
 ```
 GET /benjamin/p200/b0f3502d-490c-4708-8002-fa328db5ca48.txt HTTP/1.1
+Host: 192.168.1.9:8089
+
+或者
+
+GET /benjamin/b0f3502d-490c-4708-8002-fa328db5ca48.txt?size=p160 HTTP/1.1
 Host: 192.168.1.9:8089
 ```
 

@@ -20,10 +20,17 @@ func (s *Server) favicon(ctx echo.Context) error {
 	return ctx.File("static/logo.png")
 }
 
+func (s *Server) home(ctx echo.Context) error {
+	return ctx.NoContent(200)
+}
+
 func (s *Server) faq(ctx echo.Context) error {
 	return ctx.HTML(http.StatusOK, "<!-- Newegg -->")
 }
 
+/**
+obsolete
+ */
 func (s *Server) tools(ctx echo.Context) error {
 	if ctx.Request().Method == "GET" {
 		return ctx.File("templates/tools.html")
@@ -31,6 +38,9 @@ func (s *Server) tools(ctx echo.Context) error {
 	return s.error(http.StatusForbidden, fmt.Errorf("method not implements"))
 }
 
+/**
+obsolete
+ */
 func (s *Server) pkgDownloadTool(ctx echo.Context) error {
 	if ctx.Request().Method == "GET" {
 		return ctx.File("templates/pkg-download-tool.html")

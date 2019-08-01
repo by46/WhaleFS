@@ -85,12 +85,13 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 	fileContext.Key = ctx.Request().URL.Path
 	// 解析multi-chunk参数
 	values := ctx.Request().URL.Query()
-	partNumber := values.Get("partNumber")
-	uploadId := values.Get("uploadId")
-	token := values.Get("token")
-	if utils.QueryExists(values, "uploads") {
+	partNumber := values.Get(constant.QueryNamePartNumber)
+	uploadId := values.Get(constant.QueryNameUploadId)
+	token := values.Get(constant.QueryNameToken)
+	if utils.QueryExists(values, constant.QueryNameUploads) {
 		// 初始化multi-chunk解析参数
 		fileContext.Uploads = true
+		fileContext.OriginalName = values.Get(constant.QueryNameOriginalName)
 	} else if partNumber != "" && uploadId != "" {
 		// 解析单个chunk上传参数
 		fileContext.PartNumber = utils.ToInt32(partNumber)
@@ -100,7 +101,7 @@ func (s *Server) uploadByChunks(ctx echo.Context) (err error) {
 		// 完成multi-chunk上传
 		fileContext.UploadId = uploadId
 	}
-	if utils.QueryExists(values, "check") {
+	if utils.QueryExists(values, constant.QueryNameCheck) {
 		fileContext.Check = true
 	}
 	fileContext, err = s.parseBucketAndFixKey(fileContext)

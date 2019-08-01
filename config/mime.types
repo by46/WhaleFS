@@ -72,6 +72,7 @@ application/fits
 application/font-sfnt				ttf
 application/font-tdpfr				pfr
 application/font-woff				woff
+application/font-woff2				woff2
 application/framework-attributes+xml
 application/gzip				gz tgz
 application/H224

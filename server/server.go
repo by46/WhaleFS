@@ -162,7 +162,6 @@ func (s *Server) install() {
 			constant.HeaderVia},
 		MaxAge: 60 * 30,
 	}))
-	
 
 	methods := []string{
 		http.MethodHead,
@@ -174,8 +173,8 @@ func (s *Server) install() {
 
 	s.app.GET("/faq.htm", s.faq)
 	s.app.POST("/packageDownload", s.packageDownload)
-	s.app.GET("/tools", s.tools)
-	s.app.GET("/pkgDownloadTool", s.pkgDownloadTool)
+	//s.app.GET("/tools", s.tools)
+	//s.app.GET("/pkgDownloadTool", s.pkgDownloadTool)
 	s.app.GET("/favicon.ico", s.favicon)
 	s.app.GET("/tasks", s.checkTask)
 	s.app.GET("/metrics", s.metric)
@@ -222,8 +221,9 @@ func (s *Server) install() {
 	s.app.Match(methods, "/BatchMergePdfHandler.ashx", s.legacyMergePDF)
 	s.app.Match(methods, "/SliceUploadHandler.ashx", s.legacySliceUpload)
 
-	s.app.GET("/*", s.downloadByUrl)
+	s.app.GET("/", s.home)
 	s.app.POST("/", s.uploadByForm)
+	s.app.GET("/*", s.downloadByUrl)
 	s.app.PUT("/*", s.uploadByBody)
 	s.app.POST("/*", s.uploadByChunks)
 	s.app.DELETE("/*", s.deleteChunks)

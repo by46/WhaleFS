@@ -22,6 +22,7 @@ type FileContext struct {
 	ObjectName       string // 去掉Bucket之后的Key路径
 	BucketName       string
 	AttachmentName   string // 用于浏览器中保存时的别名
+	OriginalName     string // 用于分段上传的原始名
 	UploadId         string
 	Override         bool // 是否允许覆盖已存在文件
 	IsRandomName     bool // 是否自动生成文件名
