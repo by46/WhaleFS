@@ -1,5 +1,8 @@
 # WhaleFS
 
+## unrelease
+- 支持original name for multi-chunks
+
 ## 1.0.6
 - 支持jwt验证
 - 删除tool page
