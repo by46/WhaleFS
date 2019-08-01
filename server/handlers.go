@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/constant"
@@ -30,7 +31,7 @@ func (s *Server) faq(ctx echo.Context) error {
 
 /**
 obsolete
- */
+*/
 func (s *Server) tools(ctx echo.Context) error {
 	if ctx.Request().Method == "GET" {
 		return ctx.File("templates/tools.html")
@@ -40,7 +41,7 @@ func (s *Server) tools(ctx echo.Context) error {
 
 /**
 obsolete
- */
+*/
 func (s *Server) pkgDownloadTool(ctx echo.Context) error {
 	if ctx.Request().Method == "GET" {
 		return ctx.File("templates/pkg-download-tool.html")
@@ -64,6 +65,7 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 	var totalSize int64
 	for _, item := range packageEntity.Items {
 		key := utils.PathNormalize(item.RawKey)
+		key = strings.Split(key, "?")[0]
 		entity, err := s.GetFileEntity(key, len(key) != len(item.RawKey))
 		if err != nil {
 			if err == common.ErrKeyNotFound {
