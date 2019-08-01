@@ -5,6 +5,7 @@ import (
 	"archive/zip"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/by46/whalefs/constant"
 	"github.com/by46/whalefs/model"
@@ -30,6 +31,7 @@ func Package(
 
 	for _, item := range pkgFileInfo.Items {
 		key := utils.PathNormalize(item.RawKey)
+		key = strings.Split(key, "?")[0]
 		entity, err := getEntityFunc(key, len(key) != len(item.RawKey))
 		if err != nil {
 			return err
