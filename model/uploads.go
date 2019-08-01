@@ -9,9 +9,9 @@ import (
 )
 
 type Uploads struct {
-	Bucket   string `json:"bucket"`
-	Key      string `json:"key"`
-	UploadId string `json:"uploadId"`
+	Bucket       string `json:"bucket"`
+	Key          string `json:"key"`
+	UploadId     string `json:"uploadId"`
 }
 
 type Part struct {
@@ -40,6 +40,7 @@ type PartMeta struct {
 	IsRandomName bool   `json:"is_random_name"`
 	Parts        Parts  `json:"parts"`
 	ThumbnailKey string `json:"thumbnailKey,omitempty"`
+	OriginalName string `json:"originalName,omitempty"`
 }
 
 func (p *PartMeta) AsFileMeta() *FileMeta {

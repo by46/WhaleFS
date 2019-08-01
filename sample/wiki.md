@@ -32,13 +32,13 @@ portal的测试账号test/admin
 Windows：C:\Windows\system32\drivers\etc\hosts, 规则如下：
 
 ```text
-192.168.220.65 oss-portal.yzw.cn
+192.168.220.66 oss-portal.yzw.cn
 ```
 
 MacOS: /etc/hosts, 规则如下：
 
 ```text
-172.168.220.65 oss-portal.yzw.cn
+192.168.220.66 oss-portal.yzw.cn
 ```
 
 ### 

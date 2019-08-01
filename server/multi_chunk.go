@@ -44,6 +44,7 @@ func (s *Server) uploads(ctx echo.Context) (uploads *model.Uploads, err error) {
 		MimeType:     mimeType,
 		IsRandomName: fileContext.IsRandomName,
 		Parts:        []*model.Part{},
+		OriginalName: fileContext.OriginalName,
 	}
 	key := fmt.Sprintf("chunks:%s", uploadId)
 	if err = s.Meta.SetTTL(key, partMeta, constant.TTLChunk); err != nil {
@@ -130,7 +131,7 @@ func (s *Server) uploadComplete(ctx echo.Context, parts model.Parts) (entity *mo
 		return nil, err
 	}
 	_ = s.Meta.Delete(key, cas)
-	return meta.AsEntity(context.FileContext.BucketName, ""), nil
+	return meta.AsEntity(context.FileContext.BucketName, partMeta.OriginalName), nil
 }
 
 //终止multi-chunk上传任务
