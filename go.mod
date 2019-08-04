@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/BurntSushi/toml v0.3.1
+	github.com/aliyun/aliyun-oss-go-sdk v2.0.1+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.0
 	github.com/golang/snappy v0.0.1 // indirect
@@ -35,6 +36,7 @@ require (
 	golang.org/x/image v0.0.0-20181116024801-cd38e8056d9b
 	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5 // indirect
 	golang.org/x/text v0.3.2
+	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	gopkg.in/couchbase/gocb.v1 v1.6.1
 	gopkg.in/couchbase/gocbcore.v7 v7.1.13
 	gopkg.in/couchbaselabs/gocbconnstr.v1 v1.0.2 // indirect

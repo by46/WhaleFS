@@ -390,6 +390,7 @@ func (s *Server) legacySliceUploadChunk(ctx echo.Context, identity string) error
 	opt := &common.UploadOption{
 		Collection:  s.Config.Basis.CollectionShare,
 		Replication: s.Config.Basis.CollectionShareReplication,
+		Digest:      fileContext.File.Digest,
 	}
 	needle, err := s.Storage.Upload(opt, echo.MIMEOctetStream, bytes.NewReader(fileContext.File.Content))
 	if err != nil {

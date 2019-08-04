@@ -63,7 +63,13 @@ func BuildConfig() (*model.Config, error) {
 }
 
 func buildStorage(config *model.StorageConfig) common.Storage {
-	return api.NewStorageClient(config.Cluster)
+	switch config.Type {
+	case constant.StorageAliYun:
+		oss := config.OSS
+		return api.NewAliyunStorageClient(oss.EndPoint, oss.AccessKeyID, oss.AccessKeySecret)
+	default:
+		return api.NewStorageClient(config.Cluster)
+	}
 }
 
 func BuildDao(connectionString string) common.Dao {

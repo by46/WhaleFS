@@ -12,6 +12,7 @@ import (
 type UploadOption struct {
 	Collection  string
 	Replication string
+	Digest      string
 	TTL         model.TTL
 }
 

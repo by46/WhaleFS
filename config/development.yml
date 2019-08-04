@@ -18,6 +18,11 @@ Basis:
   CollectionShareReplication: 100
   SizeDefault: p200
 Storage:
+  Type: aliyun
+  OSS:
+    EndPoint: https://oss-cn-chengdu.aliyuncs.com
+    AccessKeyID: LTAItTeGIAc4OOCp
+    AccessKeySecret: gZB9ec2EHZu7lbBQJfkvI6I6OhollF
   Cluster:
     - 192.168.1.9:9333
     - 192.168.1.9:9334

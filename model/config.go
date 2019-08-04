@@ -5,8 +5,16 @@ type LogConfig struct {
 	Home  string `default:"log"`
 }
 
+type OSSConfig struct {
+	EndPoint        string
+	AccessKeyID     string
+	AccessKeySecret string
+}
+
 type StorageConfig struct {
+	Type    string
 	Cluster []string
+	OSS     *OSSConfig
 }
 
 type CollectionConfig struct {

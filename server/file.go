@@ -314,6 +314,7 @@ func (s *Server) uploadFileInternal(ctx echo.Context) (entity *model.FileEntity,
 			Collection:  bucket.Basis.Collection,
 			Replication: bucket.Basis.Replication,
 			TTL:         bucket.Basis.TTL,
+			Digest:      file.Digest,
 		}
 		needle, err := s.Storage.Upload(option, file.MimeType, bytes.NewBuffer(file.Content))
 		if err != nil {
