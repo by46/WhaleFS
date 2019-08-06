@@ -18,7 +18,7 @@ Basis:
   CollectionShareReplication: 100
   SizeDefault: p200
 Storage:
-  Type: aliyun
+  Type: fs
   OSS:
     EndPoint: https://oss-cn-chengdu.aliyuncs.com
     AccessKeyID: LTAItTeGIAc4OOCp
