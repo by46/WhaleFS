@@ -5,6 +5,13 @@
     <title>Title</title>
 </head>
 <body>
+<script type="application/javascript">
+  if (window.opener) {
+    window.opener.postMessage("{{.}}", "*")
+  } else {
+    window.parent.postMessage("{{.}}", "*")
+  }
 
+</script>
 </body>
 </html>

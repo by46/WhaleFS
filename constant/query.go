@@ -11,4 +11,5 @@ const (
 	QueryNamePartNumber   = "partNumber"
 	QueryNameCheck        = "check"
 	QueryNameToken        = "token"
+	QueryNameBusinessNo   = "businessNo"
 )

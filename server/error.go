@@ -1,11 +1,14 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
+
+	"github.com/by46/whalefs/constant"
 )
 
 func (s *Server) HTTPErrorHandler(err error, ctx echo.Context) {
@@ -40,7 +43,20 @@ func (s *Server) HTTPErrorHandler(err error, ctx echo.Context) {
 		if ctx.Request().Method == http.MethodHead { // Issue #608
 			err = ctx.NoContent(code)
 		} else {
-			err = ctx.JSON(code, msg)
+			if no := ctx.QueryParam(constant.QueryNameBusinessNo); no != "" {
+				data := map[string]interface{}{
+					"no":      no,
+					"message": "error",
+				}
+				if m, ok := msg.(echo.Map); ok {
+					data["message"] = m["message"]
+				}
+				content, _ := json.Marshal(data)
+				err = ctx.Render(http.StatusOK, "iframe.html", string(content))
+			} else {
+				err = ctx.JSON(code, msg)
+			}
+
 		}
 
 		if err != nil {
