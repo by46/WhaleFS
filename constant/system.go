@@ -2,7 +2,7 @@ package constant
 
 const (
 	BucketPdt             = "pdt"
-	VERSION               = "1.0.6"
+	VERSION               = "1.0.7"
 	DefaultImageDigest    = "6f922092b63db2b3bd998666f589da6de6f54b63"
 	MimeSize              = 512
 	KeyBucket             = "system.bucket"
