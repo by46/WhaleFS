@@ -2,6 +2,8 @@ package server
 
 import (
 	"fmt"
+	"html/template"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -23,6 +25,14 @@ import (
 	middleware2 "github.com/by46/whalefs/server/middleware"
 	"github.com/by46/whalefs/utils"
 )
+
+type Template struct {
+	templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
 
 type Server struct {
 	Debug                 bool
@@ -105,6 +115,9 @@ func NewServer() *Server {
 	bundle := buildI18nBundle()
 	localizerMap := buildI18nLocalizer(bundle)
 	app := echo.New()
+	app.Renderer = &Template{
+		templates: template.Must(template.ParseGlob("templates/*.html")),
+	}
 
 	srv := &Server{
 		app:                   app,
