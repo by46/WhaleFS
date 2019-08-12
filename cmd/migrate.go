@@ -23,6 +23,7 @@ var (
 	includes    string
 	excludes    string
 	workerCount uint8
+	override    bool
 )
 
 func init() {
@@ -32,6 +33,7 @@ func init() {
 	migrateCmd.Flags().Uint8VarP(&workerCount, "count", "", 10, "where")
 	migrateCmd.Flags().StringVarP(&includes, "includes", "", "", "which app name should migrate, separate by ','")
 	migrateCmd.Flags().StringVarP(&excludes, "excludes", "", "", "which app name should be ignore, separate by ','")
+	migrateCmd.Flags().BoolVarP(&override, "override", "", false, "can override")
 }
 
 func splitByComma(name string) []string {
@@ -55,6 +57,7 @@ func migrate(cmd *cobra.Command, args []string) {
 		Excludes:    splitByComma(excludes),
 		Target:      target,
 		WorkerCount: workerCount,
+		Override:    override,
 	}
 	migration.Migrate(options)
 }

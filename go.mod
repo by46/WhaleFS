@@ -75,8 +75,8 @@ replace (
 	golang.org/x/text v0.0.0-20181114220301-adae6a3d119a => github.com/golang/text v0.0.0-20181114220301-adae6a3d119a
 	golang.org/x/text v0.3.0 => github.com/golang/text v0.3.0
 	golang.org/x/text v0.3.2 => github.com/golang/text v0.3.2
+	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 => github.com/golang/time v0.0.0-20190308202827-9d24e82272b4
 	golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e => github.com/golang/tools v0.0.0-20180917221912-90fa682c2a6e
 	golang.org/x/tools v0.0.0-20190328211700-ab21143f2384 => github.com/golang/tools v0.0.0-20190328211700-ab21143f2384
 	golang.org/x/tools v0.0.0-20190506145303-2d16b83fe98c => github.com/golang/tools v0.0.0-20190506145303-2d16b83fe98c
-	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 => github.com/golang/time v0.0.0-20190308202827-9d24e82272b4
 )

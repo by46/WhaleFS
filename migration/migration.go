@@ -32,6 +32,7 @@ type MigrationOptions struct {
 	Includes    []string
 	Excludes    []string
 	WorkerCount uint8
+	Override    bool
 }
 
 type migration struct {
@@ -220,7 +221,7 @@ func (m *migration) uploadFile(ctx context.Context, fullPath, filename string, w
 	opt := &client.Options{
 		Bucket:   bucketName,
 		FileName: key,
-		Override: false,
+		Override: m.options.Override,
 		Content:  f,
 	}
 	m.Infof("worker[%d]: 上传文件 %s, bucket: %s, key: %s ", workerNo, fullPath, bucketName, key)
