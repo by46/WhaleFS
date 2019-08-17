@@ -1,0 +1,565 @@
+{
+  "system.bucket.test": {
+    "name": "test",
+    "type": "bucket",
+    "memo": "测试数据",
+    "basis": {
+      "collection": "",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": 1024000,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/png"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46",
+    "overlays": [
+      {
+        "name": "demo1",
+        "default": true,
+        "position": "TopLeft",
+        "image": "watermark.png",
+        "opacity": 0.8
+      },
+      {
+        "name": "demo2",
+        "default": false,
+        "position": "TopRight",
+        "image": "watermark.png",
+        "opacity": 0.8
+      },
+      {
+        "name": "demo3",
+        "default": false,
+        "position": "BottomLeft",
+        "image": "watermark.png",
+        "opacity": 0.8
+      },
+      {
+        "name": "demo4",
+        "default": false,
+        "position": "BottomRight",
+        "image": "watermark.png",
+        "opacity": 0.8
+      },
+      {
+        "name": "demo5",
+        "default": false,
+        "position": "{\"top\":null, \"right\":0,\"bottom\":0, \"left\":0}",
+        "image": "watermark.png",
+        "opacity": 0.8
+      }
+    ],
+    "sizes": [
+      {
+        "name": "p200",
+        "width": 200,
+        "height": 150,
+        "mode": "stretch"
+      },
+      {
+        "name": "p60",
+        "width": 60,
+        "height": 45,
+        "mode": "stretch"
+      },
+      {
+        "name": "p160",
+        "width": 160,
+        "height": 120,
+        "mode": "thumbnail"
+      }
+    ]
+  },
+  "system.bucket.tmp": {
+    "name": "tmp",
+    "type": "bucket",
+    "memo": "临时bucket",
+    "basis": {
+      "collection": "tmp",
+      "replication": "000",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.home": {
+    "name": "home",
+    "type": "bucket",
+    "memo": "本地内置目录, 用于支持whalefs本身运行",
+    "basis": {
+      "collection": "",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall_item": {
+    "name": "mall_item",
+    "type": "bucket",
+    "memo": "mall",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall_ware": {
+    "name": "mall_ware",
+    "type": "bucket",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall_basis": {
+    "name": "mall_basis",
+    "type": "bucket",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp",
+        "text/css",
+        "text/javascript",
+        "text/html",
+        "image/svg+xml",
+        "font/woff2",
+        "application/x-tar",
+        "image/vnd.microsoft.icon",
+        "application/json",
+        "application/x-navimap"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall_order": {
+    "name": "mall_order",
+    "type": "bucket",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall_account": {
+    "name": "mall_account",
+    "type": "bucket",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.mall_ec": {
+    "name": "mall_ec",
+    "type": "bucket",
+    "memo": "新mro商城站点模块上传",
+    "basis": {
+      "collection": "general",
+      "replication": "100",
+      "expires": 20,
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/bmp",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-rar-compressed",
+        "application/x-zip-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/java-archive",
+        "image/vnd.dwg",
+        "image/vnd.dws",
+        "image/vnd.dwt",
+        "application/x-dxf",
+        "text/plain",
+        "text/csv"
+      ]
+    },
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.pdt": {
+    "name": "pdt",
+    "type": "bucket",
+    "memo": "mo bucket",
+    "basis": {
+      "collection": "product",
+      "replication": "100",
+      "expires": 20,
+      "default_image": "/home/default.png",
+      "prepare_thumbnail_min_width": 1024,
+      "prepare_thumbnail": ""
+    },
+    "expires": 20,
+    "extends": [
+      {
+        "key": "keepdate",
+        "value": "21"
+      }
+    ],
+    "limit": {
+      "min_size": null,
+      "max_size": null,
+      "width": null,
+      "height": null,
+      "mime_types": [
+        "image/png",
+        "image/jpeg",
+        "image/gif"
+      ]
+    },
+    "sizes": [
+      {
+        "name": "p60",
+        "width": 60,
+        "height": 60,
+        "mode": "stretch"
+      },
+      {
+        "name": "p68",
+        "width": 68,
+        "height": 68,
+        "mode": "stretch"
+      },
+      {
+        "name": "p120",
+        "width": 120,
+        "height": 120,
+        "mode": "stretch"
+      },
+      {
+        "name": "p160",
+        "width": 160,
+        "height": 160,
+        "mode": "stretch"
+      },
+      {
+        "name": "p200",
+        "width": 200,
+        "height": 200,
+        "mode": "stretch"
+      },
+      {
+        "name": "p240",
+        "width": 240,
+        "height": 240,
+        "mode": "stretch"
+      },
+      {
+        "name": "p360",
+        "width": 360,
+        "height": 360,
+        "mode": "stretch"
+      },
+      {
+        "name": "p450",
+        "width": 450,
+        "height": 450,
+        "mode": "stretch"
+      },
+      {
+        "name": "p800",
+        "width": 800,
+        "height": 800,
+        "mode": "stretch"
+      },
+      {
+        "name": "p80",
+        "width": 80,
+        "height": 60,
+        "mode": "stretch"
+      },
+      {
+        "name": "p110",
+        "width": 110,
+        "height": 82,
+        "mode": "stretch"
+      },
+      {
+        "name": "p160",
+        "width": 160,
+        "height": 120,
+        "mode": "stretch"
+      },
+      {
+        "name": "p220",
+        "width": 220,
+        "height": 165,
+        "mode": "stretch"
+      },
+      {
+        "name": "p600",
+        "width": 600,
+        "height": 450,
+        "mode": "stretch"
+      },
+      {
+        "name": "p375",
+        "width": 375,
+        "height": 281,
+        "mode": "stretch"
+      },
+      {
+        "name": "p750",
+        "width": 750,
+        "height": 563,
+        "mode": "stretch"
+      },
+      {
+        "name": "p1125",
+        "width": 1125,
+        "height": 844,
+        "mode": "stretch"
+      }
+    ],
+    "last_edit_date": 123143,
+    "last_edit_user": "by46"
+  },
+  "system.bucket.product": {
+    "name": "product",
+    "type": "bucket",
+    "memo": "产品",
+    "basis": {
+      "alias": "pdt"
+    }
+  }
+}

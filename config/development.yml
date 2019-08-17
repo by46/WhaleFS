@@ -1,9 +1,9 @@
 Host: 0.0.0.0:8089
-LegacyFS: http://imagetest.yzw.cn.qa:8000
-Meta: http://whalefs:123456@192.168.1.9:8091/whalefs
-BucketMeta: http://whalefs:123456@192.168.1.9:8091/basis
-ChunkMeta: http://whalefs:123456@192.168.1.9:8091/chunks
-TaskBucket: http://whalefs:123456@192.168.1.9:8091/tasks
+LegacyFS:
+Meta: http://whalefs:123456@10.59.75.71:8091/whalefs
+BucketMeta: http://whalefs:123456@10.59.75.71:8091/basis
+ChunkMeta: http://whalefs:123456@10.59.75.71:8091/chunks
+TaskBucket: http://whalefs:123456@10.59.75.71:8091/tasks
 TaskFileBucketName: benjamin
 TaskFileSizeThreshold: 1073741824
 HttpClientBase: http://localhost:8089
@@ -24,14 +24,12 @@ Storage:
     AccessKeyID: LTAItTeGIAc4OOCp
     AccessKeySecret: gZB9ec2EHZu7lbBQJfkvI6I6OhollF
   Cluster:
-    - 192.168.1.9:9333
-    - 192.168.1.9:9334
-    - 192.168.1.9:9335
+    - 10.59.75.71:9333
 Log:
   Home: logs
   Level: debug
 Sync:
-  Enable: true
+  Enable: false
   DFSHost: http://localhost:8089
   RabbitMQConnection: amqp://guest:guest@localhost:5672/dfs
   RabbitMQExchange: /whale-fs
