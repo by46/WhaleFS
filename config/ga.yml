@@ -33,4 +33,4 @@ Sync:
   RabbitMQQueue: whale-fs
   LegacyFSRoot: F:\image
 Portal:
-  dfsHost: http://192.168.220.65:8089
+  dfsHost: https://oss.pinganut.com
