@@ -213,3 +213,8 @@ whalefs.exe migrate --location="D:\application\ImageServer" --target="192.168.1.
 spring.rabbitmq.virtual-host = /blockchain
 spring.rabbitmq.username = ifs_admin
 spring.rabbitmq.password = ifs@123
+
+
+```bash
+rsync -av -e ssh /Users/benjamin.c.yan/golang/pkg/mod user@remotehost:~/mod
+```

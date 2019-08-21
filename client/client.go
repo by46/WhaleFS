@@ -79,7 +79,7 @@ type httpClient struct {
 
 func NewClient(options *ClientOptions) Client {
 	options.Base = strings.ToLower(options.Base)
-	if strings.HasPrefix(options.Base, "http://") == false {
+	if strings.HasPrefix(options.Base, "http://") == false && strings.HasPrefix(options.Base, "https://") == false {
 		options.Base = fmt.Sprintf("http://%s", options.Base)
 	}
 	return &httpClient{base: options.Base}
