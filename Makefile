@@ -5,7 +5,7 @@
 
 .PHONY: build
 build:
-	GOOS=linux GOARCH=amd64 go build -o dist/whalefs main.go
+	GOOS=linux GOARCH=amd64 go build -mod=vendor -o dist/whalefs main.go
 	mkdir -p dist/config dist/templates dist/i18n
 	cp config/* dist/config
 	cp templates/* dist/templates

@@ -3,17 +3,13 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"strings"
-
-	"github.com/by46/whalefs/common"
 	"github.com/by46/whalefs/constant"
+	"net/http"
 
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 
 	"github.com/by46/whalefs/model"
-	"github.com/by46/whalefs/utils"
 )
 
 func (s *Server) favicon(ctx echo.Context) error {
@@ -60,28 +56,6 @@ func (s *Server) packageDownload(ctx echo.Context) error {
 	err = packageEntity.Validate()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("bad reqeust: %v", err))
-	}
-
-	var totalSize int64
-	for _, item := range packageEntity.Items {
-		key := utils.PathNormalize(item.RawKey)
-		key = strings.Split(key, "?")[0]
-		entity, err := s.GetFileEntity(key, len(key) != len(item.RawKey))
-		if err != nil {
-			if err == common.ErrKeyNotFound {
-				return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("%s not found", item.RawKey))
-			}
-			return errors.WithStack(err)
-		}
-
-		totalSize = totalSize + entity.Size
-	}
-
-	if totalSize > s.TaskFileSizeThreshold {
-		hashKey, err := utils.Sha1(fmt.Sprintf("/%s/%s", s.TaskBucketName, packageEntity.Name))
-		err = s.CreateTask(hashKey, packageEntity)
-		err = ctx.Redirect(http.StatusMovedPermanently, "/tasks?key="+hashKey)
-		return err
 	}
 
 	response := ctx.Response()
