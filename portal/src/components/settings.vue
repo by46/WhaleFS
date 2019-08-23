@@ -5,11 +5,14 @@
             <el-table-column type="expand">
                 <template slot-scope="props">
                     <el-row>
-                        <el-col :md="1">Scope:</el-col>
-                        <el-col :md="23">
-                            <el-checkbox-group v-model="scope">
-
-                                <el-checkbox :label="bucket.basis.name" v-for="bucket in buckets"></el-checkbox>
+                        <el-col :md="2">权限范围:</el-col>
+                        <el-col :md="22">
+                            <el-checkbox-group v-model="props.row.scope">
+                                <el-tooltip v-for="bucket in buckets"
+                                            :key="bucket.name"
+                                            :content="bucket.basis.memo">
+                                    <el-checkbox :label="bucket.basis.name"></el-checkbox>
+                                </el-tooltip>
                             </el-checkbox-group>
                         </el-col>
                     </el-row>
@@ -188,6 +191,7 @@
               if (item.expires) {
                 item.expires = item.expires * 1000
               }
+              item.scope = item.scope || []
             })
             self.accessKeys = data
           })
@@ -203,9 +207,6 @@
         const self = this
         this.$http.get('/api/buckets')
           .then(({data}) => {
-            _.forEach(data, i => {
-              i.scope = []
-            })
             self.buckets = data
           })
           .catch(error => {
