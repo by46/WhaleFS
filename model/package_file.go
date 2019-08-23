@@ -62,16 +62,10 @@ func (e *PackageEntity) Validate() error {
 	}
 
 	var targets []string
-	var rawKeys []string
 	for _, item := range e.Items {
 		if item.RawKey == "" {
 			return errors.New("exist empty rawKey")
 		}
-
-		if utils.Exists(rawKeys, item.RawKey) {
-			return errors.New("exist same rawKey")
-		}
-		rawKeys = append(rawKeys, item.RawKey)
 
 		if utils.Exists(targets, item.Target) && item.Target != "" {
 			return errors.New("exist same target")
