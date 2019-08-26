@@ -2,6 +2,22 @@
     <div>
         <el-divider content-position="left">App ID/App Secret Key</el-divider>
         <el-table :data="accessKeys" stripe>
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-row>
+                        <el-col :md="2">权限范围:</el-col>
+                        <el-col :md="22">
+                            <el-checkbox-group v-model="props.row.scope">
+                                <el-tooltip v-for="bucket in buckets"
+                                            :key="bucket.name"
+                                            :content="bucket.basis.memo">
+                                    <el-checkbox :label="bucket.basis.name"></el-checkbox>
+                                </el-tooltip>
+                            </el-checkbox-group>
+                        </el-col>
+                    </el-row>
+                </template>
+            </el-table-column>
             <el-table-column label="创建时间"
                              prop="create_date"
                              width="100px"
@@ -90,7 +106,8 @@
             return time.getTime() < Date.now();
           }
         },
-        accessKeys: []
+        accessKeys: [],
+        buckets: []
       }
     },
     methods: {
@@ -103,53 +120,14 @@
       onCreate() {
         let self = this
         self.$http.post('/api/access-key/')
-        .then(({data}) => {
-          if (data.create_date) {
-            data.create_date = data.create_date * 1000
-          }
-          if (data.expires) {
-            data.expires = data.expires * 1000
-          }
-          self.accessKeys.push(data)
-        })
-        .catch(err => {
-          let msg = '服务器异常'
-          if (err.response) {
-            msg = err.response.data.message
-          }
-          self.$message.error(msg)
-        })
-      },
-      onUpdate(row) {
-        let self = this
-        let item = _.clone(row)
-        if (item.expires) {
-          item.expires = item.expires / 1000
-        }
-        self.$http.post(`/api/access-key/${row.app_key}`, item)
-        .then(() => {
-          self.$message.success('更新成功')
-        })
-        .catch(err => {
-          let msg = '服务器异常'
-          if (err.response) {
-            msg = err.response.data.message
-          }
-          self.$message.error(msg)
-        })
-      },
-      onDelete(row) {
-        let self = this
-        this.$confirm('AccessKey删除之后将不能恢复，是否继续', 'Warning', {
-          confirmButtonText: '继续',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
-        .then(() => {
-          self.$http.delete(`/api/access-key/${row.app_key}`)
-          .then(() => {
-            self.$message.success('删除成功')
-            self.loadAccessKeys()
+          .then(({data}) => {
+            if (data.create_date) {
+              data.create_date = data.create_date * 1000
+            }
+            if (data.expires) {
+              data.expires = data.expires * 1000
+            }
+            self.accessKeys.push(data)
           })
           .catch(err => {
             let msg = '服务器异常'
@@ -158,36 +136,87 @@
             }
             self.$message.error(msg)
           })
+      },
+      onUpdate(row) {
+        let self = this
+        let item = _.clone(row)
+        if (item.expires) {
+          item.expires = item.expires / 1000
+        }
+        self.$http.post(`/api/access-key/${row.app_key}`, item)
+          .then(() => {
+            self.$message.success('更新成功')
+          })
+          .catch(err => {
+            let msg = '服务器异常'
+            if (err.response) {
+              msg = err.response.data.message
+            }
+            self.$message.error(msg)
+          })
+      },
+      onDelete(row) {
+        let self = this
+        this.$confirm('AccessKey删除之后将不能恢复，是否继续', 'Warning', {
+          confirmButtonText: '继续',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
-        .catch(() => {
-        })
+          .then(() => {
+            self.$http.delete(`/api/access-key/${row.app_key}`)
+              .then(() => {
+                self.$message.success('删除成功')
+                self.loadAccessKeys()
+              })
+              .catch(err => {
+                let msg = '服务器异常'
+                if (err.response) {
+                  msg = err.response.data.message
+                }
+                self.$message.error(msg)
+              })
+          })
+          .catch(() => {
+          })
 
       },
       loadAccessKeys() {
         let self = this
         self.$http.get('/api/access-key/')
-        .then(({data}) => {
-          _.each(data, item => {
-            if (item.create_date) {
-              item.create_date = item.create_date * 1000
-            }
-            if (item.expires) {
-              item.expires = item.expires * 1000
-            }
+          .then(({data}) => {
+            _.each(data, item => {
+              if (item.create_date) {
+                item.create_date = item.create_date * 1000
+              }
+              if (item.expires) {
+                item.expires = item.expires * 1000
+              }
+              item.scope = item.scope || []
+            })
+            self.accessKeys = data
           })
-          self.accessKeys = data
-        })
-        .catch(err => {
-          let msg = '服务器异常'
-          if (err.response) {
-            msg = err.response.data.message
-          }
-          self.$message.error(msg)
-        })
-      }
+          .catch(err => {
+            let msg = '服务器异常'
+            if (err.response) {
+              msg = err.response.data.message
+            }
+            self.$message.error(msg)
+          })
+      },
+      loadBuckets() {
+        const self = this
+        this.$http.get('/api/buckets')
+          .then(({data}) => {
+            self.buckets = data
+          })
+          .catch(error => {
+            self.$message(error.response.data.message)
+          })
+      },
     },
     mounted() {
       this.loadAccessKeys()
+      this.loadBuckets()
     }
   }
 </script>
