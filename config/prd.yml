@@ -1,10 +1,10 @@
 Host: :8089
-LegacyFS: https://file.yzw.cn
-Meta: http://whale:3vxtMJHTI!IDRGrW@192.168.220.65:8091/whalefs
-BucketMeta: http://whale:3vxtMJHTI!IDRGrW@192.168.220.65:8091/basis
-ChunkMeta: http://whale:3vxtMJHTI!IDRGrW@192.168.220.65:8091/chunks
-TaskBucket: http://whale:3vxtMJHTI!IDRGrW@192.168.220.65:8091/tasks
-TaskFileBucketName: benjamin
+LegacyFS:
+Meta: http://whale:mall@PINGANUT@shc-zc-dfs001:8091/whalefs
+BucketMeta: http://whale:mall@PINGANUT@shc-zc-dfs001:8091/basis
+ChunkMeta: http://whale:mall@PINGANUT@shc-zc-dfs001:8091/chunks
+TaskBucket: http://whale:mall@PINGANUT@shc-zc-dfs001:8091/tasks
+TaskFileBucketName: test
 TaskFileSizeThreshold: 1073741824
 HttpClientBase: http://localhost:8089
 JwtSecretKey: 22858338a7ecf809d4a493ead5bbaea2db043847
@@ -19,18 +19,18 @@ Basis:
   SizeDefault: Original
 Storage:
   Cluster:
-    - 192.168.220.65:9333
-    - 192.168.220.65:9334
-    - 192.168.220.66:9333
+    - shc-zc-dfs001:9333
+    - shc-zc-dfs002:9333
+    - shc-zc-dfs003:9333
 Log:
   Home: logs
   Level: warning
 Sync:
-  Enable: true
+  Enable: false
   DFSHost: https://oss.yzw.cn
   RabbitMQConnection: amqp://ifs_admin:ifs@123@192.168.110.81:5672/framework
   RabbitMQExchange: /whale-fs
   RabbitMQQueue: whale-fs
   LegacyFSRoot: F:\image
 Portal:
-  dfsHost: http://192.168.220.65:8089
+  dfsHost: https://oss.pinganut.com
