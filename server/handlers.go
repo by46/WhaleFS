@@ -22,7 +22,7 @@ func (s *Server) home(ctx echo.Context) error {
 }
 
 func (s *Server) faq(ctx echo.Context) error {
-	return ctx.HTML(http.StatusOK, "<!-- Newegg -->")
+	return ctx.HTML(http.StatusOK, "<!-- Status -->")
 }
 
 /**
