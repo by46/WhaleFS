@@ -20,7 +20,7 @@ Basis:
 Storage:
   Type: fs
   Cluster:
-    - 110.59.75.71:9333
+    - 10.59.75.71:9333
 Log:
   Home: logs
   Level: debug
