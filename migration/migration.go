@@ -27,12 +27,14 @@ var (
 )
 
 type MigrationOptions struct {
-	Location    string
-	Target      string
-	Includes    []string
-	Excludes    []string
-	WorkerCount uint8
-	Override    bool
+	Location     string
+	Target       string
+	Includes     []string
+	Excludes     []string
+	WorkerCount  uint8
+	Override     bool
+	AppId        string
+	AppSecretKey string
 }
 
 type migration struct {

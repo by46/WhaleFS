@@ -18,12 +18,14 @@ var (
 		Short: "migrate fs data",
 		Run:   migrate,
 	}
-	location    string
-	target      string
-	includes    string
-	excludes    string
-	workerCount uint8
-	override    bool
+	location     string
+	target       string
+	includes     string
+	excludes     string
+	workerCount  uint8
+	override     bool
+	appId        string
+	appSecretKey string
 )
 
 func init() {
@@ -34,6 +36,8 @@ func init() {
 	migrateCmd.Flags().StringVarP(&includes, "includes", "", "", "which app name should migrate, separate by ','")
 	migrateCmd.Flags().StringVarP(&excludes, "excludes", "", "", "which app name should be ignore, separate by ','")
 	migrateCmd.Flags().BoolVarP(&override, "override", "", false, "can override")
+	migrateCmd.Flags().StringVarP(&appId, "appId", "", "", "app id")
+	migrateCmd.Flags().StringVarP(&appSecretKey, "appSecretKey", "", "", "app secret key")
 }
 
 func splitByComma(name string) []string {
@@ -52,12 +56,14 @@ func splitByComma(name string) []string {
 
 func migrate(cmd *cobra.Command, args []string) {
 	options := &migration.MigrationOptions{
-		Location:    location,
-		Includes:    splitByComma(includes),
-		Excludes:    splitByComma(excludes),
-		Target:      target,
-		WorkerCount: workerCount,
-		Override:    override,
+		Location:     location,
+		Includes:     splitByComma(includes),
+		Excludes:     splitByComma(excludes),
+		Target:       target,
+		WorkerCount:  workerCount,
+		Override:     override,
+		AppId:        appId,
+		AppSecretKey: appSecretKey,
 	}
 	migration.Migrate(options)
 }
