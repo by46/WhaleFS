@@ -1,4 +1,4 @@
-Host: :8089
+Host: :48081
 LegacyFS:
 Meta: http://whale:mall@PINGANUT@shc-zc-dfs001:8091/whalefs
 BucketMeta: http://whale:mall@PINGANUT@shc-zc-dfs001:8091/basis
