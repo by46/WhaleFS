@@ -21,8 +21,8 @@ Storage:
   Type: fs
   OSS:
     EndPoint: https://oss-cn-chengdu.aliyuncs.com
-    AccessKeyID: LTAItTeGIAc4OOCp
-    AccessKeySecret: gZB9ec2EHZu7lbBQJfkvI6I6OhollF
+    AccessKeyID: x
+    AccessKeySecret: x
   Cluster:
     - 10.59.75.71:9333
 Log:
